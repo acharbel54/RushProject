@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:provider/provider.dart';
 import 'firebase_options.dart';
 import 'core/providers/auth_provider.dart';
@@ -29,6 +31,18 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  
+  // Configurer Firestore pour le développement
+  if (kDebugMode) {
+    try {
+      // Désactiver la persistance pour éviter les conflits
+      FirebaseFirestore.instance.settings = const Settings(
+        persistenceEnabled: false,
+      );
+    } catch (e) {
+      print('Erreur de configuration Firestore: $e');
+    }
+  }
   
   // Configurer le handler pour les messages en background
   FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);

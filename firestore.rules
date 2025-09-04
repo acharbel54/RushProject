@@ -1,0 +1,50 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Règles pour les utilisateurs
+    match /users/{userId} {
+      // Permettre la lecture et l'écriture pour l'utilisateur authentifié
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+      // Permettre la lecture pour tous les utilisateurs authentifiés (pour les profils publics)
+      allow read: if request.auth != null;
+    }
+    
+    // Règles pour les dons
+    match /donations/{donationId} {
+      // Permettre la lecture pour tous les utilisateurs authentifiés
+      allow read: if request.auth != null;
+      // Permettre l'écriture pour l'utilisateur authentifié (créateur du don)
+      allow create: if request.auth != null && request.auth.uid == resource.data.donorId;
+      allow update, delete: if request.auth != null && request.auth.uid == resource.data.donorId;
+    }
+    
+    // Règles pour les réservations
+    match /reservations/{reservationId} {
+      // Permettre la lecture et l'écriture pour le bénéficiaire et le donateur
+      allow read, write: if request.auth != null && 
+        (request.auth.uid == resource.data.beneficiaryId || 
+         request.auth.uid == resource.data.donorId);
+      // Permettre la création pour les utilisateurs authentifiés
+      allow create: if request.auth != null;
+    }
+    
+    // Règles pour les notifications
+    match /notifications/{notificationId} {
+      // Permettre la lecture et l'écriture pour l'utilisateur destinataire
+      allow read, write: if request.auth != null && request.auth.uid == resource.data.userId;
+    }
+    
+    // Règles pour les conversations
+    match /conversations/{conversationId} {
+      // Permettre la lecture et l'écriture pour les participants
+      allow read, write: if request.auth != null && 
+        request.auth.uid in resource.data.participants;
+    }
+    
+    // Règles pour les messages
+    match /messages/{messageId} {
+      // Permettre la lecture et l'écriture pour les participants de la conversation
+      allow read, write: if request.auth != null;
+    }
+  }
+}

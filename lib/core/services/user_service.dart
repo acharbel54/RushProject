@@ -54,12 +54,18 @@ class UserService {
   // Obtenir un utilisateur par ID
   Future<UserModel?> getUserById(String uid) async {
     try {
+      print('Recherche du document utilisateur pour UID: $uid');
       final doc = await _usersCollection.doc(uid).get();
+      print('Document existe: ${doc.exists}');
       if (doc.exists) {
+        print('Données du document: ${doc.data()}');
         return UserModel.fromDocument(doc);
+      } else {
+        print('Aucun document trouvé pour UID: $uid');
       }
       return null;
     } catch (e) {
+      print('Erreur détaillée lors de la récupération de l\'utilisateur: $e');
       throw Exception('Erreur lors de la récupération de l\'utilisateur: $e');
     }
   }

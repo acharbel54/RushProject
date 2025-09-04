@@ -59,10 +59,18 @@ class AuthProvider extends ChangeNotifier {
   // Charger les données utilisateur depuis Firestore
   Future<void> _loadUserData(String uid) async {
     try {
+      print('Tentative de chargement des données utilisateur pour UID: $uid');
       _currentUser = await _userService.getUserById(uid);
+      if (_currentUser != null) {
+        print('Données utilisateur chargées avec succès: ${_currentUser!.email}');
+      } else {
+        print('Aucun document utilisateur trouvé pour UID: $uid');
+        _errorMessage = 'Profil utilisateur non trouvé. Veuillez vous reconnecter.';
+      }
       notifyListeners();
     } catch (e) {
-      _errorMessage = 'Erreur lors du chargement des données utilisateur';
+      print('Erreur lors du chargement des données utilisateur: $e');
+      _errorMessage = 'Erreur lors du chargement des données utilisateur: ${e.toString()}';
       notifyListeners();
     }
   }

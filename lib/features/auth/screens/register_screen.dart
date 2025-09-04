@@ -298,7 +298,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     if (value == null || value.isEmpty) {
                       return 'Veuillez entrer votre email';
                     }
-                    if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}\$').hasMatch(value)) {
+                    if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
                       return 'Veuillez entrer un email valide';
                     }
                     return null;
@@ -316,7 +316,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   prefixIcon: Icons.phone_outlined,
                   validator: (value) {
                     if (value != null && value.isNotEmpty) {
-                      if (!RegExp(r'^[+]?[0-9]{10,15}\$').hasMatch(value)) {
+                      if (!RegExp(r'^[+]?[0-9]{8,15}$').hasMatch(value)) {
                         return 'Veuillez entrer un numéro valide';
                       }
                     }
