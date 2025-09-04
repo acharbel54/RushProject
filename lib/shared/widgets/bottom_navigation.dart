@@ -1,0 +1,528 @@
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../core/providers/auth_provider.dart';
+import '../../core/models/user_model.dart';
+import '../../features/donations/screens/donations_list_screen.dart';
+import '../../features/donations/screens/create_donation_screen.dart';
+import '../../features/maps/screens/map_screen.dart';
+import '../../features/auth/screens/profile_screen.dart';
+import '../../features/reservations/screens/reservations_screen.dart';
+import '../../features/notifications/screens/notifications_screen.dart';
+import '../../core/providers/notification_provider.dart';
+
+class MainNavigationScreen extends StatefulWidget {
+  static const String routeName = '/home';
+  
+  const MainNavigationScreen({Key? key}) : super(key: key);
+
+  @override
+  State<MainNavigationScreen> createState() => _MainNavigationScreenState();
+}
+
+class _MainNavigationScreenState extends State<MainNavigationScreen> {
+  int _currentIndex = 0;
+
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<AuthProvider>(
+      builder: (context, authProvider, child) {
+        final user = authProvider.currentUser;
+        
+        if (user == null) {
+          return const Scaffold(
+            body: Center(
+              child: CircularProgressIndicator(),
+            ),
+          );
+        }
+
+        // Pages différentes selon le type d'utilisateur
+        final pages = _getPages(user.role);
+    final bottomNavItems = _getBottomNavItems(user.role);
+
+        return Scaffold(
+          body: IndexedStack(
+            index: _currentIndex,
+            children: pages,
+          ),
+          bottomNavigationBar: BottomNavigationBar(
+            currentIndex: _currentIndex,
+            onTap: (index) {
+              setState(() {
+                _currentIndex = index;
+              });
+            },
+            type: BottomNavigationBarType.fixed,
+            selectedItemColor: user.role == UserRole.donateur
+                ? const Color(0xFF4CAF50)
+                : const Color(0xFFFF9800),
+            unselectedItemColor: Colors.grey[600],
+            selectedLabelStyle: const TextStyle(
+              fontWeight: FontWeight.w600,
+              fontSize: 12,
+            ),
+            unselectedLabelStyle: const TextStyle(
+              fontWeight: FontWeight.w400,
+              fontSize: 12,
+            ),
+            items: bottomNavItems,
+          ),
+          floatingActionButton: _buildFloatingActionButton(user.role),
+          floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+        );
+      },
+    );
+  }
+
+  List<Widget> _getPages(UserRole userType) {
+    if (userType == UserRole.donateur) {
+      return [
+        const DashboardScreen(), // Tableau de bord donateur
+        const DonationsListScreen(), // Mes dons
+        const MapScreen(), // Carte
+        const ProfileScreen(), // Profil
+      ];
+    } else {
+      return [
+        const DashboardScreen(), // Tableau de bord bénéficiaire
+        const MapScreen(), // Carte des dons
+        const ReservationsScreen(), // Mes réservations
+        const ProfileScreen(), // Profil
+      ];
+    }
+  }
+
+  List<BottomNavigationBarItem> _getBottomNavItems(UserRole userType) {
+    if (userType == UserRole.donateur) {
+      return const [
+        BottomNavigationBarItem(
+          icon: Icon(Icons.dashboard_outlined),
+          activeIcon: Icon(Icons.dashboard),
+          label: 'Accueil',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.restaurant_outlined),
+          activeIcon: Icon(Icons.restaurant),
+          label: 'Mes dons',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.map_outlined),
+          activeIcon: Icon(Icons.map),
+          label: 'Carte',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.person_outlined),
+          activeIcon: Icon(Icons.person),
+          label: 'Profil',
+        ),
+      ];
+    } else {
+      return const [
+        BottomNavigationBarItem(
+          icon: Icon(Icons.dashboard_outlined),
+          activeIcon: Icon(Icons.dashboard),
+          label: 'Accueil',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.map_outlined),
+          activeIcon: Icon(Icons.map),
+          label: 'Découvrir',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.bookmark_outlined),
+          activeIcon: Icon(Icons.bookmark),
+          label: 'Réservations',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.person_outlined),
+          activeIcon: Icon(Icons.person),
+          label: 'Profil',
+        ),
+      ];
+    }
+  }
+
+  Widget? _buildFloatingActionButton(UserRole userType) {
+    if (userType == UserRole.donateur) {
+      return FloatingActionButton(
+        onPressed: () {
+          Navigator.of(context).pushNamed(CreateDonationScreen.routeName);
+        },
+        backgroundColor: const Color(0xFF4CAF50),
+        child: const Icon(
+          Icons.add,
+          color: Colors.white,
+          size: 28,
+        ),
+      );
+    }
+    return null; // Pas de FAB pour les bénéficiaires
+  }
+}
+
+// Écran de tableau de bord temporaire
+class DashboardScreen extends StatelessWidget {
+  const DashboardScreen({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<AuthProvider>(
+      builder: (context, authProvider, child) {
+        final user = authProvider.currentUser;
+        
+        if (user == null) {
+          return const Center(
+            child: CircularProgressIndicator(),
+          );
+        }
+
+        return Scaffold(
+          backgroundColor: Colors.grey[50],
+          appBar: AppBar(
+            title: Text(
+              'Bonjour ${(user.displayName ?? user.email).split(' ').first}',
+              style: const TextStyle(
+                fontWeight: FontWeight.w600,
+                color: Colors.black87,
+              ),
+            ),
+            backgroundColor: Colors.white,
+            elevation: 0,
+            actions: [
+              Consumer<NotificationProvider>(
+                builder: (context, notificationProvider, child) {
+                  final unreadCount = notificationProvider.notifications
+                      .where((n) => !n.isRead)
+                      .length;
+                  
+                  return Stack(
+                    children: [
+                      IconButton(
+                        icon: const Icon(
+                          Icons.notifications_outlined,
+                          color: Colors.black87,
+                        ),
+                        onPressed: () {
+                          Navigator.pushNamed(context, NotificationsScreen.routeName);
+                        },
+                      ),
+                      if (unreadCount > 0)
+                        Positioned(
+                          right: 8,
+                          top: 8,
+                          child: Container(
+                            padding: const EdgeInsets.all(2),
+                            decoration: BoxDecoration(
+                              color: Colors.red,
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            constraints: const BoxConstraints(
+                              minWidth: 16,
+                              minHeight: 16,
+                            ),
+                            child: Text(
+                              unreadCount > 99 ? '99+' : unreadCount.toString(),
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        ),
+                    ],
+                  );
+                },
+              ),
+            ],
+          ),
+          body: SingleChildScrollView(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Carte de bienvenue
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: user.role == UserRole.donateur
+                          ? [const Color(0xFF4CAF50), const Color(0xFF66BB6A)]
+                          : [const Color(0xFFFF9800), const Color(0xFFFFB74D)],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: (user.role == UserRole.donateur
+                                ? const Color(0xFF4CAF50)
+                                : const Color(0xFFFF9800))
+                            .withOpacity(0.3),
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(
+                            user.role == UserRole.donateur
+                                ? Icons.volunteer_activism
+                                : Icons.people,
+                            color: Colors.white,
+                            size: 32,
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  user.role == UserRole.donateur
+                                      ? 'Tableau de bord Donateur'
+                                      : 'Tableau de bord Bénéficiaire',
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  user.role == UserRole.donateur
+                                      ? 'Partagez vos surplus alimentaires'
+                                      : 'Découvrez les dons disponibles',
+                                  style: const TextStyle(
+                                    color: Colors.white70,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                
+                const SizedBox(height: 24),
+                
+                // Statistiques rapides
+                if (user.role == UserRole.donateur) ...[
+                  const Text(
+                    'Mes statistiques',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _buildStatCard(
+                          'Dons créés',
+                          user.totalDonations.toString(),
+                          Icons.restaurant,
+                          const Color(0xFF4CAF50),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: _buildStatCard(
+                          'Kg donnés',
+                          '0.0 kg', // TODO: Ajouter totalKgDonated au UserModel
+                          Icons.scale,
+                          const Color(0xFFFF9800),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 24),
+                ],
+                
+                // Actions rapides
+                const Text(
+                  'Actions rapides',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black87,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                
+                if (user.role == UserRole.donateur) ...[
+                  _buildActionCard(
+                    'Nouveau don',
+                    'Créer un nouveau don alimentaire',
+                    Icons.add_circle_outline,
+                    const Color(0xFF4CAF50),
+                    () {
+                      Navigator.of(context).pushNamed(CreateDonationScreen.routeName);
+                    },
+                  ),
+                  const SizedBox(height: 12),
+                  _buildActionCard(
+                    'Mes dons',
+                    'Gérer mes dons existants',
+                    Icons.restaurant_outlined,
+                    const Color(0xFF2196F3),
+                    () {
+                      // TODO: Naviguer vers la liste des dons
+                    },
+                  ),
+                ] else ...[
+                  _buildActionCard(
+                    'Découvrir',
+                    'Voir les dons disponibles sur la carte',
+                    Icons.map_outlined,
+                    const Color(0xFF4CAF50),
+                    () {
+                      // TODO: Naviguer vers la carte
+                    },
+                  ),
+                  const SizedBox(height: 12),
+                  _buildActionCard(
+                    'Mes réservations',
+                    'Voir mes réservations en cours',
+                    Icons.bookmark_outlined,
+                    const Color(0xFFFF9800),
+                    () {
+                      // TODO: Naviguer vers les réservations
+                    },
+                  ),
+                ],
+                
+                const SizedBox(height: 32),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildStatCard(String label, String value, IconData icon, Color color) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          Icon(
+            icon,
+            color: color,
+            size: 32,
+          ),
+          const SizedBox(height: 8),
+          Text(
+            value,
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: color,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            label,
+            style: const TextStyle(
+              fontSize: 12,
+              color: Colors.black54,
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildActionCard(
+    String title,
+    String subtitle,
+    IconData icon,
+    Color color,
+    VoidCallback onTap,
+  ) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 10,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: color.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Icon(
+                icon,
+                color: color,
+                size: 24,
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black87,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    subtitle,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      color: Colors.black54,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const Icon(
+              Icons.arrow_forward_ios,
+              color: Colors.black26,
+              size: 16,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
