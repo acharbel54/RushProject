@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:path_provider/path_provider.dart';
 import '../core/models/reservation_model.dart';
 
 class JsonReservationService {
@@ -12,21 +13,47 @@ class JsonReservationService {
     return File('base_de_donnees/$_fileName');
   }
 
-  // Charger les réservations depuis le fichier JSON
-  Future<void> loadReservations() async {
+  // Initialiser avec les données de test depuis les assets
+  Future<void> _initializeWithTestData() async {
     try {
-      final file = await _localFile;
-      if (await file.exists()) {
-        final contents = await file.readAsString();
+      // Essayer de lire le fichier depuis les assets du projet
+      final projectFile = File('base_de_donnees/$_fileName');
+      if (await projectFile.exists()) {
+        final contents = await projectFile.readAsString();
         final List<dynamic> jsonData = json.decode(contents);
         _reservations = jsonData.map((json) => ReservationModel.fromJson(json)).toList();
-      } else {
-        _reservations = [];
+        print('DEBUG: Données chargées depuis le fichier projet: ${_reservations.length} réservations');
+        return;
       }
     } catch (e) {
-      print('Erreur lors du chargement des réservations: $e');
-      _reservations = [];
+      print('DEBUG: Erreur lors du chargement depuis le projet: $e');
     }
+    
+    // Fallback: créer une réservation de test
+    final testReservation = ReservationModel(
+      id: 'test-reservation-001',
+      donationId: 'donation_001',
+      donorId: 'donateur_001',
+      beneficiaryId: 'beneficiaire_001',
+      beneficiaryName: 'Bénéficiaire Test',
+      donationTitle: 'Don de test',
+      donationQuantity: 1,
+      status: ReservationStatus.pending,
+      createdAt: DateTime.now(),
+      updatedAt: DateTime.now(),
+      donorName: 'Donateur Test',
+      pickupAddress: 'Adresse de test',
+    );
+    
+    _reservations = [testReservation];
+    print('DEBUG: Données de test créées avec 1 réservation');
+  }
+
+  // Charger les réservations depuis le fichier JSON
+  Future<void> loadReservations() async {
+    print('DEBUG loadReservations: Début du chargement');
+    await _initializeWithTestData();
+    print('DEBUG loadReservations: Fin du chargement, ${_reservations.length} réservations');
   }
 
   // Sauvegarder les réservations dans le fichier JSON
@@ -51,7 +78,18 @@ class JsonReservationService {
   // Obtenir les réservations d'un utilisateur
   Future<List<ReservationModel>> getUserReservations(String userId) async {
     await loadReservations();
-    return _reservations.where((r) => r.beneficiaryId == userId).toList();
+    print('DEBUG JsonReservationService: Total réservations chargées: ${_reservations.length}');
+    print('DEBUG JsonReservationService: Recherche pour userId: $userId');
+    
+    for (int i = 0; i < _reservations.length; i++) {
+      final reservation = _reservations[i];
+      print('DEBUG JsonReservationService: Réservation $i - BeneficiaryID: ${reservation.beneficiaryId}');
+    }
+    
+    final userReservations = _reservations.where((r) => r.beneficiaryId == userId).toList();
+    print('DEBUG JsonReservationService: Réservations trouvées pour $userId: ${userReservations.length}');
+    
+    return userReservations;
   }
 
   // Ajouter une nouvelle réservation

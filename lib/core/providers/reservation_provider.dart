@@ -59,12 +59,21 @@ class ReservationProvider with ChangeNotifier {
       _setError(null);
 
       _userReservations = await _reservationService.getUserReservations(userId);
+      
       // Aussi mettre à jour la liste globale si elle est vide
       if (_reservations.isEmpty) {
         _reservations = await _reservationService.getAllReservations();
       }
+      
+      // S'assurer que les réservations de l'utilisateur sont aussi dans la liste globale
+      for (final userReservation in _userReservations) {
+        if (!_reservations.any((r) => r.id == userReservation.id)) {
+          _reservations.add(userReservation);
+        }
+      }
 
       _setLoading(false);
+      notifyListeners();
     } catch (e) {
       _setError('Erreur lors du chargement de vos réservations: $e');
       _setLoading(false);
@@ -240,12 +249,43 @@ class ReservationProvider with ChangeNotifier {
       _setLoading(true);
       _setError(null);
 
-      // TODO: Implémenter avec le service JSON des réservations
+      print('DEBUG: getReservationsWithDonations appelée pour userId: $userId');
+      
+      // Récupérer les réservations de l'utilisateur
+      final userReservations = await _reservationService.getUserReservations(userId);
+      print('DEBUG: Nombre de réservations trouvées: ${userReservations.length}');
+      
+      for (int i = 0; i < userReservations.length; i++) {
+        final reservation = userReservations[i];
+        print('DEBUG: Réservation $i - ID: ${reservation.id}, DonationID: ${reservation.donationId}, BeneficiaryID: ${reservation.beneficiaryId}');
+      }
+      
+      // Pour chaque réservation, récupérer les détails du don
       final List<Map<String, dynamic>> result = [];
       
+      for (final reservation in userReservations) {
+        try {
+          // Récupérer le don correspondant
+          final donation = await _donationService.getDonationById(reservation.donationId);
+          print('DEBUG: Don trouvé pour ${reservation.donationId}: ${donation != null}');
+          
+          if (donation != null) {
+            result.add({
+              'reservation': reservation,
+              'donation': donation,
+            });
+          }
+        } catch (e) {
+          print('Erreur lors de la récupération du don ${reservation.donationId}: $e');
+          // Continuer avec les autres réservations même si une échoue
+        }
+      }
+      
+      print('DEBUG: Nombre de résultats finaux: ${result.length}');
       _setLoading(false);
       return result;
     } catch (e) {
+      print('DEBUG: Erreur dans getReservationsWithDonations: $e');
       _setError('Erreur lors du chargement: $e');
       _setLoading(false);
       return [];

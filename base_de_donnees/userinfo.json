@@ -24,20 +24,5 @@
         "preferredPickupZone":  "Lyon Centre",
         "dietaryPreferences":  ["Végétarien", "Sans gluten"],
         "allergies":  ["Arachides", "Lait"]
-    },
-    {
-        "phoneNumber":  "0654321987",
-        "id":  "alida_001",
-        "displayName":  "Alida",
-        "totalDonations":  0,
-        "totalReservations":  1,
-        "createdAt":  "2025-01-07T10:30:00.000Z",
-        "password":  "123456",
-        "role":  "beneficiaire",
-        "address":  "789 Rue de la Solidarité, Marseille",
-        "email":  "alida@gmail.com",
-        "preferredPickupZone":  "Marseille Nord",
-        "dietaryPreferences":  ["Halal"],
-        "allergies":  []
     }
 ]

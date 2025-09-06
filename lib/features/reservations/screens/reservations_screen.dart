@@ -5,13 +5,13 @@ import '../../../core/providers/reservation_provider.dart';
 import '../../../core/models/donation_model.dart';
 import '../../../core/models/reservation_model.dart';
 
-import '../../donations/screens/donation_detail_screen.dart';
+
 import '../screens/reservation_detail_screen.dart';
 
 class ReservationsScreen extends StatefulWidget {
   static const String routeName = '/reservations';
   
-  const ReservationsScreen({Key? key}) : super(key: key);
+  const ReservationsScreen({super.key});
 
   @override
   State<ReservationsScreen> createState() => _ReservationsScreenState();
@@ -91,8 +91,6 @@ class _ReservationsScreenState extends State<ReservationsScreen> {
                 ),
     );
   }
-
-
 
   Widget _buildReservationCard(ReservationModel reservation, DonationModel donation) {
     return Container(
@@ -268,13 +266,6 @@ class _ReservationsScreenState extends State<ReservationsScreen> {
     );
   }
 
-  void _navigateToDetail(ReservationModel reservation, DonationModel donation) {
-    Navigator.of(context).pushNamed(
-      DonationDetailScreen.routeName,
-      arguments: donation.id,
-    );
-  }
-
   Future<void> _cancelReservation(String reservationId) async {
     final confirmed = await showDialog<bool>(
       context: context,
@@ -302,6 +293,8 @@ class _ReservationsScreenState extends State<ReservationsScreen> {
     );
 
     if (confirmed == true) {
+      if (!mounted) return;
+      
       final reservationProvider = Provider.of<ReservationProvider>(
         context,
         listen: false,
@@ -317,6 +310,7 @@ class _ReservationsScreenState extends State<ReservationsScreen> {
               backgroundColor: Color(0xFF4CAF50),
             ),
           );
+          _loadUserReservations(); // Recharger la liste
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(

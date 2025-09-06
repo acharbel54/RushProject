@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
+import 'package:path_provider/path_provider.dart';
 import '../models/user_model.dart';
 
 // Modèle simple pour l'utilisateur
@@ -111,8 +112,15 @@ class SimpleAuthService {
     if (_isInitialized) return;
     
     try {
-      // Utiliser le fichier de test dans le dossier du projet
-      _usersFile = File('base_de_donnees/userinfo.json');
+      // Obtenir le répertoire des documents de l'application
+      final directory = await getApplicationDocumentsDirectory();
+      _usersFile = File('${directory.path}/userinfo.json');
+      
+      // Créer le fichier avec les données par défaut s'il n'existe pas
+      if (!await _usersFile.exists()) {
+        await _createDefaultUsers();
+      }
+      
       await _loadUsers();
       _isInitialized = true;
       
@@ -152,6 +160,52 @@ class SimpleAuthService {
         print('Erreur lors du chargement des utilisateurs: $e');
       }
       _users = [];
+    }
+  }
+
+  // Créer les utilisateurs par défaut
+  Future<void> _createDefaultUsers() async {
+    try {
+      final defaultUsers = [
+        {
+          "phoneNumber": "0123456789",
+          "id": "donateur_001",
+          "displayName": "Jean Donateur",
+          "totalDonations": 5,
+          "createdAt": "2025-09-06T00:18:50.114Z",
+          "password": "123456",
+          "role": "donateur",
+          "address": "123 Rue du Don, Paris",
+          "email": "donateur@test.com"
+        },
+        {
+          "phoneNumber": "0987654321",
+          "id": "beneficiaire_001",
+          "displayName": "Marie Bénéficiaire",
+          "totalDonations": 0,
+          "totalReservations": 3,
+          "createdAt": "2025-09-06T00:18:50.122Z",
+          "password": "123456",
+          "role": "beneficiaire",
+          "address": "456 Avenue de l'Aide, Lyon",
+          "email": "beneficiaire@test.com",
+          "preferredPickupZone": "Lyon Centre",
+          "dietaryPreferences": ["Végétarien", "Sans gluten"],
+          "allergies": ["Arachides", "Lait"]
+        }
+      ];
+      
+      final content = json.encode(defaultUsers);
+      await _usersFile.writeAsString(content);
+      
+      if (kDebugMode) {
+        print('Fichier userinfo.json créé avec les utilisateurs par défaut');
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('Erreur lors de la création des utilisateurs par défaut: $e');
+      }
+      rethrow;
     }
   }
 
