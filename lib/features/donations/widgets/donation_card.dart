@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import '../../../core/models/donation_model.dart';
+import '../../../core/providers/reservation_provider.dart';
+import '../../../core/providers/simple_auth_provider.dart';
 import '../../../shared/utils/date_utils.dart';
 
-class DonationCard extends StatelessWidget {
+class DonationCard extends StatefulWidget {
   final DonationModel donation;
   final bool showActions;
   final VoidCallback? onReserve;
@@ -22,6 +25,42 @@ class DonationCard extends StatelessWidget {
   }) : super(key: key);
 
   @override
+  State<DonationCard> createState() => _DonationCardState();
+}
+
+class _DonationCardState extends State<DonationCard> {
+  bool _isReserving = false;
+  bool _isReserved = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkReservationStatus();
+  }
+
+  void _checkReservationStatus() async {
+    final reservationProvider = Provider.of<ReservationProvider>(context, listen: false);
+    final authProvider = Provider.of<SimpleAuthProvider>(context, listen: false);
+    
+    final currentUser = authProvider.currentUser;
+    if (currentUser != null) {
+      // Charger les réservations de l'utilisateur si pas encore fait
+      if (reservationProvider.userReservations.isEmpty) {
+        await reservationProvider.fetchUserReservations(currentUser.id);
+      }
+      
+      if (mounted) {
+        setState(() {
+          _isReserved = reservationProvider.isDonationReservedByUser(
+            widget.donation.id, 
+            currentUser.id
+          );
+        });
+      }
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isExpiringSoon = _isExpiringSoon();
@@ -38,7 +77,7 @@ class DonationCard extends StatelessWidget {
                 : BorderSide.none,
       ),
       child: InkWell(
-        onTap: onTap,
+        onTap: widget.onTap,
         borderRadius: BorderRadius.circular(12),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -52,7 +91,7 @@ class DonationCard extends StatelessWidget {
                   ),
                   child: AspectRatio(
                     aspectRatio: 16 / 9,
-                    child: donation.imageUrls.isNotEmpty
+                    child: widget.donation.imageUrls.isNotEmpty
                         ? _buildDonationImage()
                         : _buildPlaceholderImage(),
                   ),
@@ -86,7 +125,7 @@ class DonationCard extends StatelessWidget {
                     children: [
                       Expanded(
                         child: Text(
-                          donation.title,
+                          widget.donation.title,
                           style: theme.textTheme.titleMedium?.copyWith(
                             fontWeight: FontWeight.w600,
                           ),
@@ -111,7 +150,7 @@ class DonationCard extends StatelessWidget {
                       ),
                       const SizedBox(width: 4),
                       Text(
-                        donation.quantity,
+                        widget.donation.quantity,
                         style: theme.textTheme.bodyMedium?.copyWith(
                           fontWeight: FontWeight.w500,
                           color: theme.colorScheme.primary,
@@ -123,9 +162,9 @@ class DonationCard extends StatelessWidget {
                   const SizedBox(height: 8),
                   
                   // Description
-                  if (donation.description.isNotEmpty) ...[
+                  if (widget.donation.description.isNotEmpty) ...[
                     Text(
-                      donation.description,
+                      widget.donation.description,
                       style: theme.textTheme.bodySmall?.copyWith(
                         color: Colors.grey[600],
                       ),
@@ -149,7 +188,7 @@ class DonationCard extends StatelessWidget {
                       ),
                       const SizedBox(width: 4),
                       Text(
-                        'Expire le ${DateFormat('dd/MM/yyyy').format(donation.expirationDate)}',
+                        'Expire le ${DateFormat('dd/MM/yyyy').format(widget.donation.expirationDate)}',
                         style: theme.textTheme.bodySmall?.copyWith(
                           color: isExpired
                               ? Colors.red
@@ -177,7 +216,7 @@ class DonationCard extends StatelessWidget {
                       const SizedBox(width: 4),
                       Expanded(
                         child: Text(
-                          donation.address,
+                          widget.donation.address,
                           style: theme.textTheme.bodySmall?.copyWith(
                             color: Colors.grey[600],
                           ),
@@ -191,7 +230,7 @@ class DonationCard extends StatelessWidget {
                   // Date de création
                   const SizedBox(height: 4),
                   Text(
-                    'Publié ${AppDateUtils.getRelativeTime(donation.createdAt)}',
+                    'Publié ${AppDateUtils.getRelativeTime(widget.donation.createdAt)}',
                     style: theme.textTheme.bodySmall?.copyWith(
                       color: Colors.grey[500],
                       fontSize: 12,
@@ -199,7 +238,7 @@ class DonationCard extends StatelessWidget {
                   ),
                   
                   // Actions
-                  if (showActions || onReserve != null) ...[
+                  if (widget.showActions || widget.onReserve != null) ...[
                     const SizedBox(height: 16),
                     _buildActionButtons(theme),
                   ],
@@ -213,7 +252,7 @@ class DonationCard extends StatelessWidget {
   }
 
   Widget _buildDonationImage() {
-    final String imageUrl = donation.imageUrls.first;
+    final String imageUrl = widget.donation.imageUrls.first;
     
     // Vérifier si c'est un chemin local (commence par assets/) ou une URL
     if (imageUrl.startsWith('assets/')) {
@@ -284,20 +323,20 @@ class DonationCard extends StatelessWidget {
     String text;
     IconData icon;
 
-    switch (donation.status) {
-      case 'available':
+    switch (widget.donation.status) {
+      case DonationStatus.disponible:
         backgroundColor = Colors.green;
         textColor = Colors.white;
         text = 'Disponible';
         icon = Icons.check_circle;
         break;
-      case 'reserved':
+      case DonationStatus.reserve:
         backgroundColor = Colors.orange;
         textColor = Colors.white;
         text = 'Réservé';
         icon = Icons.bookmark;
         break;
-      case 'collected':
+      case DonationStatus.recupere:
         backgroundColor = Colors.grey;
         textColor = Colors.white;
         text = 'Récupéré';
@@ -389,7 +428,7 @@ class DonationCard extends StatelessWidget {
         ),
       ),
       child: Text(
-        categoryLabels[donation.category] ?? donation.category.name,
+        categoryLabels[widget.donation.category] ?? widget.donation.category.name,
         style: TextStyle(
           color: theme.colorScheme.primary,
           fontSize: 10,
@@ -400,14 +439,14 @@ class DonationCard extends StatelessWidget {
   }
 
   Widget _buildActionButtons(ThemeData theme) {
-    if (showActions) {
+    if (widget.showActions) {
       // Actions pour le propriétaire du don
       return Row(
         children: [
-          if (onEdit != null)
+          if (widget.onEdit != null)
             Expanded(
               child: OutlinedButton.icon(
-                onPressed: onEdit,
+                onPressed: widget.onEdit,
                 icon: const Icon(Icons.edit, size: 16),
                 label: const Text('Modifier'),
                 style: OutlinedButton.styleFrom(
@@ -415,11 +454,11 @@ class DonationCard extends StatelessWidget {
                 ),
               ),
             ),
-          if (onEdit != null && onDelete != null) const SizedBox(width: 8),
-          if (onDelete != null)
+          if (widget.onEdit != null && widget.onDelete != null) const SizedBox(width: 8),
+          if (widget.onDelete != null)
             Expanded(
               child: OutlinedButton.icon(
-                onPressed: onDelete,
+                onPressed: widget.onDelete,
                 icon: const Icon(Icons.delete, size: 16),
                 label: const Text('Supprimer'),
                 style: OutlinedButton.styleFrom(
@@ -431,16 +470,22 @@ class DonationCard extends StatelessWidget {
             ),
         ],
       );
-    } else if (onReserve != null && donation.status == 'available') {
+    } else if (widget.onReserve != null && widget.donation.status == DonationStatus.disponible) {
       // Action pour réserver le don
       return SizedBox(
         width: double.infinity,
         child: ElevatedButton.icon(
-          onPressed: onReserve,
-          icon: const Icon(Icons.bookmark_add, size: 16),
-          label: const Text('Réserver'),
+          onPressed: _isReserving || _isReserved ? null : _handleReservation,
+          icon: Icon(
+            _isReserved ? Icons.schedule : Icons.bookmark_add, 
+            size: 16
+          ),
+          label: Text(
+            _isReserving ? 'Réservation...' : (_isReserved ? 'En attente' : 'Réserver')
+          ),
           style: ElevatedButton.styleFrom(
             padding: const EdgeInsets.symmetric(vertical: 12),
+            backgroundColor: _isReserved ? Colors.orange : null,
           ),
         ),
       );
@@ -449,14 +494,91 @@ class DonationCard extends StatelessWidget {
     return const SizedBox.shrink();
   }
 
+  Future<void> _handleReservation() async {
+    if (_isReserved || _isReserving) return;
+    
+    setState(() {
+      _isReserving = true;
+    });
+    
+    try {
+      final reservationProvider = Provider.of<ReservationProvider>(context, listen: false);
+      final authProvider = Provider.of<SimpleAuthProvider>(context, listen: false);
+      
+      final currentUser = authProvider.currentUser;
+      if (currentUser == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Vous devez être connecté pour réserver'),
+            backgroundColor: Colors.red,
+          ),
+        );
+        setState(() {
+          _isReserving = false;
+        });
+        return;
+      }
+      
+      final success = await reservationProvider.createReservation(
+        donationId: widget.donation.id,
+        beneficiaryId: currentUser.id,
+      );
+      
+      if (mounted) {
+        if (success) {
+          setState(() {
+            _isReserving = false;
+            _isReserved = true;
+          });
+          
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Réservation créée avec succès !'),
+              backgroundColor: Colors.green,
+            ),
+          );
+          
+          // Appeler le callback si fourni
+          if (widget.onReserve != null) {
+            widget.onReserve!();
+          }
+        } else {
+          setState(() {
+            _isReserving = false;
+          });
+          
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(reservationProvider.error ?? 'Erreur lors de la réservation'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isReserving = false;
+        });
+        
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Erreur: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
   bool _isExpiringSoon() {
     final now = DateTime.now();
-    final difference = donation.expirationDate.difference(now).inDays;
+    final difference = widget.donation.expirationDate.difference(now).inDays;
     return difference <= 2 && difference >= 0;
   }
 
   bool _isExpired() {
     final now = DateTime.now();
-    return donation.expirationDate.isBefore(now);
+    return widget.donation.expirationDate.isBefore(now);
   }
 }

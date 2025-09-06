@@ -9,7 +9,7 @@ import 'core/providers/simple_auth_provider.dart';
 import 'core/providers/local_auth_provider.dart';
 import 'core/config/app_config.dart';
 import 'core/services/firebase_service.dart';
-import 'core/services/notification_service.dart';
+import 'core/services/notification_service.dart' show NotificationService, firebaseMessagingBackgroundHandler;
 import 'features/onboarding/screens/splash_screen.dart';
 import 'features/onboarding/screens/onboarding_screen.dart';
 import 'features/auth/screens/login_screen.dart';
@@ -28,6 +28,7 @@ import 'features/admin/screens/admin_dashboard_screen.dart';
 import 'features/donations/screens/donation_detail_screen.dart';
 import 'core/providers/notification_provider.dart';
 import 'core/providers/donation_provider.dart';
+import 'core/providers/reservation_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -79,6 +80,9 @@ class FoodLinkApp extends StatelessWidget {
         ),
         ChangeNotifierProvider(
           create: (context) => DonationProvider(),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => ReservationProvider(),
         ),
       ],
       child: MaterialApp(

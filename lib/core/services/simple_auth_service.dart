@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:io';
-import 'package:path_provider/path_provider.dart';
 import 'package:flutter/foundation.dart';
 import '../models/user_model.dart';
 
@@ -112,19 +111,23 @@ class SimpleAuthService {
     if (_isInitialized) return;
     
     try {
-      final appDir = await getApplicationDocumentsDirectory();
-      final dataDir = Directory('${appDir.path}/base_de_donnees');
-      if (!await dataDir.exists()) {
-        await dataDir.create(recursive: true);
-      }
-      
-      _usersFile = File('${dataDir.path}/userinfo.json');
+      // Utiliser le fichier de test dans le dossier du projet
+      _usersFile = File('base_de_donnees/userinfo.json');
       await _loadUsers();
       _isInitialized = true;
       
-      if (kDebugMode) {
-        print('SimpleAuthService initialisé avec ${_users.length} utilisateurs');
-        print('Fichier utilisé: ${_usersFile.path}');
+      // Connexion automatique du bénéficiaire de test
+      if (_users.isNotEmpty) {
+        final beneficiaire = _users.firstWhere(
+          (user) => user.role == UserRole.beneficiaire,
+          orElse: () => _users.first,
+        );
+        _currentUser = beneficiaire;
+        
+        if (kDebugMode) {
+          print('SimpleAuthService initialisé avec ${_users.length} utilisateurs');
+          print('Utilisateur connecté automatiquement: ${beneficiaire.displayName} (${beneficiaire.role})');
+        }
       }
     } catch (e) {
       if (kDebugMode) {

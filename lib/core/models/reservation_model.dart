@@ -110,6 +110,65 @@ class ReservationModel {
     return ReservationModel.fromMap(data);
   }
 
+  // Conversion vers JSON pour stockage local
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'donationId': donationId,
+      'donorId': donorId,
+      'beneficiaryId': beneficiaryId,
+      'beneficiaryName': beneficiaryName,
+      'donationTitle': donationTitle,
+      'donationQuantity': donationQuantity,
+      'status': status.name,
+      'createdAt': createdAt.toIso8601String(),
+      'updatedAt': updatedAt?.toIso8601String(),
+      'confirmedAt': confirmedAt?.toIso8601String(),
+      'completedAt': completedAt?.toIso8601String(),
+      'notes': notes,
+      'cancellationReason': cancellationReason,
+      'donorName': donorName,
+      'pickupAddress': pickupAddress,
+      'scheduledPickupTime': scheduledPickupTime?.toIso8601String(),
+      'contactPhone': contactPhone,
+    };
+  }
+
+  // Création depuis JSON pour stockage local
+  factory ReservationModel.fromJson(Map<String, dynamic> json) {
+    return ReservationModel(
+      id: json['id'] ?? '',
+      donationId: json['donationId'] ?? '',
+      donorId: json['donorId'] ?? '',
+      beneficiaryId: json['beneficiaryId'] ?? '',
+      beneficiaryName: json['beneficiaryName'] ?? '',
+      donationTitle: json['donationTitle'] ?? '',
+      donationQuantity: json['donationQuantity'] ?? '',
+      status: ReservationStatus.values.firstWhere(
+        (e) => e.name == json['status'],
+        orElse: () => ReservationStatus.pending,
+      ),
+      createdAt: DateTime.parse(json['createdAt']),
+      updatedAt: json['updatedAt'] != null
+          ? DateTime.parse(json['updatedAt'])
+          : null,
+      confirmedAt: json['confirmedAt'] != null
+          ? DateTime.parse(json['confirmedAt'])
+          : null,
+      completedAt: json['completedAt'] != null
+          ? DateTime.parse(json['completedAt'])
+          : null,
+      notes: json['notes'],
+      cancellationReason: json['cancellationReason'],
+      donorName: json['donorName'] ?? '',
+      pickupAddress: json['pickupAddress'] ?? '',
+      scheduledPickupTime: json['scheduledPickupTime'] != null
+          ? DateTime.parse(json['scheduledPickupTime'])
+          : null,
+      contactPhone: json['contactPhone'],
+    );
+  }
+
   // Copie avec modifications
   ReservationModel copyWith({
     String? id,

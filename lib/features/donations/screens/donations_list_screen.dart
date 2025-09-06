@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../core/providers/donation_provider.dart';
 import '../../../core/providers/simple_auth_provider.dart';
+import '../../../core/providers/reservation_provider.dart';
 import '../../../core/models/donation_model.dart';
 import '../../../core/models/user_model.dart';
 import '../widgets/donation_card.dart';
@@ -360,6 +361,7 @@ class _DonationsListScreenState extends State<DonationsListScreen>
   Future<void> _reserveDonation(DonationModel donation) async {
     final authProvider = Provider.of<SimpleAuthProvider>(context, listen: false);
     final donationProvider = Provider.of<DonationProvider>(context, listen: false);
+    final reservationProvider = Provider.of<ReservationProvider>(context, listen: false);
     
     if (authProvider.currentUser == null) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -395,25 +397,30 @@ class _DonationsListScreenState extends State<DonationsListScreen>
     );
     
     if (confirmed == true) {
-      final success = await donationProvider.reserveDonation(
-        donation.id,
-        authProvider.currentUser!.id,
+      // Créer la réservation via le ReservationProvider
+      final success = await reservationProvider.createReservation(
+        donationId: donation.id,
+        beneficiaryId: authProvider.currentUser!.id,
+        notes: 'Réservation effectuée depuis l\'application',
       );
       
       if (success) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text('Don réservé avec succès!'),
+              content: Text('Don réservé avec succès! Vous pouvez voir votre réservation dans l\'onglet Réservations.'),
               backgroundColor: Colors.green,
+              duration: Duration(seconds: 3),
             ),
           );
+          // Recharger la liste des dons pour refléter le changement de statut
+          _loadDonations();
         }
       } else {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(donationProvider.error ?? 'Erreur lors de la réservation'),
+              content: Text(reservationProvider.error ?? 'Erreur lors de la réservation'),
               backgroundColor: Colors.red,
             ),
           );

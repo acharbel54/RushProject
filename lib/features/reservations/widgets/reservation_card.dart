@@ -275,25 +275,25 @@ class ReservationCard extends StatelessWidget {
     IconData icon;
 
     switch (reservation.status) {
-      case 'pending':
+      case ReservationStatus.pending:
         backgroundColor = Colors.orange[100]!;
         textColor = Colors.orange[800]!;
         text = 'En attente';
         icon = Icons.schedule;
         break;
-      case 'confirmed':
+      case ReservationStatus.confirmed:
         backgroundColor = Colors.blue[100]!;
         textColor = Colors.blue[800]!;
         text = 'Confirmée';
         icon = Icons.check_circle;
         break;
-      case 'completed':
+      case ReservationStatus.completed:
         backgroundColor = Colors.green[100]!;
         textColor = Colors.green[800]!;
         text = 'Terminée';
         icon = Icons.done_all;
         break;
-      case 'cancelled':
+      case ReservationStatus.cancelled:
         backgroundColor = Colors.red[100]!;
         textColor = Colors.red[800]!;
         text = 'Annulée';

@@ -220,14 +220,19 @@ class JsonDonationService {
     print('DEBUG: Recherche donation avec ID: $donationId');
     print('DEBUG: Nombre de donations chargées: ${_donations.length}');
     for (var donation in _donations) {
-      print('DEBUG: Donation ID disponible: ${donation.id}, imageUrls: ${donation.imageUrls}');
+      print('DEBUG: Donation ID disponible: "${donation.id}"');
     }
-    try {
-      final result = _donations.firstWhere((donation) => donation.id == donationId);
-      print('DEBUG: Donation trouvée: ${result.title}, imageUrls: ${result.imageUrls}');
+    
+    // Utiliser where au lieu de firstWhere pour éviter les exceptions
+    final matchingDonations = _donations.where((donation) => donation.id == donationId).toList();
+    
+    if (matchingDonations.isNotEmpty) {
+      final result = matchingDonations.first;
+      print('DEBUG: Donation trouvée: ${result.title}');
       return result;
-    } catch (e) {
-      print('DEBUG: Aucune donation trouvée avec l\'ID: $donationId');
+    } else {
+      print('DEBUG: Aucune donation trouvée avec l\'ID: "$donationId"');
+      print('DEBUG: IDs disponibles: ${_donations.map((d) => '"${d.id}"').join(', ')}');
       return null;
     }
   }

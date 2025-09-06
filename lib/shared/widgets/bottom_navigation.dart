@@ -8,6 +8,7 @@ import '../../features/donations/screens/my_donations_screen.dart';
 import '../../features/donations/screens/create_donation_screen.dart';
 import '../../features/donations/screens/new_donation_design_screen.dart';
 import '../../features/maps/screens/map_screen.dart';
+import '../../features/discover/screens/discover_screen.dart';
 import '../../features/auth/screens/profile_screen.dart';
 import '../../features/reservations/screens/reservations_screen.dart';
 import '../../features/notifications/screens/notifications_screen.dart';
@@ -95,7 +96,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
       print('DEBUG: Returning beneficiary pages (4 pages)');
       return [
         DashboardScreen(onTabChanged: (index) => setState(() => _currentIndex = index)), // Accueil bénéficiaire
-        const MapScreen(), // Découvrir (carte des dons)
+        const DiscoverScreen(), // Découvrir (liste des dons)
         const ReservationsScreen(), // Réservation
         const ProfileScreen(), // Profil
       ];
@@ -375,11 +376,11 @@ class DashboardScreen extends StatelessWidget {
                 ] else ...[
                   _buildActionCard(
                     'Découvrir',
-                    'Voir les dons disponibles sur la carte',
-                    Icons.map_outlined,
+                    'Voir les dons disponibles',
+                    Icons.explore_outlined,
                     const Color(0xFF4CAF50),
                     () {
-                      // TODO: Naviguer vers la carte
+                      onTabChanged?.call(1); // Naviguer vers la section Découvrir
                     },
                   ),
                   const SizedBox(height: 12),
@@ -391,6 +392,35 @@ class DashboardScreen extends StatelessWidget {
                     () {
                       // TODO: Naviguer vers les réservations
                     },
+                  ),
+                ],
+                
+                // Historique des réservations pour les bénéficiaires
+                if (user.role == UserRole.beneficiaire) ...[
+                  const SizedBox(height: 24),
+                  const Text(
+                    'Historique des réservations',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.05),
+                          blurRadius: 10,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: _buildReservationHistory(),
                   ),
                 ],
                 
@@ -516,5 +546,181 @@ class DashboardScreen extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Widget _buildReservationHistory() {
+    // TODO: Récupérer les vraies réservations depuis le service
+    final mockReservations = [
+      {
+        'title': 'Légumes frais',
+        'date': DateTime.now().subtract(const Duration(days: 2)),
+        'status': 'Récupéré',
+        'location': 'Marché Central',
+        'savings': '12€',
+      },
+      {
+        'title': 'Pain et viennoiseries',
+        'date': DateTime.now().subtract(const Duration(days: 5)),
+        'status': 'Récupéré',
+        'location': 'Boulangerie Dupont',
+        'savings': '8€',
+      },
+      {
+        'title': 'Produits laitiers',
+        'date': DateTime.now().subtract(const Duration(days: 8)),
+        'status': 'Annulé',
+        'location': 'Supermarché Bio',
+        'savings': '0€',
+      },
+    ];
+
+    if (mockReservations.isEmpty) {
+      return Container(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          children: [
+            Icon(
+              Icons.inbox_outlined,
+              size: 48,
+              color: Colors.grey[400],
+            ),
+            const SizedBox(height: 12),
+            Text(
+              'Aucune réservation pour le moment',
+              style: TextStyle(
+                color: Colors.grey[600],
+                fontSize: 16,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Vos réservations apparaîtront ici',
+              style: TextStyle(
+                color: Colors.grey[500],
+                fontSize: 14,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return Column(
+      children: mockReservations.map((reservation) {
+        final isLast = mockReservations.indexOf(reservation) == mockReservations.length - 1;
+        return Column(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.grey[50],
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: Colors.grey[200]!),
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: reservation['status'] == 'Récupéré' 
+                          ? Colors.green.withOpacity(0.1)
+                          : Colors.red.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Icon(
+                      reservation['status'] == 'Récupéré' 
+                          ? Icons.check_circle
+                          : Icons.cancel,
+                      color: reservation['status'] == 'Récupéré' 
+                          ? Colors.green
+                          : Colors.red,
+                      size: 20,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          reservation['title'] as String,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 16,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          reservation['location'] as String,
+                          style: TextStyle(
+                            color: Colors.grey[600],
+                            fontSize: 14,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          _formatDate(reservation['date'] as DateTime),
+                          style: TextStyle(
+                            color: Colors.grey[500],
+                            fontSize: 12,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
+                          color: reservation['status'] == 'Récupéré' 
+                              ? Colors.green.withOpacity(0.1)
+                              : Colors.red.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Text(
+                          reservation['status'] as String,
+                          style: TextStyle(
+                            color: reservation['status'] == 'Récupéré' 
+                                ? Colors.green[700]
+                                : Colors.red[700],
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'Économie: ${reservation['savings']}',
+                        style: TextStyle(
+                          color: Colors.grey[600],
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            if (!isLast) const SizedBox(height: 12),
+          ],
+        );
+      }).toList(),
+    );
+  }
+
+  String _formatDate(DateTime date) {
+    final months = [
+      'janvier', 'février', 'mars', 'avril', 'mai', 'juin',
+      'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'
+    ];
+    
+    return '${date.day} ${months[date.month - 1]} ${date.year}';
   }
 }

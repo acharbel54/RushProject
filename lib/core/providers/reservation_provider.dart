@@ -2,9 +2,11 @@ import 'package:flutter/foundation.dart';
 import '../models/reservation_model.dart';
 import '../models/donation_model.dart';
 import '../../services/json_donation_service.dart';
+import '../../services/json_reservation_service.dart';
 
 class ReservationProvider with ChangeNotifier {
   final JsonDonationService _donationService = JsonDonationService();
+  final JsonReservationService _reservationService = JsonReservationService();
   
   List<ReservationModel> _reservations = [];
   List<ReservationModel> _userReservations = [];
@@ -15,6 +17,15 @@ class ReservationProvider with ChangeNotifier {
   List<ReservationModel> get userReservations => _userReservations;
   bool get isLoading => _isLoading;
   String? get error => _error;
+
+  /// Vérifie si un don est déjà réservé par un utilisateur spécifique
+  bool isDonationReservedByUser(String donationId, String userId) {
+    return _userReservations.any((reservation) => 
+      reservation.donationId == donationId && 
+      reservation.beneficiaryId == userId &&
+      (reservation.status == ReservationStatus.pending || reservation.status == ReservationStatus.confirmed)
+    );
+  }
   
   void _setLoading(bool loading) {
     _isLoading = loading;
@@ -32,8 +43,7 @@ class ReservationProvider with ChangeNotifier {
       _setLoading(true);
       _setError(null);
 
-      // TODO: Implémenter avec le service JSON des réservations
-      _reservations = [];
+      _reservations = await _reservationService.getAllReservations();
 
       _setLoading(false);
     } catch (e) {
@@ -48,8 +58,11 @@ class ReservationProvider with ChangeNotifier {
       _setLoading(true);
       _setError(null);
 
-      // TODO: Implémenter avec le service JSON des réservations
-      _userReservations = [];
+      _userReservations = await _reservationService.getUserReservations(userId);
+      // Aussi mettre à jour la liste globale si elle est vide
+      if (_reservations.isEmpty) {
+        _reservations = await _reservationService.getAllReservations();
+      }
 
       _setLoading(false);
     } catch (e) {
@@ -86,31 +99,49 @@ class ReservationProvider with ChangeNotifier {
 
       // Vérifier que le don existe et est disponible
       final allDonations = await _donationService.getAllDonations();
-      final donation = allDonations.firstWhere(
-        (d) => d.id == donationId,
-        orElse: () => throw Exception('Don introuvable'),
-      );
-
-      if (donation.id.isEmpty) {
+      final donationList = allDonations.where((d) => d.id == donationId).toList();
+      
+      if (donationList.isEmpty) {
         _setError('Ce don n\'existe plus');
         _setLoading(false);
         return false;
       }
+      
+      final donation = donationList.first;
       if (donation.status != DonationStatus.disponible) {
         _setError('Ce don n\'est plus disponible');
         _setLoading(false);
         return false;
       }
 
-      // TODO: Vérifier les réservations existantes avec le service JSON
-      // Pour l'instant, on suppose qu'il n'y a pas de réservation existante
+      // Créer une nouvelle réservation
+      final reservation = ReservationModel(
+        id: DateTime.now().millisecondsSinceEpoch.toString(),
+        donationId: donationId,
+        donorId: donation.donorId,
+        beneficiaryId: beneficiaryId,
+        beneficiaryName: 'Bénéficiaire', // TODO: Récupérer le vrai nom
+        donationTitle: donation.title,
+        donationQuantity: donation.quantity,
+        status: ReservationStatus.pending,
+        createdAt: DateTime.now(),
+        notes: notes,
+        donorName: donation.donorName,
+        pickupAddress: donation.address,
+        contactPhone: null, // Pas de téléphone de contact disponible
+      );
 
       // Réserver le don via le service JSON
       await _donationService.reserveDonation(donationId, beneficiaryId);
       
-      // TODO: Créer la réservation dans le service JSON des réservations
-      // Pour l'instant, on utilise seulement la réservation du don
-
+      // Sauvegarder la réservation via le service JSON
+      await _reservationService.addReservation(reservation);
+      
+      // Ajouter la réservation aux listes locales
+      _reservations.add(reservation);
+      _userReservations.add(reservation);
+      
+      notifyListeners();
       _setLoading(false);
       return true;
     } catch (e) {

@@ -246,6 +246,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    print('DEBUG ProfileScreen: build() called');
     return Scaffold(
       backgroundColor: Colors.grey[50],
       appBar: AppBar(
@@ -273,13 +274,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
       body: Consumer<SimpleAuthProvider>(
         builder: (context, authProvider, child) {
           final user = authProvider.currentUser;
+          print('DEBUG ProfileScreen: Consumer builder called');
+          print('DEBUG ProfileScreen: user = $user');
+          print('DEBUG ProfileScreen: user?.role = ${user?.role}');
           
           if (user == null) {
+            print('DEBUG ProfileScreen: user is null, showing not connected message');
             return const Center(
               child: Text('Utilisateur non connecté'),
             );
           }
 
+          print('DEBUG ProfileScreen: Building SingleChildScrollView for user: ${user.displayName}');
+          print('DEBUG ProfileScreen: User role: ${user.role}');
+          print('DEBUG ProfileScreen: Is editing: $_isEditing');
+          
           return SingleChildScrollView(
             child: Column(
               children: [
@@ -509,46 +518,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   const SizedBox(height: 16),
                  ],
                  
-                 // Historique des réservations pour les bénéficiaires
-                 if (user.role == UserRole.beneficiaire) ...[
-                   Container(
-                     margin: const EdgeInsets.symmetric(horizontal: 16),
-                     padding: const EdgeInsets.all(20),
-                     decoration: BoxDecoration(
-                       color: Colors.white,
-                       borderRadius: BorderRadius.circular(12),
-                       boxShadow: [
-                         BoxShadow(
-                           color: Colors.black.withOpacity(0.05),
-                           blurRadius: 10,
-                           offset: const Offset(0, 2),
-                         ),
-                       ],
-                     ),
-                     child: Column(
-                       crossAxisAlignment: CrossAxisAlignment.start,
-                       children: [
-                         Row(
-                           children: [
-                             const Icon(Icons.history, color: Colors.black54),
-                             const SizedBox(width: 8),
-                             const Text(
-                               'Historique des réservations',
-                               style: TextStyle(
-                                 fontSize: 18,
-                                 fontWeight: FontWeight.w600,
-                                 color: Colors.black87,
-                               ),
-                             ),
-                           ],
-                         ),
-                         const SizedBox(height: 16),
-                         _buildReservationHistory(),
-                       ],
-                     ),
-                   ),
-                   const SizedBox(height: 16),
-                 ],
+
                  
                  // Actions
                 Container(

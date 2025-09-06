@@ -1,0 +1,22 @@
+[
+  {
+    "id": "test-reservation-001",
+    "donationId": "donation-001",
+    "donorId": "donor-001",
+    "beneficiaryId": "beneficiaire_001",
+    "beneficiaryName": "Utilisateur Test",
+    "donationTitle": "Légumes frais",
+    "donationQuantity": "2 kg",
+    "status": "pending",
+    "createdAt": "2024-01-15T10:30:00.000Z",
+    "updatedAt": null,
+    "confirmedAt": null,
+    "completedAt": null,
+    "notes": null,
+    "cancellationReason": null,
+    "donorName": "Donateur Test",
+    "pickupAddress": "123 Rue de la Paix, Paris",
+    "scheduledPickupTime": null,
+    "contactPhone": "+33123456789"
+  }
+]

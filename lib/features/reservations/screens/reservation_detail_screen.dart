@@ -3,9 +3,9 @@ import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../core/providers/reservation_provider.dart';
 import '../../../core/providers/simple_auth_provider.dart';
-import '../../../core/models/reservation.dart';
-import '../../../core/models/donation.dart';
-import '../../../core/utils/date_utils.dart';
+import '../../../core/models/reservation_model.dart';
+import '../../../core/models/donation_model.dart';
+import '../../../shared/utils/date_utils.dart';
 import '../../donations/screens/donation_detail_screen.dart';
 
 class ReservationDetailScreen extends StatefulWidget {
@@ -21,8 +21,8 @@ class ReservationDetailScreen extends StatefulWidget {
 }
 
 class _ReservationDetailScreenState extends State<ReservationDetailScreen> {
-  Reservation? _reservation;
-  Donation? _donation;
+  ReservationModel? _reservation;
+  DonationModel? _donation;
   bool _isLoading = true;
   String? _error;
 
@@ -64,14 +64,14 @@ class _ReservationDetailScreenState extends State<ReservationDetailScreen> {
       );
 
       final result = results.firstWhere(
-        (item) => (item['reservation'] as Reservation).id == reservation.id,
+        (item) => (item['reservation'] as ReservationModel).id == reservation.id,
         orElse: () => {},
       );
 
       if (result.isNotEmpty) {
         setState(() {
-          _reservation = result['reservation'] as Reservation;
-          _donation = result['donation'] as Donation;
+          _reservation = result['reservation'] as ReservationModel;
+          _donation = result['donation'] as DonationModel;
           _isLoading = false;
         });
       } else {
@@ -317,7 +317,7 @@ class _ReservationDetailScreenState extends State<ReservationDetailScreen> {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        _donation!.category,
+                        _donation!.category.name,
                         style: TextStyle(
                           fontSize: 14,
                           color: Colors.grey[600],
@@ -348,7 +348,7 @@ class _ReservationDetailScreenState extends State<ReservationDetailScreen> {
                           ),
                           const SizedBox(width: 4),
                           Text(
-                            'Expire ${AppDateUtils.formatDate(_donation!.expiryDate)}',
+                            'Expire ${AppDateUtils.formatDate(_donation!.expirationDate)}',
                             style: const TextStyle(fontSize: 14),
                           ),
                         ],
@@ -358,7 +358,7 @@ class _ReservationDetailScreenState extends State<ReservationDetailScreen> {
                 ),
               ],
             ),
-            if (_donation!.description.isNotEmpty) ..[
+            if (_donation!.description.isNotEmpty) ...[
               const SizedBox(height: 12),
               Text(
                 'Description',
@@ -404,7 +404,7 @@ class _ReservationDetailScreenState extends State<ReservationDetailScreen> {
               'Date de réservation',
               AppDateUtils.formatDateTime(_reservation!.createdAt),
             ),
-            if (_reservation!.notes != null && _reservation!.notes!.isNotEmpty) ..[
+            if (_reservation!.notes != null && _reservation!.notes!.isNotEmpty) ...[
               const SizedBox(height: 12),
               _buildInfoRow(
                 Icons.note,
@@ -412,7 +412,7 @@ class _ReservationDetailScreenState extends State<ReservationDetailScreen> {
                 _reservation!.notes!,
               ),
             ],
-            if (_reservation!.completedAt != null) ..[
+            if (_reservation!.completedAt != null) ...[
               const SizedBox(height: 12),
               _buildInfoRow(
                 Icons.check_circle,
@@ -454,7 +454,7 @@ class _ReservationDetailScreenState extends State<ReservationDetailScreen> {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    _donation!.pickupAddress,
+                    _donation!.address,
                     style: const TextStyle(fontSize: 16),
                   ),
                 ),
@@ -534,9 +534,9 @@ class _ReservationDetailScreenState extends State<ReservationDetailScreen> {
   }
 
   Widget _buildDonationImage() {
-    if (_donation!.imageUrl != null && _donation!.imageUrl!.isNotEmpty) {
+    if (_donation!.imageUrls.isNotEmpty) {
       return Image.network(
-        _donation!.imageUrl!,
+        _donation!.imageUrls.first,
         width: 100,
         height: 100,
         fit: BoxFit.cover,
@@ -609,7 +609,7 @@ class _ReservationDetailScreenState extends State<ReservationDetailScreen> {
   }
 
   void _openMap() async {
-    final address = Uri.encodeComponent(_donation!.pickupAddress);
+    final address = Uri.encodeComponent(_donation!.address);
     final url = 'https://www.google.com/maps/search/?api=1&query=$address';
     
     if (await canLaunchUrl(Uri.parse(url))) {
