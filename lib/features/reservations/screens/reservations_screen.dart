@@ -4,7 +4,7 @@ import '../../../core/providers/simple_auth_provider.dart';
 import '../../../core/providers/reservation_provider.dart';
 import '../../../core/models/donation_model.dart';
 import '../../../core/models/reservation_model.dart';
-
+import '../../donations/screens/donation_detail_screen.dart';
 
 import '../screens/reservation_detail_screen.dart';
 
@@ -115,8 +115,8 @@ class _ReservationsScreenState extends State<ReservationsScreen> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => ReservationDetailScreen(
-                  reservationId: reservation.id,
+                builder: (context) => DonationDetailScreen(
+                  donationId: donation.id,
                 ),
               ),
             );

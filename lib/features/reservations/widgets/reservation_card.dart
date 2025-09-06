@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'dart:io';
 import '../../../core/models/reservation_model.dart';
 import '../../../core/models/donation_model.dart';
 import '../../../core/utils/date_utils.dart' as AppDateUtils;
+import '../../../services/local_image_service.dart';
 
 class ReservationCard extends StatelessWidget {
   final ReservationModel reservation;
@@ -214,19 +216,47 @@ class ReservationCard extends StatelessWidget {
 
   Widget _buildDonationImage() {
     if (donation.imageUrls.isNotEmpty) {
-      return Image.network(
-        donation.imageUrls.first,
-        width: 80,
-        height: 80,
-        fit: BoxFit.cover,
-        errorBuilder: (context, error, stackTrace) {
-          return _buildPlaceholderImage();
-        },
-        loadingBuilder: (context, child, loadingProgress) {
-          if (loadingProgress == null) return child;
-          return _buildLoadingImage();
-        },
-      );
+      final String imageUrl = donation.imageUrls.first;
+      
+      // Vérifier si c'est un chemin local (commence par assets/) ou une URL
+      if (imageUrl.startsWith('assets/')) {
+        // Image locale dans le dossier assets
+        return FutureBuilder<String>(
+          future: LocalImageService.getAbsolutePath(imageUrl),
+          builder: (context, snapshot) {
+            if (snapshot.hasData) {
+              return Image.file(
+                File(snapshot.data!),
+                width: 80,
+                height: 80,
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) {
+                  return _buildPlaceholderImage();
+                },
+              );
+            } else if (snapshot.hasError) {
+              return _buildPlaceholderImage();
+            } else {
+              return _buildLoadingImage();
+            }
+          },
+        );
+      } else {
+        // Image réseau (URL)
+        return Image.network(
+          imageUrl,
+          width: 80,
+          height: 80,
+          fit: BoxFit.cover,
+          errorBuilder: (context, error, stackTrace) {
+            return _buildPlaceholderImage();
+          },
+          loadingBuilder: (context, child, loadingProgress) {
+            if (loadingProgress == null) return child;
+            return _buildLoadingImage();
+          },
+        );
+      }
     }
     return _buildPlaceholderImage();
   }

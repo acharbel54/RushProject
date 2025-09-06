@@ -10,6 +10,7 @@ import '../../../core/models/donation_model.dart';
 import '../../../core/models/user_model.dart';
 import '../../../shared/widgets/loading_overlay.dart';
 import '../../../shared/utils/date_utils.dart';
+import '../../../services/local_image_service.dart';
 
 class DonationDetailScreen extends StatefulWidget {
   static const String routeName = '/donation-detail';
@@ -307,32 +308,68 @@ class _DonationDetailScreenState extends State<DonationDetailScreen> {
      
      // Vérifier si c'est un fichier local ou une URL
      if (imageUrl.startsWith('assets/')) {
-      // Image locale dans le dossier assets
-      return Image.asset(
-        imageUrl,
-        fit: BoxFit.cover,
-        errorBuilder: (context, error, stackTrace) {
-          return Container(
-            color: Colors.grey[200],
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  Icons.broken_image_outlined,
-                  size: 48,
-                  color: Colors.grey[400],
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'Image non disponible',
-                  style: TextStyle(
-                    color: Colors.grey[600],
-                    fontSize: 14,
+      // Image locale dans le dossier assets - utiliser FutureBuilder pour obtenir le chemin absolu
+      return FutureBuilder<String>(
+        future: LocalImageService.getAbsolutePath(imageUrl),
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            return Image.file(
+              File(snapshot.data!),
+              fit: BoxFit.cover,
+              errorBuilder: (context, error, stackTrace) {
+                return Container(
+                  color: Colors.grey[200],
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.broken_image_outlined,
+                        size: 48,
+                        color: Colors.grey[400],
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Image non disponible',
+                        style: TextStyle(
+                          color: Colors.grey[600],
+                          fontSize: 14,
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-              ],
-            ),
-          );
+                );
+              },
+            );
+          } else if (snapshot.hasError) {
+            return Container(
+              color: Colors.grey[200],
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.broken_image_outlined,
+                    size: 48,
+                    color: Colors.grey[400],
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Image non disponible',
+                    style: TextStyle(
+                      color: Colors.grey[600],
+                      fontSize: 14,
+                    ),
+                  ),
+                ],
+              ),
+            );
+          } else {
+            return Container(
+              color: Colors.grey[200],
+              child: const Center(
+                child: CircularProgressIndicator(),
+              ),
+            );
+          }
         },
       );
      } else if (imageUrl.startsWith('http')) {

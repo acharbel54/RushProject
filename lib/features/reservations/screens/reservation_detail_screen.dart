@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'dart:io';
 import '../../../core/providers/reservation_provider.dart';
 import '../../../core/providers/simple_auth_provider.dart';
 import '../../../core/models/reservation_model.dart';
 import '../../../core/models/donation_model.dart';
 import '../../../shared/utils/date_utils.dart';
 import '../../donations/screens/donation_detail_screen.dart';
+import '../../../services/local_image_service.dart';
 
 class ReservationDetailScreen extends StatefulWidget {
   final String reservationId;
@@ -535,15 +537,50 @@ class _ReservationDetailScreenState extends State<ReservationDetailScreen> {
 
   Widget _buildDonationImage() {
     if (_donation!.imageUrls.isNotEmpty) {
-      return Image.network(
-        _donation!.imageUrls.first,
-        width: 100,
-        height: 100,
-        fit: BoxFit.cover,
-        errorBuilder: (context, error, stackTrace) {
-          return _buildPlaceholderImage();
-        },
-      );
+      final String imageUrl = _donation!.imageUrls.first;
+      
+      // Vérifier si c'est un chemin local (commence par assets/) ou une URL
+      if (imageUrl.startsWith('assets/')) {
+        // Image locale dans le dossier assets
+        return FutureBuilder<String>(
+          future: LocalImageService.getAbsolutePath(imageUrl),
+          builder: (context, snapshot) {
+            if (snapshot.hasData) {
+              return Image.file(
+                File(snapshot.data!),
+                width: 100,
+                height: 100,
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) {
+                  return _buildPlaceholderImage();
+                },
+              );
+            } else if (snapshot.hasError) {
+              return _buildPlaceholderImage();
+            } else {
+              return Container(
+                width: 100,
+                height: 100,
+                color: Colors.grey[200],
+                child: const Center(
+                  child: CircularProgressIndicator(),
+                ),
+              );
+            }
+          },
+        );
+      } else {
+        // Image réseau (URL)
+        return Image.network(
+          imageUrl,
+          width: 100,
+          height: 100,
+          fit: BoxFit.cover,
+          errorBuilder: (context, error, stackTrace) {
+            return _buildPlaceholderImage();
+          },
+        );
+      }
     }
     return _buildPlaceholderImage();
   }

@@ -60,19 +60,58 @@ class JsonAuthService {
   User? get currentUser => _currentUser;
   bool get isLoggedIn => _currentUser != null;
 
+  // Initialiser le service et charger l'utilisateur actuel
+  Future<void> initialize() async {
+    await loadUsers();
+    await _loadCurrentUser();
+  }
+
   // Obtenir le chemin du fichier JSON
   Future<String> get _localPath async {
-    final directory = await getApplicationDocumentsDirectory();
-    final dbDir = Directory('${directory.path}/base_de_donnees');
-    if (!await dbDir.exists()) {
-      await dbDir.create(recursive: true);
-    }
-    return dbDir.path;
+    // Utiliser le répertoire base_de_donnees du projet
+    return 'base_de_donnees';
   }
 
   Future<File> get _localFile async {
     final path = await _localPath;
     return File('$path/userinfo.json');
+  }
+
+  Future<File> get _currentUserFile async {
+    final path = await _localPath;
+    return File('$path/current_user.json');
+  }
+
+  // Sauvegarder l'utilisateur actuel
+  Future<void> _saveCurrentUser() async {
+    try {
+      final file = await _currentUserFile;
+      if (_currentUser != null) {
+        await file.writeAsString(json.encode(_currentUser!.toJson()));
+      } else {
+        if (await file.exists()) {
+          await file.delete();
+        }
+      }
+    } catch (e) {
+      print('Erreur lors de la sauvegarde de l\'utilisateur actuel: $e');
+    }
+  }
+
+  // Charger l'utilisateur actuel
+  Future<void> _loadCurrentUser() async {
+    try {
+      final file = await _currentUserFile;
+      if (await file.exists()) {
+        final contents = await file.readAsString();
+        final userData = json.decode(contents);
+        _currentUser = User.fromJson(userData);
+        print('Utilisateur actuel chargé: ${_currentUser?.fullName}');
+      }
+    } catch (e) {
+      print('Erreur lors du chargement de l\'utilisateur actuel: $e');
+      _currentUser = null;
+    }
   }
 
   // Charger les utilisateurs depuis le fichier JSON
@@ -136,6 +175,7 @@ class JsonAuthService {
       await saveUsers();
       
       _currentUser = newUser;
+      await _saveCurrentUser();
       
       return {
         'success': true,
@@ -170,6 +210,7 @@ class JsonAuthService {
       }
 
       _currentUser = user;
+      await _saveCurrentUser();
       
       return {
         'success': true,
@@ -185,8 +226,9 @@ class JsonAuthService {
   }
 
   // Déconnexion
-  void logout() {
+  Future<void> logout() async {
     _currentUser = null;
+    await _saveCurrentUser();
   }
 
   // Obtenir tous les utilisateurs (pour debug)

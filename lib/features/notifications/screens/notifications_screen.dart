@@ -411,6 +411,9 @@ class _NotificationsScreenState extends State<NotificationsScreen>
   void _navigateBasedOnNotification(BuildContext context, NotificationModel notification) {
     switch (notification.type) {
       case NotificationType.newReservation:
+        // Pour les donateurs, naviguer vers l'écran de gestion des réservations
+        Navigator.pushNamed(context, '/donor-reservations');
+        break;
       case NotificationType.reservationConfirmed:
       case NotificationType.reservationCancelled:
       case NotificationType.reservationCompleted:

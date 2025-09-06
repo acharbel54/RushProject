@@ -6,6 +6,7 @@ import '../../../core/models/user_model.dart';
 import '../widgets/auth_text_field.dart';
 import '../widgets/auth_button.dart';
 import 'login_screen.dart';
+import '../../donations/screens/donor_reservations_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   static const String routeName = '/profile';
@@ -525,6 +526,28 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   margin: const EdgeInsets.symmetric(horizontal: 16),
                   child: Column(
                     children: [
+                      // Gestion des réservations (pour les donateurs)
+                      if (user.role == UserRole.donateur) ...[
+                        SizedBox(
+                          width: double.infinity,
+                          child: OutlinedButton.icon(
+                            onPressed: () {
+                              Navigator.pushNamed(context, DonorReservationsScreen.routeName);
+                            },
+                            icon: const Icon(Icons.assignment, color: Color(0xFF4CAF50)),
+                            label: const Text(
+                              'Gérer mes réservations',
+                              style: TextStyle(color: Color(0xFF4CAF50)),
+                            ),
+                            style: OutlinedButton.styleFrom(
+                              side: const BorderSide(color: Color(0xFF4CAF50)),
+                              padding: const EdgeInsets.symmetric(vertical: 12),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                      ],
+                      
                       // Déconnexion
                       SizedBox(
                         width: double.infinity,

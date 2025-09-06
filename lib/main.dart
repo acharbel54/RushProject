@@ -26,6 +26,7 @@ import 'features/notifications/screens/notifications_screen.dart';
 import 'features/notifications/screens/notification_settings_screen.dart';
 import 'features/admin/screens/admin_dashboard_screen.dart';
 import 'features/donations/screens/donation_detail_screen.dart';
+import 'features/donations/screens/donor_reservations_screen.dart';
 import 'core/providers/notification_provider.dart';
 import 'core/providers/donation_provider.dart';
 import 'core/providers/reservation_provider.dart';
@@ -281,6 +282,7 @@ class FoodLinkApp extends StatelessWidget {
             final donationId = ModalRoute.of(context)!.settings.arguments as String;
             return DonationDetailScreen(donationId: donationId);
           },
+          DonorReservationsScreen.routeName: (context) => const DonorReservationsScreen(),
         },
         
         // Gestionnaire de routes inconnues

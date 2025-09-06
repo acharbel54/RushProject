@@ -181,20 +181,31 @@ class NotificationProvider with ChangeNotifier {
   }
 
   // Envoyer une notification de confirmation de réservation (version locale)
-  Future<void> sendReservationConfirmedNotification({
-    required String beneficiaryId,
-    required String donationTitle,
-    required String donorName,
-    required String reservationId,
-  }) async {
+  Future<void> sendReservationConfirmedNotification(
+    String beneficiaryId,
+    String reservationId,
+  ) async {
     await addLocalNotification(
       title: 'Réservation confirmée',
-      body: '$donorName a confirmé votre réservation pour "$donationTitle"',
+      body: 'Votre réservation a été confirmée par le donateur',
       type: NotificationType.reservationConfirmed,
       data: {
         'reservationId': reservationId,
-        'donationTitle': donationTitle,
-        'donorName': donorName,
+      },
+    );
+  }
+
+  // Envoyer une notification d'annulation de réservation (version locale)
+  Future<void> sendReservationCancelledNotification(
+    String beneficiaryId,
+    String reservationId,
+  ) async {
+    await addLocalNotification(
+      title: 'Réservation annulée',
+      body: 'Votre réservation a été annulée par le donateur',
+      type: NotificationType.reservationCancelled,
+      data: {
+        'reservationId': reservationId,
       },
     );
   }

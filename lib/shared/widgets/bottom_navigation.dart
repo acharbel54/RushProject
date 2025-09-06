@@ -3,6 +3,10 @@ import 'package:provider/provider.dart';
 import '../../core/providers/simple_auth_provider.dart';
 import '../../core/services/simple_auth_service.dart';
 import '../../core/models/user_model.dart';
+import '../../core/models/reservation_model.dart';
+import '../../core/services/user_service.dart';
+import '../../services/json_reservation_service.dart';
+import '../../services/json_auth_service.dart';
 import '../../features/donations/screens/donations_list_screen.dart';
 import '../../features/donations/screens/my_donations_screen.dart';
 import '../../features/donations/screens/create_donation_screen.dart';
@@ -235,6 +239,19 @@ class DashboardScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // Debug: Afficher l'ID utilisateur
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  margin: const EdgeInsets.only(bottom: 16),
+                  decoration: BoxDecoration(
+                    color: Colors.blue.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    'DEBUG: Utilisateur connecté - ID: ${user.id}, Role: ${user.role}',
+                    style: const TextStyle(fontSize: 12, color: Colors.blue),
+                  ),
+                ),
                 // Carte de bienvenue
                 Container(
                   width: double.infinity,
@@ -549,170 +566,213 @@ class DashboardScreen extends StatelessWidget {
   }
 
   Widget _buildReservationHistory() {
-    // TODO: Récupérer les vraies réservations depuis le service
-    final mockReservations = [
-      {
-        'title': 'Légumes frais',
-        'date': DateTime.now().subtract(const Duration(days: 2)),
-        'status': 'Récupéré',
-        'location': 'Marché Central',
-        'savings': '12€',
-      },
-      {
-        'title': 'Pain et viennoiseries',
-        'date': DateTime.now().subtract(const Duration(days: 5)),
-        'status': 'Récupéré',
-        'location': 'Boulangerie Dupont',
-        'savings': '8€',
-      },
-      {
-        'title': 'Produits laitiers',
-        'date': DateTime.now().subtract(const Duration(days: 8)),
-        'status': 'Annulé',
-        'location': 'Supermarché Bio',
-        'savings': '0€',
-      },
-    ];
+    return FutureBuilder<List<ReservationModel>>(
+      future: _getReservationHistory(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(
+            child: CircularProgressIndicator(),
+          );
+        }
+        
+        if (snapshot.hasError) {
+          return Center(
+            child: Text(
+              'Erreur lors du chargement de l\'historique',
+              style: TextStyle(color: Colors.grey[600]),
+            ),
+          );
+        }
+        
+        final reservations = snapshot.data ?? [];
+        
+        if (reservations.isEmpty) {
+          return Center(
+            child: Column(
+              children: [
+                Icon(
+                  Icons.history,
+                  size: 48,
+                  color: Colors.grey[400],
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Aucune réservation dans l\'historique',
+                  style: TextStyle(
+                    color: Colors.grey[600],
+                    fontSize: 16,
+                  ),
+                ),
+              ],
+            ),
+          );
+        }
 
-    if (mockReservations.isEmpty) {
-      return Container(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          children: [
-            Icon(
-              Icons.inbox_outlined,
-              size: 48,
-              color: Colors.grey[400],
-            ),
-            const SizedBox(height: 12),
-            Text(
-              'Aucune réservation pour le moment',
-              style: TextStyle(
-                color: Colors.grey[600],
-                fontSize: 16,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Vos réservations apparaîtront ici',
-              style: TextStyle(
-                color: Colors.grey[500],
-                fontSize: 14,
-              ),
-            ),
-          ],
-        ),
-      );
-    }
-
-    return Column(
-      children: mockReservations.map((reservation) {
-        final isLast = mockReservations.indexOf(reservation) == mockReservations.length - 1;
         return Column(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.grey[50],
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: Colors.grey[200]!),
-              ),
-              child: Row(
-                children: [
-                  Container(
-                    width: 40,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      color: reservation['status'] == 'Récupéré' 
-                          ? Colors.green.withOpacity(0.1)
-                          : Colors.red.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Icon(
-                      reservation['status'] == 'Récupéré' 
-                          ? Icons.check_circle
-                          : Icons.cancel,
-                      color: reservation['status'] == 'Récupéré' 
-                          ? Colors.green
-                          : Colors.red,
-                      size: 20,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          reservation['title'] as String,
-                          style: const TextStyle(
-                            fontWeight: FontWeight.w600,
-                            fontSize: 16,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          reservation['location'] as String,
-                          style: TextStyle(
-                            color: Colors.grey[600],
-                            fontSize: 14,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          _formatDate(reservation['date'] as DateTime),
-                          style: TextStyle(
-                            color: Colors.grey[500],
-                            fontSize: 12,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 4,
-                        ),
-                        decoration: BoxDecoration(
-                          color: reservation['status'] == 'Récupéré' 
-                              ? Colors.green.withOpacity(0.1)
-                              : Colors.red.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Text(
-                          reservation['status'] as String,
-                          style: TextStyle(
-                            color: reservation['status'] == 'Récupéré' 
-                                ? Colors.green[700]
-                                : Colors.red[700],
-                            fontSize: 12,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        'Économie: ${reservation['savings']}',
-                        style: TextStyle(
-                          color: Colors.grey[600],
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
-                        ),
+          children: reservations.asMap().entries.map((entry) {
+            final index = entry.key;
+            final reservation = entry.value;
+            final isLast = index == reservations.length - 1;
+
+            return Column(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.1),
+                        spreadRadius: 1,
+                        blurRadius: 3,
+                        offset: const Offset(0, 1),
                       ),
                     ],
                   ),
-                ],
-              ),
-            ),
-            if (!isLast) const SizedBox(height: 12),
-          ],
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 50,
+                        height: 50,
+                        decoration: BoxDecoration(
+                          color: _getStatusColor(reservation.status).withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(25),
+                        ),
+                        child: Icon(
+                          _getStatusIcon(reservation.status),
+                          color: _getStatusColor(reservation.status),
+                          size: 24,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              reservation.donationTitle,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 16,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              reservation.pickupAddress,
+                              style: TextStyle(
+                                color: Colors.grey[600],
+                                fontSize: 14,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              _formatDate(reservation.createdAt),
+                              style: TextStyle(
+                                color: Colors.grey[500],
+                                fontSize: 12,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 4,
+                            ),
+                            decoration: BoxDecoration(
+                              color: _getStatusColor(reservation.status).withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Text(
+                              reservation.statusDisplayText,
+                              style: TextStyle(
+                                color: _getStatusColor(reservation.status),
+                                fontSize: 12,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            'Qté: ${reservation.donationQuantity}',
+                            style: TextStyle(
+                              color: Colors.grey[600],
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                if (!isLast) const SizedBox(height: 12),
+              ],
+            );
+          }).toList(),
         );
-      }).toList(),
+      },
     );
+  }
+
+  Future<List<ReservationModel>> _getReservationHistory() async {
+    final authService = JsonAuthService();
+    final reservationService = JsonReservationService();
+    
+    try {
+      print('DEBUG _getReservationHistory: Début du chargement');
+      await authService.initialize();
+      final currentUser = authService.currentUser;
+      print('DEBUG _getReservationHistory: Utilisateur actuel: ${currentUser?.id}');
+      
+      if (currentUser != null) {
+        print('DEBUG _getReservationHistory: Appel getUserReservations pour ${currentUser.id}');
+        final reservations = await reservationService.getUserReservations(currentUser.id);
+        print('DEBUG _getReservationHistory: Réservations récupérées: ${reservations.length}');
+        
+        // Trier par date de création (plus récent en premier)
+        reservations.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+        return reservations;
+      } else {
+        print('DEBUG _getReservationHistory: Aucun utilisateur connecté');
+      }
+    } catch (e) {
+      print('Erreur lors du chargement de l\'historique: $e');
+      print('Stack trace: ${StackTrace.current}');
+    }
+    
+    return [];
+  }
+  
+  Color _getStatusColor(ReservationStatus status) {
+    switch (status) {
+      case ReservationStatus.pending:
+        return Colors.orange;
+      case ReservationStatus.confirmed:
+        return Colors.blue;
+      case ReservationStatus.completed:
+        return Colors.green;
+      case ReservationStatus.cancelled:
+        return Colors.red;
+    }
+  }
+  
+  IconData _getStatusIcon(ReservationStatus status) {
+    switch (status) {
+      case ReservationStatus.pending:
+        return Icons.schedule;
+      case ReservationStatus.confirmed:
+        return Icons.check_circle_outline;
+      case ReservationStatus.completed:
+        return Icons.check_circle;
+      case ReservationStatus.cancelled:
+        return Icons.cancel;
+    }
   }
 
   String _formatDate(DateTime date) {

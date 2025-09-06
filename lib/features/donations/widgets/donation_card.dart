@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'dart:io';
 import '../../../core/models/donation_model.dart';
 import '../../../core/providers/reservation_provider.dart';
 import '../../../core/providers/simple_auth_provider.dart';
 import '../../../shared/utils/date_utils.dart';
+import '../../../services/local_image_service.dart';
 
 class DonationCard extends StatefulWidget {
   final DonationModel donation;
@@ -256,13 +258,24 @@ class _DonationCardState extends State<DonationCard> {
     
     // Vérifier si c'est un chemin local (commence par assets/) ou une URL
     if (imageUrl.startsWith('assets/')) {
-      // Image locale dans le dossier assets
-      return Image.asset(
-        imageUrl,
-        fit: BoxFit.cover,
-        width: double.infinity,
-        errorBuilder: (context, error, stackTrace) {
-          return _buildPlaceholderImage();
+      // Image locale dans le dossier assets - utiliser FutureBuilder pour obtenir le chemin absolu
+      return FutureBuilder<String>(
+        future: LocalImageService.getAbsolutePath(imageUrl),
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            return Image.file(
+              File(snapshot.data!),
+              fit: BoxFit.cover,
+              width: double.infinity,
+              errorBuilder: (context, error, stackTrace) {
+                return _buildPlaceholderImage();
+              },
+            );
+          } else if (snapshot.hasError) {
+            return _buildPlaceholderImage();
+          } else {
+            return _buildLoadingImage();
+          }
         },
       );
     } else {

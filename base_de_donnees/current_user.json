@@ -1,0 +1,9 @@
+{
+  "id": "beneficiaire_001",
+  "email": "beneficiaire@test.com",
+  "password": "123456",
+  "firstName": "Marie",
+  "lastName": "Bénéficiaire",
+  "role": "beneficiaire",
+  "createdAt": "2025-09-06T00:18:50.122Z"
+}

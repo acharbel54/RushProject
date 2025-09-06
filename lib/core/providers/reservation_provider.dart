@@ -3,10 +3,12 @@ import '../models/reservation_model.dart';
 import '../models/donation_model.dart';
 import '../../services/json_donation_service.dart';
 import '../../services/json_reservation_service.dart';
+import 'notification_provider.dart';
 
 class ReservationProvider with ChangeNotifier {
   final JsonDonationService _donationService = JsonDonationService();
   final JsonReservationService _reservationService = JsonReservationService();
+  final NotificationProvider _notificationProvider = NotificationProvider();
   
   List<ReservationModel> _reservations = [];
   List<ReservationModel> _userReservations = [];
@@ -86,10 +88,16 @@ class ReservationProvider with ChangeNotifier {
       _setLoading(true);
       _setError(null);
 
-      // TODO: Implémenter avec le service JSON des réservations
-      _reservations = [];
+      // Récupérer toutes les réservations
+      final allReservations = await _reservationService.getAllReservations();
+      
+      // Filtrer les réservations pour ce donateur
+      _reservations = allReservations.where((reservation) => 
+        reservation.donorId == donorId
+      ).toList();
 
       _setLoading(false);
+      notifyListeners();
     } catch (e) {
       _setError('Erreur lors du chargement des réservations: $e');
       _setLoading(false);
@@ -146,6 +154,14 @@ class ReservationProvider with ChangeNotifier {
       // Sauvegarder la réservation via le service JSON
       await _reservationService.addReservation(reservation);
       
+      // Envoyer une notification au donateur
+      await _notificationProvider.sendNewReservationNotification(
+        donorId: donation.donorId,
+        donationTitle: donation.title,
+        beneficiaryName: reservation.beneficiaryName,
+        reservationId: reservation.id,
+      );
+      
       // Ajouter la réservation aux listes locales
       _reservations.add(reservation);
       _userReservations.add(reservation);
@@ -169,11 +185,63 @@ class ReservationProvider with ChangeNotifier {
       _setLoading(true);
       _setError(null);
 
-      // TODO: Implémenter avec le service JSON des réservations
+      print('Mise à jour du statut de la réservation $reservationId vers $newStatus');
       
+      // Charger les réservations actuelles
+      await _reservationService.loadReservations();
+      final reservations = await _reservationService.getAllReservations();
+      
+      // Trouver la réservation à mettre à jour
+      final reservationIndex = reservations.indexWhere((r) => r.id == reservationId);
+      if (reservationIndex == -1) {
+        throw Exception('Réservation non trouvée');
+      }
+      
+      final reservation = reservations[reservationIndex];
+      print('Réservation trouvée: ${reservation.donationId}');
+      
+      // Si on annule la réservation, rendre le don disponible
+      if (newStatus == 'cancelled') {
+        print('Annulation de la réservation - libération du don ${reservation.donationId}');
+        await _donationService.cancelReservation(reservation.donationId);
+        
+        // Supprimer la réservation du fichier JSON
+        await _reservationService.deleteReservation(reservationId);
+        print('Réservation supprimée du fichier JSON');
+        
+        // Mettre à jour les listes locales
+        _reservations.removeWhere((r) => r.id == reservationId);
+        _userReservations.removeWhere((r) => r.id == reservationId);
+      } else {
+        // Pour les autres statuts, mettre à jour la réservation
+        final updatedReservation = reservation.copyWith(
+          status: ReservationStatus.values.firstWhere(
+            (status) => status.name == newStatus,
+            orElse: () => ReservationStatus.pending,
+          ),
+          updatedAt: DateTime.now(),
+        );
+        
+        await _reservationService.updateReservation(updatedReservation);
+        
+        // Mettre à jour les listes locales
+        final localIndex = _reservations.indexWhere((r) => r.id == reservationId);
+        if (localIndex != -1) {
+          _reservations[localIndex] = updatedReservation;
+        }
+        
+        final userIndex = _userReservations.indexWhere((r) => r.id == reservationId);
+        if (userIndex != -1) {
+          _userReservations[userIndex] = updatedReservation;
+        }
+      }
+      
+      notifyListeners();
       _setLoading(false);
+      print('Mise à jour du statut terminée avec succès');
       return true;
     } catch (e) {
+      print('Erreur lors de la mise à jour du statut: $e');
       _setError('Erreur lors de la mise à jour: $e');
       _setLoading(false);
       return false;
@@ -182,12 +250,53 @@ class ReservationProvider with ChangeNotifier {
 
   /// Confirme une réservation (par le donateur)
   Future<bool> confirmReservation(String reservationId) async {
-    return await updateReservationStatus(reservationId, ReservationStatus.confirmed.name);
+    try {
+      final result = await updateReservationStatus(reservationId, ReservationStatus.confirmed.name);
+      
+      if (result) {
+        // Envoyer une notification au bénéficiaire
+        final reservation = _findReservationById(reservationId);
+        if (reservation != null) {
+          await _notificationProvider.sendReservationConfirmedNotification(
+            reservation.beneficiaryId,
+            reservationId,
+          );
+        }
+      }
+      
+      return result;
+    } catch (e) {
+      _setError('Erreur lors de la confirmation: $e');
+      return false;
+    }
   }
 
   /// Annule une réservation
   Future<bool> cancelReservation(String reservationId) async {
     return await updateReservationStatus(reservationId, ReservationStatus.cancelled.name);
+  }
+
+  /// Refuse une réservation (pour les donateurs)
+  Future<bool> rejectReservation(String reservationId) async {
+    try {
+      final result = await updateReservationStatus(reservationId, ReservationStatus.cancelled.name);
+      
+      if (result) {
+        // Envoyer une notification au bénéficiaire
+        final reservation = _findReservationById(reservationId);
+        if (reservation != null) {
+          await _notificationProvider.sendReservationCancelledNotification(
+            reservation.beneficiaryId,
+            reservationId,
+          );
+        }
+      }
+      
+      return result;
+    } catch (e) {
+      _setError('Erreur lors du refus: $e');
+      return false;
+    }
   }
 
   /// Marque une réservation comme terminée (don récupéré)

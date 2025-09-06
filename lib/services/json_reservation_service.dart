@@ -115,7 +115,20 @@ class JsonReservationService {
   }
 
   // Mettre à jour une réservation
-  Future<void> updateReservation(String id, ReservationModel updatedReservation) async {
+  Future<void> updateReservation(ReservationModel updatedReservation) async {
+    await loadReservations();
+    final index = _reservations.indexWhere((r) => r.id == updatedReservation.id);
+    if (index != -1) {
+      _reservations[index] = updatedReservation;
+      await saveReservations();
+      print('DEBUG JsonReservationService: Réservation ${updatedReservation.id} mise à jour');
+    } else {
+      print('DEBUG JsonReservationService: Réservation ${updatedReservation.id} non trouvée pour mise à jour');
+    }
+  }
+
+  // Mettre à jour une réservation par ID (méthode legacy)
+  Future<void> updateReservationById(String id, ReservationModel updatedReservation) async {
     await loadReservations();
     final index = _reservations.indexWhere((r) => r.id == id);
     if (index != -1) {
