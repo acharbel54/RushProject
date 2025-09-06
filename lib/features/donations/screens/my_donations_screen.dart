@@ -140,13 +140,10 @@ class _MyDonationsScreenState extends State<MyDonationsScreen> {
       ),
       child: InkWell(
         onTap: () {
-          Navigator.push(
+          Navigator.pushNamed(
             context,
-            MaterialPageRoute(
-              builder: (context) => DonationDetailScreen(
-                donationId: donation.id,
-              ),
-            ),
+            DonationDetailScreen.routeName,
+            arguments: donation.id,
           );
         },
         borderRadius: BorderRadius.circular(12),

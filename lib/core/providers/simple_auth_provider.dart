@@ -133,6 +133,11 @@ class SimpleAuthProvider extends ChangeNotifier {
     return _authService.getAllUsers();
   }
 
+  // Obtenir un utilisateur par ID
+  Future<SimpleUser?> getUserById(String userId) async {
+    return await _authService.getUserById(userId);
+  }
+
   // Mettre à jour le profil utilisateur
   Future<bool> updateProfile({
     String? displayName,
@@ -161,6 +166,43 @@ class SimpleAuthProvider extends ChangeNotifier {
         return true;
       } else {
         _setError('Erreur lors de la mise à jour du profil');
+        return false;
+      }
+    } catch (e) {
+      _setError(e.toString());
+      return false;
+    } finally {
+      _setLoading(false);
+    }
+  }
+  
+  // Mettre à jour les statistiques utilisateur
+  Future<bool> updateUserStats({
+    String? userId,
+    int? totalDonations,
+    int? totalReservations,
+    double? totalKgDonated,
+  }) async {
+    try {
+      _setLoading(true);
+      _clearError();
+      
+      final updatedUser = await _authService.updateUserStats(
+        userId: userId,
+        totalDonations: totalDonations,
+        totalReservations: totalReservations,
+        totalKgDonated: totalKgDonated,
+      );
+      
+      if (updatedUser != null) {
+        // Si c'est l'utilisateur actuel, mettre à jour la référence
+        if (userId == null || userId == _currentUser?.id) {
+          _currentUser = updatedUser;
+          notifyListeners();
+        }
+        return true;
+      } else {
+        _setError('Erreur lors de la mise à jour des statistiques');
         return false;
       }
     } catch (e) {

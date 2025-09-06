@@ -1,4 +1,4 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+// Removed Firebase import for JSON storage
 
 enum DonationStatus { disponible, reserve, recupere, expire }
 
@@ -57,8 +57,8 @@ class DonationModel {
     this.isUrgent = false,
   });
 
-  // Conversion vers Map pour Firestore
-  Map<String, dynamic> toMap() {
+  // Conversion vers Map pour JSON
+  Map<String, dynamic> toJson() {
     return {
       'id': id,
       'donorId': donorId,
@@ -67,60 +67,59 @@ class DonationModel {
       'description': description,
       'quantity': quantity,
       'category': category.name,
-      'expirationDate': Timestamp.fromDate(expirationDate),
+      'expirationDate': expirationDate.toIso8601String(),
       'address': address,
       'latitude': latitude,
       'longitude': longitude,
       'imageUrls': imageUrls,
       'status': status.name,
-      'createdAt': Timestamp.fromDate(createdAt),
-      'updatedAt': updatedAt != null ? Timestamp.fromDate(updatedAt!) : null,
+      'createdAt': createdAt.toIso8601String(),
+      'updatedAt': updatedAt?.toIso8601String(),
       'reservedBy': reservedBy,
-      'reservedAt': reservedAt != null ? Timestamp.fromDate(reservedAt!) : null,
+      'reservedAt': reservedAt?.toIso8601String(),
       'notes': notes,
       'isUrgent': isUrgent,
     };
   }
 
-  // Création depuis Map Firestore
-  factory DonationModel.fromMap(Map<String, dynamic> map) {
+  // Création depuis Map JSON
+  factory DonationModel.fromJson(Map<String, dynamic> json) {
     return DonationModel(
-      id: map['id'] ?? '',
-      donorId: map['donorId'] ?? '',
-      donorName: map['donorName'] ?? '',
-      title: map['title'] ?? '',
-      description: map['description'] ?? '',
-      quantity: map['quantity'] ?? '',
+      id: json['id'] ?? '',
+      donorId: json['donorId'] ?? '',
+      donorName: json['donorName'] ?? '',
+      title: json['title'] ?? '',
+      description: json['description'] ?? '',
+      quantity: json['quantity'] ?? '',
       category: DonationCategory.values.firstWhere(
-        (e) => e.name == map['category'],
+        (e) => e.name == json['category'],
         orElse: () => DonationCategory.autre,
       ),
-      expirationDate: (map['expirationDate'] as Timestamp).toDate(),
-      address: map['address'] ?? '',
-      latitude: map['latitude']?.toDouble() ?? 0.0,
-      longitude: map['longitude']?.toDouble() ?? 0.0,
-      imageUrls: List<String>.from(map['imageUrls'] ?? []),
+      expirationDate: DateTime.parse(json['expirationDate']),
+      address: json['address'] ?? '',
+      latitude: json['latitude']?.toDouble() ?? 0.0,
+      longitude: json['longitude']?.toDouble() ?? 0.0,
+      imageUrls: List<String>.from(json['imageUrls'] ?? []),
       status: DonationStatus.values.firstWhere(
-        (e) => e.name == map['status'],
+        (e) => e.name == json['status'],
         orElse: () => DonationStatus.disponible,
       ),
-      createdAt: (map['createdAt'] as Timestamp).toDate(),
-      updatedAt: map['updatedAt'] != null
-          ? (map['updatedAt'] as Timestamp).toDate()
+      createdAt: DateTime.parse(json['createdAt']),
+      updatedAt: json['updatedAt'] != null
+          ? DateTime.parse(json['updatedAt'])
           : null,
-      reservedBy: map['reservedBy'],
-      reservedAt: map['reservedAt'] != null
-          ? (map['reservedAt'] as Timestamp).toDate()
+      reservedBy: json['reservedBy'],
+      reservedAt: json['reservedAt'] != null
+          ? DateTime.parse(json['reservedAt'])
           : null,
-      notes: map['notes'],
-      isUrgent: map['isUrgent'] ?? false,
+      notes: json['notes'],
+      isUrgent: json['isUrgent'] ?? false,
     );
   }
 
-  // Création depuis DocumentSnapshot
-  factory DonationModel.fromDocument(DocumentSnapshot doc) {
-    final data = doc.data() as Map<String, dynamic>;
-    return DonationModel.fromMap(data);
+  // Méthode pour compatibilité (alias de fromJson)
+  factory DonationModel.fromMap(Map<String, dynamic> map) {
+    return DonationModel.fromJson(map);
   }
 
   // Copie avec modifications

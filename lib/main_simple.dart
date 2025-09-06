@@ -15,7 +15,9 @@ import 'features/maps/screens/map_screen.dart';
 import 'features/notifications/screens/notifications_screen.dart';
 import 'features/notifications/screens/notification_settings_screen.dart';
 import 'features/admin/screens/admin_dashboard_screen.dart';
+import 'features/donations/screens/donation_detail_screen.dart';
 import 'core/providers/notification_provider.dart';
+import 'core/providers/donation_provider.dart';
 
 void main() {
   runApp(const FoodLinkSimpleApp());
@@ -33,6 +35,9 @@ class FoodLinkSimpleApp extends StatelessWidget {
         ),
         ChangeNotifierProvider(
           create: (context) => NotificationProvider(),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => DonationProvider(),
         ),
       ],
       child: MaterialApp(
@@ -57,6 +62,10 @@ class FoodLinkSimpleApp extends StatelessWidget {
           '/notifications': (context) => const NotificationsScreen(),
           '/notification-settings': (context) => const NotificationSettingsScreen(),
           '/admin': (context) => const AdminDashboardScreen(),
+          DonationDetailScreen.routeName: (context) {
+            final donationId = ModalRoute.of(context)!.settings.arguments as String;
+            return DonationDetailScreen(donationId: donationId);
+          },
         },
       ),
     );

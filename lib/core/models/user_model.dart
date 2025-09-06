@@ -17,6 +17,7 @@ class UserModel {
   final bool isActive;
   final int totalDonations;
   final int totalReservations;
+  final double totalKgDonated;
 
   UserModel({
     required this.id,
@@ -33,6 +34,7 @@ class UserModel {
     this.isActive = true,
     this.totalDonations = 0,
     this.totalReservations = 0,
+    this.totalKgDonated = 0.0,
   });
 
   // Conversion vers Map pour Firestore
@@ -52,6 +54,7 @@ class UserModel {
       'isActive': isActive,
       'totalDonations': totalDonations,
       'totalReservations': totalReservations,
+      'totalKgDonated': totalKgDonated,
     };
   }
 
@@ -82,6 +85,7 @@ class UserModel {
       isActive: map['isActive'] ?? true,
       totalDonations: map['totalDonations'] ?? 0,
       totalReservations: map['totalReservations'] ?? 0,
+      totalKgDonated: (map['totalKgDonated'] ?? 0.0).toDouble(),
     );
   }
 
@@ -107,6 +111,7 @@ class UserModel {
     bool? isActive,
     int? totalDonations,
     int? totalReservations,
+    double? totalKgDonated,
   }) {
     return UserModel(
       id: id ?? this.id,
@@ -123,6 +128,7 @@ class UserModel {
       isActive: isActive ?? this.isActive,
       totalDonations: totalDonations ?? this.totalDonations,
       totalReservations: totalReservations ?? this.totalReservations,
+      totalKgDonated: totalKgDonated ?? this.totalKgDonated,
     );
   }
 

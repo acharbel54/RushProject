@@ -6,6 +6,7 @@ import '../../core/models/user_model.dart';
 import '../../features/donations/screens/donations_list_screen.dart';
 import '../../features/donations/screens/my_donations_screen.dart';
 import '../../features/donations/screens/create_donation_screen.dart';
+import '../../features/donations/screens/new_donation_design_screen.dart';
 import '../../features/maps/screens/map_screen.dart';
 import '../../features/auth/screens/profile_screen.dart';
 import '../../features/reservations/screens/reservations_screen.dart';
@@ -343,7 +344,7 @@ class DashboardScreen extends StatelessWidget {
                       Expanded(
                         child: _buildStatCard(
                           'Kg donnés',
-                          '0.0 kg', // TODO: Ajouter totalKgDonated au UserModel
+                          '${user.totalKgDonated.toStringAsFixed(1)} kg',
                           Icons.scale,
                           const Color(0xFFFF9800),
                         ),

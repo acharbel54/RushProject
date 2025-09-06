@@ -1,0 +1,88 @@
+[
+  {
+    "id": "donation_1",
+    "donorId": "user_1",
+    "donorName": "Marie Dupont",
+    "title": "Légumes frais du jardin",
+    "description": "Tomates, courgettes et aubergines fraîches de mon potager. Parfait état, récoltées ce matin.",
+    "quantity": "2 kg",
+    "category": "legumes",
+    "expirationDate": "2024-01-20T18:00:00.000Z",
+    "address": "123 Rue de la Paix, Paris",
+    "latitude": 48.8566,
+    "longitude": 2.3522,
+    "imageUrls": [
+      "https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=400",
+      "https://images.unsplash.com/photo-1566385101042-1a0aa0c1268c?w=400"
+    ],
+    "status": "disponible",
+    "createdAt": "2024-01-15T10:30:00.000Z",
+    "updatedAt": "2024-01-15T10:30:00.000Z",
+    "notes": "Disponible après 17h en semaine",
+    "isUrgent": false
+  },
+  {
+    "id": "donation_2",
+    "donorId": "user_2",
+    "donorName": "Jean Martin",
+    "title": "Pain de boulangerie",
+    "description": "Pain complet et baguettes de la boulangerie. Fait ce matin, encore frais.",
+    "quantity": "5 pains",
+    "category": "boulangerie",
+    "expirationDate": "2024-01-16T20:00:00.000Z",
+    "address": "456 Avenue des Champs, Lyon",
+    "latitude": 45.7640,
+    "longitude": 4.8357,
+    "imageUrls": [
+      "https://images.unsplash.com/photo-1509440159596-0249088772ff?w=400",
+      "https://images.unsplash.com/photo-1549931319-a545dcf3bc73?w=400"
+    ],
+    "status": "disponible",
+    "createdAt": "2024-01-15T08:15:00.000Z",
+    "updatedAt": "2024-01-15T08:15:00.000Z",
+    "notes": "À récupérer rapidement",
+    "isUrgent": true
+  },
+  {
+    "id": "donation_3",
+    "donorId": "user_1",
+    "donorName": "Marie Dupont",
+    "title": "Fruits de saison",
+    "description": "Pommes, poires et oranges. Très bon état, idéal pour compotes ou à consommer directement.",
+    "quantity": "3 kg",
+    "category": "fruits",
+    "expirationDate": "2024-01-18T12:00:00.000Z",
+    "address": "123 Rue de la Paix, Paris",
+    "latitude": 48.8566,
+    "longitude": 2.3522,
+    "imageUrls": [
+      "https://images.unsplash.com/photo-1610832958506-aa56368176cf?w=400"
+    ],
+    "status": "disponible",
+    "createdAt": "2024-01-15T14:20:00.000Z",
+    "updatedAt": "2024-01-15T14:20:00.000Z",
+    "notes": "Parfait pour faire des jus",
+    "isUrgent": false
+  },
+  {
+    "id": "test-local-image",
+    "donorId": "donor1",
+    "donorName": "Testeur Local",
+    "title": "Don de test avec image locale",
+    "description": "Test pour vérifier l'affichage des images locales",
+    "quantity": "1 portion",
+    "category": "fruits_legumes",
+    "expirationDate": "2024-12-31T23:59:59.000Z",
+    "address": "123 Rue de Test, Paris",
+    "latitude": 48.8566,
+    "longitude": 2.3522,
+    "imageUrls": [
+      "assets/images/donations/test-image.svg"
+    ],
+    "status": "disponible",
+    "createdAt": "2024-01-20T15:00:00.000Z",
+    "updatedAt": "2024-01-20T15:00:00.000Z",
+    "notes": "",
+    "isUrgent": false
+  }
+]

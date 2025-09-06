@@ -1,18 +1,17 @@
 import 'package:flutter/foundation.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import '../../../core/models/donation.dart';
-import '../../../core/services/firestore_service.dart';
+import '../../../core/models/donation_model.dart';
+import '../../../services/json_donation_service.dart';
 
 class DonationProvider with ChangeNotifier {
-  final FirestoreService _firestoreService = FirestoreService();
+  final JsonDonationService _donationService = JsonDonationService();
   
-  List<Donation> _donations = [];
-  List<Donation> _userDonations = [];
+  List<DonationModel> _donations = [];
+  List<DonationModel> _userDonations = [];
   bool _isLoading = false;
   String? _error;
 
-  List<Donation> get donations => _donations;
-  List<Donation> get userDonations => _userDonations;
+  List<DonationModel> get donations => _donations;
+  List<DonationModel> get userDonations => _userDonations;
   bool get isLoading => _isLoading;
   String? get error => _error;
 
@@ -20,16 +19,7 @@ class DonationProvider with ChangeNotifier {
   Future<void> fetchDonations() async {
     _setLoading(true);
     try {
-      final querySnapshot = await FirebaseFirestore.instance
-          .collection('donations')
-          .where('isActive', isEqualTo: true)
-          .where('status', isEqualTo: 'disponible')
-          .orderBy('createdAt', descending: true)
-          .get();
-
-      _donations = querySnapshot.docs
-          .map((doc) => Donation.fromFirestore(doc))
-          .toList();
+      _donations = await _donationService.getAvailableDonations();
       
       _error = null;
     } catch (e) {
@@ -46,15 +36,7 @@ class DonationProvider with ChangeNotifier {
   Future<void> fetchUserDonations(String userId) async {
     _setLoading(true);
     try {
-      final querySnapshot = await FirebaseFirestore.instance
-          .collection('donations')
-          .where('donorId', isEqualTo: userId)
-          .orderBy('createdAt', descending: true)
-          .get();
-
-      _userDonations = querySnapshot.docs
-          .map((doc) => Donation.fromFirestore(doc))
-          .toList();
+      _userDonations = await _donationService.getUserDonations(userId);
       
       _error = null;
     } catch (e) {
@@ -68,12 +50,10 @@ class DonationProvider with ChangeNotifier {
   }
 
   // Créer un nouveau don
-  Future<bool> createDonation(Donation donation) async {
+  Future<bool> createDonation(DonationModel donation) async {
     _setLoading(true);
     try {
-      await FirebaseFirestore.instance
-          .collection('donations')
-          .add(donation.toFirestore());
+      await _donationService.addDonation(donation);
       
       // Rafraîchir la liste des dons
       await fetchDonations();
@@ -96,13 +76,22 @@ class DonationProvider with ChangeNotifier {
   Future<bool> updateDonation(String donationId, Map<String, dynamic> updates) async {
     _setLoading(true);
     try {
-      await FirebaseFirestore.instance
-          .collection('donations')
-          .doc(donationId)
-          .update({
-        ...updates,
-        'updatedAt': Timestamp.now(),
-      });
+      // Récupérer la donation existante
+      final existingDonation = await _donationService.getDonationById(donationId);
+      if (existingDonation == null) {
+        throw Exception('Donation non trouvée');
+      }
+      
+      // Créer une nouvelle donation avec les mises à jour
+      final updatedDonation = existingDonation.copyWith(
+        status: updates['status'] != null ? DonationStatus.values.firstWhere(
+          (e) => e.toString().split('.').last == updates['status'],
+          orElse: () => existingDonation.status,
+        ) : null,
+        updatedAt: DateTime.now(),
+      );
+      
+      await _donationService.updateDonation(donationId, updatedDonation);
       
       // Rafraîchir les listes
       await fetchDonations();
@@ -124,13 +113,7 @@ class DonationProvider with ChangeNotifier {
   Future<bool> deleteDonation(String donationId) async {
     _setLoading(true);
     try {
-      await FirebaseFirestore.instance
-          .collection('donations')
-          .doc(donationId)
-          .update({
-        'isActive': false,
-        'updatedAt': Timestamp.now(),
-      });
+      await _donationService.deleteDonation(donationId);
       
       // Rafraîchir les listes
       await fetchDonations();
@@ -152,15 +135,7 @@ class DonationProvider with ChangeNotifier {
   Future<bool> reserveDonation(String donationId, String userId) async {
     _setLoading(true);
     try {
-      await FirebaseFirestore.instance
-          .collection('donations')
-          .doc(donationId)
-          .update({
-        'status': 'reserve',
-        'reservedBy': userId,
-        'reservedAt': Timestamp.now(),
-        'updatedAt': Timestamp.now(),
-      });
+      await _donationService.reserveDonation(donationId, userId);
       
       // Rafraîchir les listes
       await fetchDonations();
@@ -182,15 +157,21 @@ class DonationProvider with ChangeNotifier {
   Future<bool> cancelReservation(String donationId) async {
     _setLoading(true);
     try {
-      await FirebaseFirestore.instance
-          .collection('donations')
-          .doc(donationId)
-          .update({
-        'status': 'disponible',
-        'reservedBy': null,
-        'reservedAt': null,
-        'updatedAt': Timestamp.now(),
-      });
+      // Récupérer la donation existante
+      final existingDonation = await _donationService.getDonationById(donationId);
+      if (existingDonation == null) {
+        throw Exception('Donation non trouvée');
+      }
+      
+      // Créer une nouvelle donation avec les mises à jour
+      final updatedDonation = existingDonation.copyWith(
+        status: DonationStatus.disponible,
+        reservedBy: null,
+        reservedAt: null,
+        updatedAt: DateTime.now(),
+      );
+      
+      await _donationService.updateDonation(donationId, updatedDonation);
       
       // Rafraîchir les listes
       await fetchDonations();
@@ -212,13 +193,19 @@ class DonationProvider with ChangeNotifier {
   Future<bool> markAsCollected(String donationId) async {
     _setLoading(true);
     try {
-      await FirebaseFirestore.instance
-          .collection('donations')
-          .doc(donationId)
-          .update({
-        'status': 'recupere',
-        'updatedAt': Timestamp.now(),
-      });
+      // Récupérer la donation existante
+      final existingDonation = await _donationService.getDonationById(donationId);
+      if (existingDonation == null) {
+        throw Exception('Donation non trouvée');
+      }
+      
+      // Créer une nouvelle donation avec les mises à jour
+      final updatedDonation = existingDonation.copyWith(
+        status: DonationStatus.recupere,
+        updatedAt: DateTime.now(),
+      );
+      
+      await _donationService.updateDonation(donationId, updatedDonation);
       
       // Rafraîchir les listes
       await fetchDonations();
@@ -239,29 +226,23 @@ class DonationProvider with ChangeNotifier {
   // Rechercher des dons par critères
   Future<void> searchDonations({
     String? query,
-    DonationType? type,
+    DonationCategory? type,
     double? maxDistance,
     double? userLat,
     double? userLng,
   }) async {
     _setLoading(true);
     try {
-      Query queryRef = FirebaseFirestore.instance
-          .collection('donations')
-          .where('isActive', isEqualTo: true)
-          .where('status', isEqualTo: 'disponible');
+      // Récupérer toutes les donations disponibles
+      List<DonationModel> results = await _donationService.getAllDonations();
+      
+      // Filtrer par statut disponible
+      results = results.where((donation) => donation.status == DonationStatus.disponible).toList();
 
+      // Filtrer par catégorie si fournie
       if (type != null) {
-        queryRef = queryRef.where('type', isEqualTo: type.toString().split('.').last);
+        results = results.where((donation) => donation.category == type).toList();
       }
-
-      final querySnapshot = await queryRef
-          .orderBy('createdAt', descending: true)
-          .get();
-
-      List<Donation> results = querySnapshot.docs
-          .map((doc) => Donation.fromFirestore(doc))
-          .toList();
 
       // Filtrer par texte de recherche si fourni
       if (query != null && query.isNotEmpty) {
@@ -292,17 +273,9 @@ class DonationProvider with ChangeNotifier {
   }
 
   // Obtenir un don par ID
-  Future<Donation?> getDonationById(String donationId) async {
+  Future<DonationModel?> getDonationById(String donationId) async {
     try {
-      final doc = await FirebaseFirestore.instance
-          .collection('donations')
-          .doc(donationId)
-          .get();
-      
-      if (doc.exists) {
-        return Donation.fromFirestore(doc);
-      }
-      return null;
+      return await _donationService.getDonationById(donationId);
     } catch (e) {
       _error = 'Erreur lors de la récupération du don: $e';
       if (kDebugMode) {

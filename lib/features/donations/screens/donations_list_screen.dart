@@ -7,6 +7,7 @@ import '../../../core/models/user_model.dart';
 import '../widgets/donation_card.dart';
 import '../../../shared/widgets/loading_overlay.dart';
 import 'create_donation_screen.dart';
+import 'donation_detail_screen.dart';
 
 class DonationsListScreen extends StatefulWidget {
   static const String routeName = '/donations-list';
@@ -350,6 +351,13 @@ class _DonationsListScreenState extends State<DonationsListScreen>
             onReserve: _showMyDonations ? null : () => _reserveDonation(donation),
             onEdit: _showMyDonations ? () => _editDonation(donation) : null,
             onDelete: _showMyDonations ? () => _deleteDonation(donation) : null,
+            onTap: () {
+              Navigator.pushNamed(
+                context,
+                DonationDetailScreen.routeName,
+                arguments: donation.id,
+              );
+            },
           ),
         );
       },

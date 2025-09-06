@@ -410,7 +410,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             Expanded(
                               child: _buildStatCard(
                                   'Dons créés',
-                                  '0', // TODO: Calculer depuis les dons
+                                  '${user.totalDonations}',
                                   Icons.restaurant,
                                   const Color(0xFF4CAF50),
                               ),
@@ -419,7 +419,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             Expanded(
                               child: _buildStatCard(
                                 'Kg donnés',
-                                '0.0 kg', // TODO: Calculer depuis les dons
+                                '${user.totalKgDonated.toStringAsFixed(1)} kg',
                                 Icons.scale,
                                 const Color(0xFFFF9800),
                               ),
@@ -465,7 +465,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             Expanded(
                               child: _buildStatCard(
                                 'Réservations',
-                                '0', // TODO: Calculer depuis les réservations
+                                '${user.totalReservations ?? 0}',
                                 Icons.bookmark,
                                 const Color(0xFFFF9800),
                               ),

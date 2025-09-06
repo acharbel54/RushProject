@@ -1,4 +1,4 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+// Removed Firebase import for JSON storage
 
 enum DonationStatus { disponible, reserve, recupere, expire }
 enum DonationType { fruits, legumes, pain, produits_laitiers, viande, autre }
@@ -46,59 +46,59 @@ class Donation {
     this.isActive = true,
   });
 
-  factory Donation.fromFirestore(DocumentSnapshot doc) {
-    final data = doc.data() as Map<String, dynamic>;
+  factory Donation.fromJson(Map<String, dynamic> json) {
     return Donation(
-      id: doc.id,
-      donorId: data['donorId'] ?? '',
-      title: data['title'] ?? '',
-      description: data['description'] ?? '',
+      id: json['id'] ?? '',
+      donorId: json['donorId'] ?? '',
+      title: json['title'] ?? '',
+      description: json['description'] ?? '',
       type: DonationType.values.firstWhere(
-        (e) => e.toString().split('.').last == data['type'],
+        (e) => e.toString().split('.').last == json['type'],
         orElse: () => DonationType.autre,
       ),
-      quantity: (data['quantity'] ?? 0).toDouble(),
-      unit: data['unit'] ?? '',
-      expirationDate: (data['expirationDate'] as Timestamp).toDate(),
-      createdAt: (data['createdAt'] as Timestamp).toDate(),
-      updatedAt: data['updatedAt'] != null
-          ? (data['updatedAt'] as Timestamp).toDate()
+      quantity: (json['quantity'] ?? 0).toDouble(),
+      unit: json['unit'] ?? '',
+      expirationDate: DateTime.parse(json['expirationDate']),
+      createdAt: DateTime.parse(json['createdAt']),
+      updatedAt: json['updatedAt'] != null
+          ? DateTime.parse(json['updatedAt'])
           : null,
       status: DonationStatus.values.firstWhere(
-        (e) => e.toString().split('.').last == data['status'],
+        (e) => e.toString().split('.').last == json['status'],
         orElse: () => DonationStatus.disponible,
       ),
-      imageUrl: data['imageUrl'],
-      latitude: (data['latitude'] ?? 0).toDouble(),
-      longitude: (data['longitude'] ?? 0).toDouble(),
-      address: data['address'] ?? '',
-      reservedBy: data['reservedBy'],
-      reservedAt: data['reservedAt'] != null
-          ? (data['reservedAt'] as Timestamp).toDate()
+      imageUrl: json['imageUrl'],
+      latitude: (json['latitude'] ?? 0).toDouble(),
+      longitude: (json['longitude'] ?? 0).toDouble(),
+      address: json['address'] ?? '',
+      reservedBy: json['reservedBy'],
+      reservedAt: json['reservedAt'] != null
+          ? DateTime.parse(json['reservedAt'])
           : null,
-      notes: data['notes'],
-      isActive: data['isActive'] ?? true,
+      notes: json['notes'],
+      isActive: json['isActive'] ?? true,
     );
   }
 
-  Map<String, dynamic> toFirestore() {
+  Map<String, dynamic> toJson() {
     return {
+      'id': id,
       'donorId': donorId,
       'title': title,
       'description': description,
       'type': type.toString().split('.').last,
       'quantity': quantity,
       'unit': unit,
-      'expirationDate': Timestamp.fromDate(expirationDate),
-      'createdAt': Timestamp.fromDate(createdAt),
-      'updatedAt': updatedAt != null ? Timestamp.fromDate(updatedAt!) : null,
+      'expirationDate': expirationDate.toIso8601String(),
+      'createdAt': createdAt.toIso8601String(),
+      'updatedAt': updatedAt?.toIso8601String(),
       'status': status.toString().split('.').last,
       'imageUrl': imageUrl,
       'latitude': latitude,
       'longitude': longitude,
       'address': address,
       'reservedBy': reservedBy,
-      'reservedAt': reservedAt != null ? Timestamp.fromDate(reservedAt!) : null,
+      'reservedAt': reservedAt?.toIso8601String(),
       'notes': notes,
       'isActive': isActive,
     };

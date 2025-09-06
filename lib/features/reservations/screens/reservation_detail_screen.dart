@@ -602,12 +602,9 @@ class _ReservationDetailScreenState extends State<ReservationDetailScreen> {
   }
 
   void _navigateToDonationDetail() {
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => DonationDetailScreen(
-          donationId: _donation!.id,
-        ),
-      ),
+    Navigator.of(context).pushNamed(
+      DonationDetailScreen.routeName,
+      arguments: _donation!.id,
     );
   }
 

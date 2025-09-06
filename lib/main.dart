@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -17,21 +18,26 @@ import 'features/auth/screens/forgot_password_screen.dart';
 import 'features/auth/screens/profile_screen.dart';
 import 'shared/widgets/bottom_navigation.dart';
 import 'features/donations/screens/create_donation_screen.dart';
+import 'features/donations/screens/new_donation_design_screen.dart';
 import 'features/donations/screens/donations_list_screen.dart';
 import 'features/reservations/screens/reservations_screen.dart';
 import 'features/maps/screens/map_screen.dart';
 import 'features/notifications/screens/notifications_screen.dart';
 import 'features/notifications/screens/notification_settings_screen.dart';
 import 'features/admin/screens/admin_dashboard_screen.dart';
+import 'features/donations/screens/donation_detail_screen.dart';
 import 'core/providers/notification_provider.dart';
+import 'core/providers/donation_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
-  // Initialiser Firebase
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  // Initialiser Firebase (optionnel)
+  try {
+    await Firebase.initializeApp();
+  } catch (e) {
+    print('Firebase non configuré, utilisation du mode local: $e');
+  }
   
   // Configurer Firestore pour le développement
   if (kDebugMode) {
@@ -71,7 +77,9 @@ class FoodLinkApp extends StatelessWidget {
         ChangeNotifierProvider(
           create: (context) => NotificationProvider(),
         ),
-        // TODO: Ajouter d'autres providers (DonationProvider, etc.)
+        ChangeNotifierProvider(
+          create: (context) => DonationProvider(),
+        ),
       ],
       child: MaterialApp(
         title: 'FoodLink',
@@ -233,6 +241,18 @@ class FoodLinkApp extends StatelessWidget {
           ),
         ),
         
+        // Configuration des localisations
+        localizationsDelegates: const [
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: const [
+          Locale('en', 'US'), // Anglais
+          Locale('fr', 'FR'), // Français
+        ],
+        locale: const Locale('fr', 'FR'), // Locale par défaut
+        
         // Route initiale
         initialRoute: SplashScreen.routeName,
         
@@ -246,12 +266,17 @@ class FoodLinkApp extends StatelessWidget {
           MainNavigationScreen.routeName: (context) => const MainNavigationScreen(),
           ProfileScreen.routeName: (context) => const ProfileScreen(),
           CreateDonationScreen.routeName: (context) => const CreateDonationScreen(),
+          '/new-donation-design': (context) => const NewDonationDesignScreen(),
           DonationsListScreen.routeName: (context) => const DonationsListScreen(),
           ReservationsScreen.routeName: (context) => const ReservationsScreen(),
           MapScreen.routeName: (context) => const MapScreen(),
           NotificationsScreen.routeName: (context) => const NotificationsScreen(),
           NotificationSettingsScreen.routeName: (context) => const NotificationSettingsScreen(),
           AdminDashboardScreen.routeName: (context) => const AdminDashboardScreen(),
+          DonationDetailScreen.routeName: (context) {
+            final donationId = ModalRoute.of(context)!.settings.arguments as String;
+            return DonationDetailScreen(donationId: donationId);
+          },
         },
         
         // Gestionnaire de routes inconnues

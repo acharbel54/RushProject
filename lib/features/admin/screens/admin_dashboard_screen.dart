@@ -350,7 +350,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> with Single
           itemCount: donations.length,
           itemBuilder: (context, index) {
             final donationData = donations[index].data() as Map<String, dynamic>;
-            final donation = DonationModel.fromDocument(donations[index]);
+            final donation = DonationModel.fromJson(donationData);
             
             return Card(
               margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),

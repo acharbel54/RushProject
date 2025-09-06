@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:geolocator/geolocator.dart';
 
-import '../../../core/models/donation.dart';
+import '../../../core/models/donation_model.dart';
 import '../../../core/services/location_service.dart';
 import '../../donations/providers/donation_provider.dart';
 import '../../donations/screens/donation_detail_screen.dart';
@@ -20,7 +20,7 @@ class MapScreen extends StatefulWidget {
 class _MapScreenState extends State<MapScreen> {
   final TextEditingController _searchController = TextEditingController();
   Position? _currentPosition;
-  List<Donation> _filteredDonations = [];
+  List<DonationModel> _filteredDonations = [];
   String _selectedCategory = 'Toutes';
   double _searchRadius = 10.0; // km
   bool _showAvailableOnly = true;
@@ -77,7 +77,7 @@ class _MapScreenState extends State<MapScreen> {
 
   void _applyFilters() {
     final donationProvider = Provider.of<DonationProvider>(context, listen: false);
-    List<Donation> donations = donationProvider.donations;
+    List<DonationModel> donations = donationProvider.donations;
 
     // Filtrer par statut
     if (_showAvailableOnly) {
@@ -86,7 +86,7 @@ class _MapScreenState extends State<MapScreen> {
 
     // Filtrer par catégorie
     if (_selectedCategory != 'Toutes') {
-      donations = donations.where((d) => d.type.name == _selectedCategory).toList();
+      donations = donations.where((d) => d.category.name == _selectedCategory).toList();
     }
 
     // Filtrer par rayon géographique
@@ -122,7 +122,7 @@ class _MapScreenState extends State<MapScreen> {
     });
   }
 
-  void _onDonationSelected(Donation donation) {
+  void _onDonationSelected(DonationModel donation) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -131,7 +131,7 @@ class _MapScreenState extends State<MapScreen> {
     );
   }
 
-  Widget _buildDonationBottomSheet(Donation donation) {
+  Widget _buildDonationBottomSheet(DonationModel donation) {
     final distance = _currentPosition != null && 
                     donation.latitude != null && 
                     donation.longitude != null
@@ -174,9 +174,9 @@ class _MapScreenState extends State<MapScreen> {
                     children: [
                       ClipRRect(
                         borderRadius: BorderRadius.circular(8),
-                        child: donation.imageUrl != null
+                        child: donation.imageUrls.isNotEmpty
                             ? Image.network(
-                                donation.imageUrl!,
+                                donation.imageUrls.first,
                                 width: 80,
                                 height: 80,
                                 fit: BoxFit.cover,
@@ -210,7 +210,7 @@ class _MapScreenState extends State<MapScreen> {
                             ),
                             const SizedBox(height: 4),
                             Text(
-                              donation.type.name,
+                              donation.category.name,
                               style: TextStyle(
                                 color: Colors.grey[600],
                                 fontSize: 14,
@@ -269,7 +269,7 @@ class _MapScreenState extends State<MapScreen> {
                       Expanded(
                         child: _buildInfoCard(
                           'Quantité',
-                          '${donation.quantity} ${donation.unit}',
+                          donation.quantity,
                           Icons.inventory,
                         ),
                       ),
@@ -323,13 +323,10 @@ class _MapScreenState extends State<MapScreen> {
                     child: ElevatedButton(
                       onPressed: () {
                         Navigator.pop(context);
-                        Navigator.push(
+                        Navigator.pushNamed(
                           context,
-                          MaterialPageRoute(
-                            builder: (context) => DonationDetailScreen(
-                              donationId: donation.id,
-                            ),
-                          ),
+                          DonationDetailScreen.routeName,
+                          arguments: donation.id,
                         );
                       },
                       style: ElevatedButton.styleFrom(

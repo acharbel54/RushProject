@@ -53,18 +53,7 @@ class DonationCard extends StatelessWidget {
                   child: AspectRatio(
                     aspectRatio: 16 / 9,
                     child: donation.imageUrls.isNotEmpty
-                        ? Image.network(
-                            donation.imageUrls.first,
-                            fit: BoxFit.cover,
-                            width: double.infinity,
-                            errorBuilder: (context, error, stackTrace) {
-                              return _buildPlaceholderImage();
-                            },
-                            loadingBuilder: (context, child, loadingProgress) {
-                              if (loadingProgress == null) return child;
-                              return _buildLoadingImage();
-                            },
-                          )
+                        ? _buildDonationImage()
                         : _buildPlaceholderImage(),
                   ),
                 ),
@@ -221,6 +210,37 @@ class DonationCard extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Widget _buildDonationImage() {
+    final String imageUrl = donation.imageUrls.first;
+    
+    // Vérifier si c'est un chemin local (commence par assets/) ou une URL
+    if (imageUrl.startsWith('assets/')) {
+      // Image locale dans le dossier assets
+      return Image.asset(
+        imageUrl,
+        fit: BoxFit.cover,
+        width: double.infinity,
+        errorBuilder: (context, error, stackTrace) {
+          return _buildPlaceholderImage();
+        },
+      );
+    } else {
+      // Image réseau (URL)
+      return Image.network(
+        imageUrl,
+        fit: BoxFit.cover,
+        width: double.infinity,
+        errorBuilder: (context, error, stackTrace) {
+          return _buildPlaceholderImage();
+        },
+        loadingBuilder: (context, child, loadingProgress) {
+          if (loadingProgress == null) return child;
+          return _buildLoadingImage();
+        },
+      );
+    }
   }
 
   Widget _buildPlaceholderImage() {

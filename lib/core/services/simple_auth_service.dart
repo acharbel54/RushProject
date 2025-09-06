@@ -16,6 +16,7 @@ class SimpleUser {
   final DateTime createdAt;
   final int totalDonations;
   final int totalReservations;
+  final double totalKgDonated;
   final List<String>? dietaryPreferences;
   final List<String>? allergies;
   final String? preferredPickupZone;
@@ -31,6 +32,7 @@ class SimpleUser {
     required this.createdAt,
     this.totalDonations = 0,
     this.totalReservations = 0,
+    this.totalKgDonated = 0.0,
     this.dietaryPreferences,
     this.allergies,
     this.preferredPickupZone,
@@ -48,6 +50,7 @@ class SimpleUser {
       'createdAt': createdAt.toIso8601String(),
       'totalDonations': totalDonations,
       'totalReservations': totalReservations,
+      'totalKgDonated': totalKgDonated,
       'dietaryPreferences': dietaryPreferences,
       'allergies': allergies,
       'preferredPickupZone': preferredPickupZone,
@@ -83,6 +86,7 @@ class SimpleUser {
       createdAt: DateTime.parse(json['createdAt']),
       totalDonations: json['totalDonations'] ?? 0,
       totalReservations: json['totalReservations'] ?? 0,
+      totalKgDonated: (json['totalKgDonated'] ?? 0.0).toDouble(),
       dietaryPreferences: json['dietaryPreferences']?.cast<String>(),
       allergies: json['allergies']?.cast<String>(),
       preferredPickupZone: json['preferredPickupZone'],
@@ -254,6 +258,22 @@ class SimpleAuthService {
     return List.from(_users);
   }
 
+  // Obtenir un utilisateur par ID
+  Future<SimpleUser?> getUserById(String userId) async {
+    try {
+      await initialize();
+      return _users.firstWhere(
+        (user) => user.id == userId,
+        orElse: () => throw StateError('Not found'),
+      );
+    } catch (e) {
+      if (kDebugMode) {
+        print('Utilisateur non trouvé avec ID: $userId');
+      }
+      return null;
+    }
+  }
+
   // Supprimer un utilisateur
   Future<bool> deleteUser(String userId) async {
     try {
@@ -262,6 +282,62 @@ class SimpleAuthService {
       return true;
     } catch (e) {
       return false;
+    }
+  }
+
+  // Mettre à jour les statistiques utilisateur
+  Future<SimpleUser?> updateUserStats({
+    String? userId,
+    int? totalDonations,
+    int? totalReservations,
+    double? totalKgDonated,
+  }) async {
+    try {
+      final targetUserId = userId ?? _currentUser?.id;
+      if (targetUserId == null) return null;
+
+      final userIndex = _users.indexWhere((user) => user.id == targetUserId);
+      if (userIndex == -1) return null;
+
+      final currentUser = _users[userIndex];
+      
+      // Créer un nouvel utilisateur avec les statistiques mises à jour
+      final updatedUser = SimpleUser(
+        id: currentUser.id,
+        email: currentUser.email,
+        password: currentUser.password,
+        displayName: currentUser.displayName,
+        role: currentUser.role,
+        phoneNumber: currentUser.phoneNumber,
+        address: currentUser.address,
+        createdAt: currentUser.createdAt,
+        totalDonations: totalDonations ?? currentUser.totalDonations,
+         totalReservations: totalReservations ?? currentUser.totalReservations,
+         totalKgDonated: totalKgDonated ?? currentUser.totalKgDonated,
+         dietaryPreferences: currentUser.dietaryPreferences,
+        allergies: currentUser.allergies,
+        preferredPickupZone: currentUser.preferredPickupZone,
+      );
+
+      // Mettre à jour dans la liste
+      _users[userIndex] = updatedUser;
+      await _saveUsers();
+      
+      // Si c'est l'utilisateur actuel, mettre à jour la référence
+      if (targetUserId == _currentUser?.id) {
+        _currentUser = updatedUser;
+      }
+
+      if (kDebugMode) {
+        print('Statistiques mises à jour pour: ${updatedUser.email}');
+      }
+
+      return updatedUser;
+    } catch (e) {
+      if (kDebugMode) {
+        print('Erreur lors de la mise à jour des statistiques: $e');
+      }
+      return null;
     }
   }
 
@@ -289,6 +365,7 @@ class SimpleAuthService {
         createdAt: _currentUser!.createdAt,
         totalDonations: _currentUser!.totalDonations,
         totalReservations: _currentUser!.totalReservations,
+        totalKgDonated: _currentUser!.totalKgDonated,
         dietaryPreferences: dietaryPreferences ?? _currentUser!.dietaryPreferences,
         allergies: allergies ?? _currentUser!.allergies,
         preferredPickupZone: preferredPickupZone ?? _currentUser!.preferredPickupZone,

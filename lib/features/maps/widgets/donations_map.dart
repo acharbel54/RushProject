@@ -3,14 +3,14 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:provider/provider.dart';
 
-import '../../../core/models/donation.dart';
+import '../../../core/models/donation_model.dart';
 import '../../../core/services/location_service.dart';
 import '../../donations/providers/donation_provider.dart';
 import '../../donations/screens/donation_detail_screen.dart';
 
 class DonationsMap extends StatefulWidget {
-  final List<Donation>? donations;
-  final Function(Donation)? onDonationSelected;
+  final List<DonationModel>? donations;
+  final Function(DonationModel)? onDonationSelected;
   final double? initialLatitude;
   final double? initialLongitude;
   final double initialZoom;
@@ -86,7 +86,7 @@ class _DonationsMapState extends State<DonationsMap> {
       }
 
       // Charger les dons si non fournis
-      List<Donation> donations = widget.donations ?? [];
+      List<DonationModel> donations = widget.donations ?? [];
       if (donations.isEmpty) {
         final donationProvider = Provider.of<DonationProvider>(context, listen: false);
         await donationProvider.fetchDonations();
@@ -125,7 +125,7 @@ class _DonationsMapState extends State<DonationsMap> {
     }
   }
 
-  Future<void> _createMarkers(List<Donation> donations) async {
+  Future<void> _createMarkers(List<DonationModel> donations) async {
     Set<Marker> markers = {};
 
     // Ajouter le marqueur de position utilisateur
@@ -147,7 +147,7 @@ class _DonationsMapState extends State<DonationsMap> {
     }
 
     // Ajouter les marqueurs de dons
-    for (Donation donation in donations) {
+    for (DonationModel donation in donations) {
       if (donation.latitude != null && donation.longitude != null) {
         final distance = _currentPosition != null
             ? LocationService.calculateDistance(
@@ -166,8 +166,8 @@ class _DonationsMapState extends State<DonationsMap> {
             infoWindow: InfoWindow(
               title: donation.title,
               snippet: distance != null
-                  ? '${LocationService.formatDistance(distance)} • ${donation.type.name}'
-: donation.type.name,
+                  ? '${LocationService.formatDistance(distance)} • ${donation.category.name}'
+                  : donation.category.name,
             ),
             onTap: () => _onMarkerTapped(donation),
           ),
@@ -180,16 +180,15 @@ class _DonationsMapState extends State<DonationsMap> {
     });
   }
 
-  void _onMarkerTapped(Donation donation) {
+  void _onMarkerTapped(DonationModel donation) {
     if (widget.onDonationSelected != null) {
       widget.onDonationSelected!(donation);
     } else {
       // Navigation par défaut vers les détails du don
-      Navigator.push(
+      Navigator.pushNamed(
         context,
-        MaterialPageRoute(
-          builder: (context) => DonationDetailScreen(donationId: donation.id),
-        ),
+        DonationDetailScreen.routeName,
+        arguments: donation.id,
       );
     }
   }

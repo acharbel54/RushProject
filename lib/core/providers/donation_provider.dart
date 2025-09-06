@@ -1,19 +1,17 @@
 import 'package:flutter/foundation.dart';
 import '../models/donation_model.dart';
-import '../services/firebase_service.dart';
-import '../services/donation_service.dart';
-import '../services/storage_service.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_storage/firebase_storage.dart';
+import '../../services/json_donation_service.dart';
+import '../services/simple_auth_service.dart';
+import 'simple_auth_provider.dart';
 import 'package:geolocator/geolocator.dart';
 import 'dart:io';
 import 'dart:math' as math;
+import '../../services/local_image_service.dart';
 
 class DonationProvider with ChangeNotifier {
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final FirebaseStorage _storage = FirebaseStorage.instance;
-  final DonationService _donationService = DonationService();
-  final StorageService _storageService = StorageService();
+  final JsonDonationService _donationService = JsonDonationService();
+  final SimpleAuthService _authService = SimpleAuthService();
+  SimpleAuthProvider? _authProvider;
   
   List<DonationModel> _donations = [];
   List<DonationModel> _userDonations = [];
@@ -79,7 +77,8 @@ class DonationProvider with ChangeNotifier {
       
       if (_currentPosition != null) {
         _nearbyDonations = await _donationService.getNearbyDonations(
-          userLocation: GeoPoint(_currentPosition!.latitude, _currentPosition!.longitude),
+          userLatitude: _currentPosition!.latitude,
+          userLongitude: _currentPosition!.longitude,
           radiusKm: _maxDistance,
         );
         
@@ -123,23 +122,20 @@ class DonationProvider with ChangeNotifier {
       _setLoading(true);
       _clearError();
       
-      // Upload des images si présentes
+      // Sauvegarder les images dans le dossier assets si elles sont fournies
       List<String> imageUrls = [];
       if (images != null && images.isNotEmpty) {
-        for (File image in images) {
-          final imageUrl = await _storageService.uploadDonationImage(
-            imageFile: image,
-            donationId: donorId,
-          );
-          if (imageUrl != null) {
-            imageUrls.add(imageUrl);
-          }
+        try {
+          imageUrls = await LocalImageService.saveImagesToAssets(images);
+        } catch (e) {
+          print('Erreur lors de la sauvegarde des images: $e');
+          // Continuer sans les images en cas d'erreur
         }
       }
       
       // Créer le don
       final donation = DonationModel(
-        id: '', // Sera généré par Firestore
+        id: '', // Sera généré par le service JSON
         donorId: donorId,
         donorName: donorName,
         title: title,
@@ -156,18 +152,7 @@ class DonationProvider with ChangeNotifier {
         isUrgent: isUrgent,
       );
       
-      final donationId = await _donationService.createDonation(
-        title: donation.title,
-        description: donation.description,
-        category: donation.category,
-        quantity: donation.quantity,
-        unit: donation.quantity.split(' ').length > 1 ? donation.quantity.split(' ')[1] : 'unité',
-        expiryDate: donation.expirationDate,
-        address: donation.address,
-        location: GeoPoint(donation.latitude, donation.longitude),
-        imageUrls: donation.imageUrls,
-        notes: donation.notes,
-      );
+      final donationId = await _donationService.addDonation(donation);
       
       // Créer l'objet donation avec l'ID généré
       final createdDonation = donation.copyWith(id: donationId);
@@ -175,6 +160,9 @@ class DonationProvider with ChangeNotifier {
       // Ajouter à la liste locale
       _userDonations.insert(0, createdDonation);
       _donations.insert(0, createdDonation);
+      
+      // Mettre à jour les statistiques du donateur
+      await _updateDonorStats(donorId, createdDonation);
       
       _setLoading(false);
       return true;
@@ -191,25 +179,10 @@ class DonationProvider with ChangeNotifier {
       _setLoading(true);
       _clearError();
       
-      await _donationService.updateDonation(
-        donationId: donation.id,
-        title: donation.title,
-        description: donation.description,
-        category: donation.category,
-        quantity: int.parse(donation.quantity.split(' ')[0]),
-        unit: donation.quantity.split(' ').length > 1 ? donation.quantity.split(' ')[1] : 'unité',
-        expiryDate: donation.expirationDate,
-        address: donation.address,
-        location: GeoPoint(donation.latitude, donation.longitude),
-        imageUrls: donation.imageUrls,
-        status: donation.status,
-        notes: donation.notes,
-      );
-      
-      final updatedDonation = donation;
+      await _donationService.updateDonation(donation.id, donation);
       
       // Mettre à jour dans les listes locales
-      _updateDonationInLists(updatedDonation);
+      _updateDonationInLists(donation);
       
       _setLoading(false);
       return true;
@@ -248,9 +221,8 @@ class DonationProvider with ChangeNotifier {
       _setLoading(true);
       _clearError();
       
-      await _donationService.reserveDonation(donationId);
+      await _donationService.reserveDonation(donationId, beneficiaryId);
       
-      // Si aucune exception n'est levée, l'opération a réussi
       // Mettre à jour le statut local
       final donationIndex = _donations.indexWhere((d) => d.id == donationId);
       if (donationIndex != -1) {
@@ -406,6 +378,11 @@ class DonationProvider with ChangeNotifier {
     }
   }
   
+  // Définir le provider d'authentification
+  void setAuthProvider(SimpleAuthProvider authProvider) {
+    _authProvider = authProvider;
+  }
+  
   // Nettoyer les données
   void clear() {
     _donations.clear();
@@ -413,7 +390,87 @@ class DonationProvider with ChangeNotifier {
     _nearbyDonations.clear();
     _currentPosition = null;
     _selectedCategory = null;
+    _maxDistance = 10.0;
+    _showOnlyAvailable = false;
     _clearError();
     notifyListeners();
+  }
+  
+  // Mettre à jour les statistiques du donateur
+  Future<void> _updateDonorStats(String donorId, DonationModel donation) async {
+    try {
+      // Obtenir l'utilisateur actuel pour récupérer ses statistiques
+      final currentUser = _authService.currentUser;
+      if (currentUser == null || currentUser.id != donorId) {
+        return; // Ne mettre à jour que si c'est l'utilisateur actuel
+      }
+      
+      // Calculer le poids du don (extraire le nombre de la quantité)
+      double donationWeight = _extractWeightFromQuantity(donation.quantity);
+      
+      // Mettre à jour les statistiques via le provider si disponible, sinon directement
+      if (_authProvider != null) {
+        await _authProvider!.updateUserStats(
+          userId: donorId,
+          totalDonations: currentUser.totalDonations + 1,
+          totalKgDonated: currentUser.totalKgDonated + donationWeight,
+        );
+      } else {
+        await _authService.updateUserStats(
+          userId: donorId,
+          totalDonations: currentUser.totalDonations + 1,
+          totalKgDonated: currentUser.totalKgDonated + donationWeight,
+        );
+      }
+      
+      if (kDebugMode) {
+        print('Statistiques mises à jour pour le donateur $donorId: +1 don, +${donationWeight}kg');
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('Erreur lors de la mise à jour des statistiques: $e');
+      }
+    }
+  }
+  
+  // Obtenir un don par ID
+  Future<DonationModel?> getDonationById(String donationId) async {
+    try {
+      return await _donationService.getDonationById(donationId);
+    } catch (e) {
+      _setError('Erreur lors de la récupération du don: $e');
+      if (kDebugMode) {
+        print('Erreur getDonationById: $e');
+      }
+      return null;
+    }
+  }
+
+  // Extraire le poids numérique de la quantité (ex: "2 kg" -> 2.0)
+  double _extractWeightFromQuantity(String quantity) {
+    try {
+      // Rechercher les nombres dans la chaîne
+      final RegExp numberRegex = RegExp(r'(\d+(?:\.\d+)?)');
+      final match = numberRegex.firstMatch(quantity.toLowerCase());
+      
+      if (match != null) {
+        double weight = double.parse(match.group(1)!);
+        
+        // Si la quantité contient "g" ou "gram", convertir en kg
+        if (quantity.toLowerCase().contains('g') && !quantity.toLowerCase().contains('kg')) {
+          weight = weight / 1000; // Convertir grammes en kg
+        }
+        
+        return weight;
+      }
+      
+      // Si aucun nombre trouvé, retourner une valeur par défaut
+      return 1.0;
+    } catch (e) {
+      if (kDebugMode) {
+        print('Erreur lors de l\'extraction du poids: $e');
+      }
+      return 1.0; // Valeur par défaut
+    }
   }
 }

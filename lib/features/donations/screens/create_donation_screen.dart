@@ -217,6 +217,7 @@ class _CreateDonationScreenState extends State<CreateDonationScreen> {
       longitude: _currentPosition!.longitude,
       donorId: authProvider.currentUser!.id,
       donorName: authProvider.currentUser!.displayName ?? 'Donateur',
+      images: _selectedImage != null ? [_selectedImage!] : null,
     );
     
     if (success) {

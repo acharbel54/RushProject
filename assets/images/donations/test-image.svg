@@ -1,0 +1,6 @@
+<svg width="400" height="300" xmlns="http://www.w3.org/2000/svg">
+  <rect width="400" height="300" fill="#e8f5e8"/>
+  <circle cx="200" cy="150" r="80" fill="#4CAF50"/>
+  <text x="200" y="160" text-anchor="middle" font-family="Arial" font-size="20" fill="white">Image Test</text>
+  <text x="200" y="250" text-anchor="middle" font-family="Arial" font-size="14" fill="#666">Image locale du donateur</text>
+</svg>
