@@ -230,14 +230,7 @@ class _DonationsListScreenState extends State<DonationsListScreen>
           );
         },
       ),
-      floatingActionButton: isDonor && !_showMyDonations
-          ? FloatingActionButton(
-              onPressed: () {
-                Navigator.of(context).pushNamed(CreateDonationScreen.routeName);
-              },
-              child: const Icon(Icons.add),
-            )
-          : null,
+      // FloatingActionButton supprimé
     );
   }
 

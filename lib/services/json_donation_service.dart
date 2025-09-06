@@ -36,23 +36,7 @@ class JsonDonationService {
         final List<dynamic> jsonData = json.decode(contents);
         _donations = jsonData.map((json) => DonationModel.fromJson(json)).toList();
         
-        // Ajouter des images de test aux donations existantes
-        for (int i = 0; i < _donations.length; i++) {
-          if (_donations[i].imageUrls.isEmpty) {
-            List<String> testImages = [
-              'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=400',
-              'https://images.unsplash.com/photo-1566385101042-1a0aa0c1268c?w=400',
-              'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=400',
-              'https://images.unsplash.com/photo-1610832958506-aa56368176cf?w=400'
-            ];
-            _donations[i] = _donations[i].copyWith(
-              imageUrls: [testImages[i % testImages.length]]
-            );
-          }
-        }
-        
-        // Sauvegarder les modifications
-        await saveDonations();
+
       }
     } catch (e) {
       print('Erreur lors du chargement des donations: $e');

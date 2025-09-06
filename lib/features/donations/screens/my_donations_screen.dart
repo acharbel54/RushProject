@@ -38,14 +38,7 @@ class _MyDonationsScreenState extends State<MyDonationsScreen> {
       appBar: AppBar(
         title: const Text('Mes dons'),
         elevation: 0,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.add),
-            onPressed: () {
-              Navigator.of(context).pushNamed(CreateDonationScreen.routeName);
-            },
-          ),
-        ],
+        // Actions supprimées
       ),
       body: Consumer<DonationProvider>(
         builder: (context, donationProvider, child) {

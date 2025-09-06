@@ -75,7 +75,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
             ),
             items: bottomNavItems,
           ),
-          floatingActionButton: _buildFloatingActionButton(user.role),
+          // FloatingActionButton supprimé
           floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
         );
       },
@@ -87,14 +87,14 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
     if (userType == UserRole.donateur) {
       print('DEBUG: Returning donor pages (3 pages)');
       return [
-        const DashboardScreen(), // Accueil donateur
+        DashboardScreen(onTabChanged: (index) => setState(() => _currentIndex = index)), // Accueil donateur
         const MyDonationsScreen(), // Mes dons
         const ProfileScreen(), // Profil
       ];
     } else {
       print('DEBUG: Returning beneficiary pages (4 pages)');
       return [
-        const DashboardScreen(), // Accueil bénéficiaire
+        DashboardScreen(onTabChanged: (index) => setState(() => _currentIndex = index)), // Accueil bénéficiaire
         const MapScreen(), // Découvrir (carte des dons)
         const ReservationsScreen(), // Réservation
         const ProfileScreen(), // Profil
@@ -147,27 +147,14 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
     }
   }
 
-  Widget? _buildFloatingActionButton(UserRole userType) {
-    if (userType == UserRole.donateur) {
-      return FloatingActionButton(
-        onPressed: () {
-          Navigator.of(context).pushNamed(CreateDonationScreen.routeName);
-        },
-        backgroundColor: const Color(0xFF4CAF50),
-        child: const Icon(
-          Icons.add,
-          color: Colors.white,
-          size: 28,
-        ),
-      );
-    }
-    return null; // Pas de FAB pour les bénéficiaires
-  }
+  // Fonction _buildFloatingActionButton supprimée
 }
 
 // Écran de tableau de bord temporaire
 class DashboardScreen extends StatelessWidget {
-  const DashboardScreen({Key? key}) : super(key: key);
+  final Function(int)? onTabChanged;
+  
+  const DashboardScreen({Key? key, this.onTabChanged}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -382,7 +369,7 @@ class DashboardScreen extends StatelessWidget {
                     Icons.restaurant_outlined,
                     const Color(0xFF2196F3),
                     () {
-                      // TODO: Naviguer vers la liste des dons
+                      onTabChanged?.call(1); // Naviguer vers la section Mes dons
                     },
                   ),
                 ] else ...[
