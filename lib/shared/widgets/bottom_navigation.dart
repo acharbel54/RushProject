@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../core/providers/auth_provider.dart';
+import '../../core/providers/simple_auth_provider.dart';
+import '../../core/services/simple_auth_service.dart';
 import '../../core/models/user_model.dart';
 import '../../features/donations/screens/donations_list_screen.dart';
+import '../../features/donations/screens/my_donations_screen.dart';
 import '../../features/donations/screens/create_donation_screen.dart';
 import '../../features/maps/screens/map_screen.dart';
 import '../../features/auth/screens/profile_screen.dart';
@@ -24,9 +26,9 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<AuthProvider>(
-      builder: (context, authProvider, child) {
-        final user = authProvider.currentUser;
+    return Consumer<SimpleAuthProvider>(
+        builder: (context, authProvider, child) {
+          final user = authProvider.currentUser;
         
         if (user == null) {
           return const Scaffold(
@@ -37,8 +39,13 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
         }
 
         // Pages différentes selon le type d'utilisateur
+        print('DEBUG: User role detected: ${user.role}');
+        print('DEBUG: User role string: ${user.role.toString()}');
+        print('DEBUG: Is donor: ${user.role == UserRole.donateur}');
+        print('DEBUG: UserRole.donateur: ${UserRole.donateur}');
+        print('DEBUG: UserRole.beneficiaire: ${UserRole.beneficiaire}');
         final pages = _getPages(user.role);
-    final bottomNavItems = _getBottomNavItems(user.role);
+        final bottomNavItems = _getBottomNavItems(user.role);
 
         return Scaffold(
           body: IndexedStack(
@@ -75,18 +82,20 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
   }
 
   List<Widget> _getPages(UserRole userType) {
+    print('DEBUG: _getPages called with userType: $userType');
     if (userType == UserRole.donateur) {
+      print('DEBUG: Returning donor pages (3 pages)');
       return [
-        const DashboardScreen(), // Tableau de bord donateur
-        const DonationsListScreen(), // Mes dons
-        const MapScreen(), // Carte
+        const DashboardScreen(), // Accueil donateur
+        const MyDonationsScreen(), // Mes dons
         const ProfileScreen(), // Profil
       ];
     } else {
+      print('DEBUG: Returning beneficiary pages (4 pages)');
       return [
-        const DashboardScreen(), // Tableau de bord bénéficiaire
-        const MapScreen(), // Carte des dons
-        const ReservationsScreen(), // Mes réservations
+        const DashboardScreen(), // Accueil bénéficiaire
+        const MapScreen(), // Découvrir (carte des dons)
+        const ReservationsScreen(), // Réservation
         const ProfileScreen(), // Profil
       ];
     }
@@ -106,11 +115,6 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
           label: 'Mes dons',
         ),
         BottomNavigationBarItem(
-          icon: Icon(Icons.map_outlined),
-          activeIcon: Icon(Icons.map),
-          label: 'Carte',
-        ),
-        BottomNavigationBarItem(
           icon: Icon(Icons.person_outlined),
           activeIcon: Icon(Icons.person),
           label: 'Profil',
@@ -124,14 +128,14 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
           label: 'Accueil',
         ),
         BottomNavigationBarItem(
-          icon: Icon(Icons.map_outlined),
-          activeIcon: Icon(Icons.map),
+          icon: Icon(Icons.explore_outlined),
+          activeIcon: Icon(Icons.explore),
           label: 'Découvrir',
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.bookmark_outlined),
           activeIcon: Icon(Icons.bookmark),
-          label: 'Réservations',
+          label: 'Réservation',
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.person_outlined),
@@ -166,9 +170,9 @@ class DashboardScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<AuthProvider>(
-      builder: (context, authProvider, child) {
-        final user = authProvider.currentUser;
+    return Consumer<SimpleAuthProvider>(
+          builder: (context, authProvider, child) {
+            final user = authProvider.currentUser;
         
         if (user == null) {
           return const Center(

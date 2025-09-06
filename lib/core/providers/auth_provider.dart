@@ -26,56 +26,46 @@ class AuthProvider extends ChangeNotifier {
     _initializeAuth();
   }
   
-  // Charger les données de l'utilisateur actuel
-  Future<void> _loadCurrentUser() async {
-    final user = _authService.currentUser;
-    if (user != null) {
-      try {
-        _currentUser = await _userService.getUserById(user.uid);
-        notifyListeners();
-      } catch (e) {
-        _setError('Erreur lors du chargement des données utilisateur');
-      }
-    }
-  }
+
   
   // Vérifier l'état d'authentification
   Future<void> checkAuthState() async {
-    await _loadCurrentUser();
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      await _loadUserData(user.uid);
+    } else {
+      _currentUser = null;
+      notifyListeners();
+    }
   }
   
   // Initialiser l'authentification
   void _initializeAuth() {
-    FirebaseAuth.instance.authStateChanges().listen((User? user) async {
-      if (user != null) {
-        await _loadUserData(user.uid);
-      } else {
+    // Écouter les changements d'état d'authentification de manière plus simple
+    FirebaseAuth.instance.authStateChanges().listen((User? user) {
+      if (user == null) {
         _currentUser = null;
         notifyListeners();
       }
+      // Ne pas charger automatiquement les données pour éviter les boucles
     });
   }
   
   // Charger les données utilisateur depuis Firestore
   Future<void> _loadUserData(String uid) async {
     try {
-      print('Tentative de chargement des données utilisateur pour UID: $uid');
       _currentUser = await _userService.getUserById(uid);
-      if (_currentUser != null) {
-        print('Données utilisateur chargées avec succès: ${_currentUser!.email}');
-      } else {
-        print('Aucun document utilisateur trouvé pour UID: $uid');
+      if (_currentUser == null) {
         _errorMessage = 'Profil utilisateur non trouvé. Veuillez vous reconnecter.';
       }
       notifyListeners();
     } catch (e) {
-      print('Erreur lors du chargement des données utilisateur: $e');
       _errorMessage = 'Erreur lors du chargement des données utilisateur: ${e.toString()}';
       notifyListeners();
     }
   }
   
-  // Inscription avec email et mot de passe
+  // Inscription avec email et mot de passe (version avec timeout)
   Future<bool> signUpWithEmail({
     required String email,
     required String password,
@@ -84,38 +74,130 @@ class AuthProvider extends ChangeNotifier {
     String? phoneNumber,
     String? address,
   }) async {
+    return _signUpWithEmailInternal(
+      email: email,
+      password: password,
+      displayName: displayName,
+      role: role,
+      phoneNumber: phoneNumber,
+      address: address,
+      useTimeout: true,
+    );
+  }
+
+  // Inscription avec email et mot de passe (version sans timeout pour connexions lentes)
+  Future<bool> signUpWithEmailNoTimeout({
+    required String email,
+    required String password,
+    required String displayName,
+    required UserRole role,
+    String? phoneNumber,
+    String? address,
+  }) async {
+    return _signUpWithEmailInternal(
+      email: email,
+      password: password,
+      displayName: displayName,
+      role: role,
+      phoneNumber: phoneNumber,
+      address: address,
+      useTimeout: false,
+    );
+  }
+
+  // Méthode interne pour l'inscription
+  Future<bool> _signUpWithEmailInternal({
+    required String email,
+    required String password,
+    required String displayName,
+    required UserRole role,
+    String? phoneNumber,
+    String? address,
+    required bool useTimeout,
+  }) async {
     try {
       _setLoading(true);
       _clearError();
       
+      print('Début de l\'inscription pour: $email');
+      
+      // Vérification basique de la connectivité
+      try {
+        await Future.delayed(const Duration(milliseconds: 100));
+        print('Test de connectivité réussi');
+      } catch (e) {
+        print('Problème de connectivité détecté: $e');
+        throw Exception('Problème de connectivité réseau détecté. Vérifiez votre connexion internet.');
+      }
+      
       // Créer le compte Firebase Auth
-      final userCredential = await _authService.signUpWithEmail(
+      final Future<UserCredential> authFuture = _authService.signUpWithEmail(
         email: email,
         password: password,
       );
       
-      if (userCredential.user != null) {
-        // Créer le profil utilisateur dans Firestore
-        final userModel = UserModel(
-          id: userCredential.user!.uid,
-          email: email,
-          displayName: displayName,
-          role: role,
-          createdAt: DateTime.now(),
-          phoneNumber: phoneNumber,
-          address: address,
-        );
-        
-        await _userService.createUser(userModel);
-        _currentUser = userModel;
-        
-        _setLoading(false);
-        return true;
-      }
+      final userCredential = useTimeout 
+        ? await authFuture.timeout(
+            const Duration(minutes: 3),
+            onTimeout: () => throw Exception('Timeout lors de la création du compte Firebase Auth - Vérifiez votre connexion internet et réessayez'),
+          )
+        : await authFuture;
       
-      _setLoading(false);
-      return false;
+      print('Compte Firebase Auth créé avec succès pour UID: ${userCredential.user?.uid}');
+      
+      if (userCredential.user != null) {
+        try {
+          // Créer le profil utilisateur dans Firestore
+          final userModel = UserModel(
+            id: userCredential.user!.uid,
+            email: email,
+            displayName: displayName,
+            role: role,
+            createdAt: DateTime.now(),
+            updatedAt: DateTime.now(),
+            isActive: true,
+            phoneNumber: phoneNumber,
+            address: address,
+          );
+          
+          print('Création du document utilisateur dans Firestore pour UID: ${userCredential.user!.uid}');
+          print('Données utilisateur: ${userModel.toFirestore()}');
+          
+          // Créer le document Firestore
+          final Future<void> firestoreFuture = _userService.createUser(userModel);
+          
+          if (useTimeout) {
+            await firestoreFuture.timeout(
+              const Duration(minutes: 2),
+              onTimeout: () => throw Exception('Timeout lors de la création du document Firestore - Vérifiez votre connexion internet et réessayez'),
+            );
+          } else {
+            await firestoreFuture;
+          }
+          
+          print('Document utilisateur créé avec succès dans Firestore');
+          
+          // Utiliser directement le modèle créé sans relecture
+          _currentUser = userModel;
+          print('Inscription terminée avec succès pour: $email');
+          _setLoading(false);
+          return true;
+        } catch (firestoreError) {
+          // Si la création du document Firestore échoue, supprimer le compte Firebase Auth
+          print('Erreur lors de la création du document Firestore: $firestoreError');
+          try {
+            await userCredential.user!.delete();
+            print('Compte Firebase Auth supprimé après échec Firestore');
+          } catch (deleteError) {
+            print('Erreur lors de la suppression du compte Firebase Auth: $deleteError');
+          }
+          throw Exception('Erreur lors de la création du profil utilisateur: $firestoreError');
+        }
+      } else {
+        throw Exception('Aucun utilisateur créé par Firebase Auth');
+      }
     } catch (e) {
+      print('Erreur complète lors de l\'inscription: $e');
       _setLoading(false);
       _setError(_getErrorMessage(e));
       return false;
@@ -138,6 +220,7 @@ class AuthProvider extends ChangeNotifier {
       
       if (userCredential.user != null) {
         await _loadUserData(userCredential.user!.uid);
+        print('Connexion réussie pour: $email');
         _setLoading(false);
         return true;
       }
@@ -273,7 +356,7 @@ class AuthProvider extends ChangeNotifier {
         );
         
         // Recharger les données utilisateur
-        await _loadCurrentUser();
+        await _loadUserData(_currentUser!.id);
       }
       
       _setLoading(false);
@@ -341,10 +424,17 @@ class AuthProvider extends ChangeNotifier {
         case 'too-many-requests':
           return 'Trop de tentatives. Veuillez réessayer plus tard';
         case 'network-request-failed':
-          return 'Erreur de connexion réseau';
+          return 'Erreur de connexion réseau. Vérifiez votre connexion internet.';
+        case 'timeout':
+          return 'La requête a expiré. Vérifiez votre connexion internet et réessayez.';
         default:
           return 'Erreur d\'authentification: ${error.message ?? error.code}';
       }
+    }
+    
+    // Gestion des erreurs de timeout personnalisées
+    if (error.toString().contains('Timeout')) {
+      return 'La connexion a expiré. Vérifiez votre connexion internet et réessayez.';
     }
     
     // Gestion des erreurs génériques

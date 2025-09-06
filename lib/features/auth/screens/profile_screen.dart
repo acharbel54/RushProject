@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../../core/providers/auth_provider.dart';
+import '../../../core/providers/simple_auth_provider.dart';
+import '../../../core/services/simple_auth_service.dart';
 import '../../../core/models/user_model.dart';
 import '../widgets/auth_text_field.dart';
 import '../widgets/auth_button.dart';
@@ -20,6 +21,32 @@ class _ProfileScreenState extends State<ProfileScreen> {
   final _nameController = TextEditingController();
   final _phoneController = TextEditingController();
   final _addressController = TextEditingController();
+  final _preferredZoneController = TextEditingController();
+  
+  List<String> _selectedDietaryPreferences = [];
+  List<String> _selectedAllergies = [];
+  
+  final List<String> _availableDietaryPreferences = [
+    'Végétarien',
+    'Végétalien',
+    'Sans gluten',
+    'Halal',
+    'Casher',
+    'Bio uniquement',
+    'Produits locaux',
+  ];
+  
+  final List<String> _availableAllergies = [
+    'Arachides',
+    'Fruits à coque',
+    'Lait',
+    'Œufs',
+    'Poisson',
+    'Crustacés',
+    'Soja',
+    'Gluten',
+    'Sésame',
+  ];
   
   bool _isEditing = false;
   bool _isLoading = false;
@@ -31,13 +58,34 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   void _loadUserData() {
-    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final authProvider = Provider.of<SimpleAuthProvider>(context, listen: false);
     final user = authProvider.currentUser;
     
+    print('DEBUG ProfileScreen: _loadUserData called');
+    print('DEBUG ProfileScreen: user = $user');
+    
     if (user != null) {
+      print('DEBUG ProfileScreen: user.role = ${user.role}');
+      print('DEBUG ProfileScreen: user.displayName = ${user.displayName}');
+      print('DEBUG ProfileScreen: user.phoneNumber = ${user.phoneNumber}');
+      print('DEBUG ProfileScreen: user.address = ${user.address}');
+      print('DEBUG ProfileScreen: user.preferredPickupZone = ${user.preferredPickupZone}');
+      print('DEBUG ProfileScreen: user.dietaryPreferences = ${user.dietaryPreferences}');
+      print('DEBUG ProfileScreen: user.allergies = ${user.allergies}');
+      
       _nameController.text = user.displayName ?? '';
       _phoneController.text = user.phoneNumber ?? '';
       _addressController.text = user.address ?? '';
+      _preferredZoneController.text = user.preferredPickupZone ?? '';
+      _selectedDietaryPreferences = List.from(user.dietaryPreferences ?? []);
+      _selectedAllergies = List.from(user.allergies ?? []);
+      
+      print('DEBUG ProfileScreen: Controllers loaded');
+      print('DEBUG ProfileScreen: _preferredZoneController.text = ${_preferredZoneController.text}');
+      print('DEBUG ProfileScreen: _selectedDietaryPreferences = $_selectedDietaryPreferences');
+      print('DEBUG ProfileScreen: _selectedAllergies = $_selectedAllergies');
+    } else {
+      print('DEBUG ProfileScreen: user is null!');
     }
   }
 
@@ -46,6 +94,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     _nameController.dispose();
     _phoneController.dispose();
     _addressController.dispose();
+    _preferredZoneController.dispose();
     super.dispose();
   }
 
@@ -56,26 +105,38 @@ class _ProfileScreenState extends State<ProfileScreen> {
       _isLoading = true;
     });
 
-    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final authProvider = Provider.of<SimpleAuthProvider>(context, listen: false);
     
     try {
-      await authProvider.updateUserProfile(
-        name: _nameController.text.trim(),
-        phone: _phoneController.text.trim().isNotEmpty ? _phoneController.text.trim() : null,
-        address: _addressController.text.trim().isNotEmpty ? _addressController.text.trim() : null,
+      final success = await authProvider.updateProfile(
+        displayName: _nameController.text.trim(),
+        phoneNumber: _phoneController.text.trim().isEmpty ? null : _phoneController.text.trim(),
+        address: _addressController.text.trim().isEmpty ? null : _addressController.text.trim(),
+        preferredPickupZone: _preferredZoneController.text.trim().isEmpty ? null : _preferredZoneController.text.trim(),
+        dietaryPreferences: _selectedDietaryPreferences.isEmpty ? null : _selectedDietaryPreferences,
+        allergies: _selectedAllergies.isEmpty ? null : _selectedAllergies,
       );
       
       if (mounted) {
-        setState(() {
-          _isEditing = false;
-        });
-        
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Profil mis à jour avec succès'),
-            backgroundColor: Colors.green,
-          ),
-        );
+        if (success) {
+          setState(() {
+            _isEditing = false;
+          });
+          
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Profil mis à jour avec succès'),
+              backgroundColor: Colors.green,
+            ),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(authProvider.errorMessage ?? 'Erreur lors de la mise à jour'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
       }
     } catch (e) {
       if (mounted) {
@@ -118,8 +179,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
 
     if (confirmed == true) {
-      final authProvider = Provider.of<AuthProvider>(context, listen: false);
-      await authProvider.signOut();
+      final authProvider = Provider.of<SimpleAuthProvider>(context, listen: false);
+    await authProvider.signOut();
       
       if (mounted) {
         Navigator.of(context).pushNamedAndRemoveUntil(
@@ -156,8 +217,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
     if (confirmed == true) {
       try {
-        final authProvider = Provider.of<AuthProvider>(context, listen: false);
-        await authProvider.deleteAccount();
+        // Suppression de compte non implémentée dans SimpleAuthProvider
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Suppression de compte non disponible en mode simple'),
+        backgroundColor: Colors.orange,
+      ),
+    );
         
         if (mounted) {
           Navigator.of(context).pushNamedAndRemoveUntil(
@@ -204,7 +270,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
         ],
       ),
-      body: Consumer<AuthProvider>(
+      body: Consumer<SimpleAuthProvider>(
         builder: (context, authProvider, child) {
           final user = authProvider.currentUser;
           
@@ -230,29 +296,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         backgroundColor: user.role == UserRole.donateur
                             ? const Color(0xFF4CAF50)
                             : const Color(0xFFFF9800),
-                        child: user.photoURL != null
-                            ? ClipOval(
-                                child: Image.network(
-                                  user.photoURL!,
-                                  width: 100,
-                                  height: 100,
-                                  fit: BoxFit.cover,
-                                  errorBuilder: (context, error, stackTrace) {
-                                    return Icon(
-                                      user.role == UserRole.donateur
-                                          ? Icons.volunteer_activism
-                                          : Icons.people,
-                                      size: 40,
-                                      color: Colors.white,
-                                    );
-                                  },
-                                ),
-                              )
-                            : Icon(
-                                user.role == UserRole.donateur
-                                    ? Icons.volunteer_activism
-                                    : Icons.people,
-                                size: 40,
+                        child: Icon(
+                          user.role.toString().contains('donateur')
+                              ? Icons.volunteer_activism
+                              : Icons.people,
+                          size: 50,
                                 color: Colors.white,
                               ),
                       ),
@@ -384,7 +432,125 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   const SizedBox(height: 16),
                 ],
                 
-                // Actions
+                // Statistiques (pour les bénéficiaires)
+                if (user.role == UserRole.beneficiaire) ...[
+                  Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 16),
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.05),
+                          blurRadius: 10,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Mes statistiques',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.black87,
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: _buildStatCard(
+                                'Réservations',
+                                '0', // TODO: Calculer depuis les réservations
+                                Icons.bookmark,
+                                const Color(0xFFFF9800),
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: _buildStatCard(
+                                'Dons reçus',
+                                '0', // TODO: Calculer depuis les dons reçus
+                                Icons.card_giftcard,
+                                const Color(0xFF9C27B0),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: _buildStatCard(
+                                'Économies',
+                                '0€', // TODO: Calculer les économies
+                                Icons.savings,
+                                const Color(0xFF4CAF50),
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: _buildStatCard(
+                                'Impact CO₂',
+                                '0kg', // TODO: Calculer l'impact CO₂
+                                Icons.eco,
+                                const Color(0xFF009688),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                 ],
+                 
+                 // Historique des réservations pour les bénéficiaires
+                 if (user.role == UserRole.beneficiaire) ...[
+                   Container(
+                     margin: const EdgeInsets.symmetric(horizontal: 16),
+                     padding: const EdgeInsets.all(20),
+                     decoration: BoxDecoration(
+                       color: Colors.white,
+                       borderRadius: BorderRadius.circular(12),
+                       boxShadow: [
+                         BoxShadow(
+                           color: Colors.black.withOpacity(0.05),
+                           blurRadius: 10,
+                           offset: const Offset(0, 2),
+                         ),
+                       ],
+                     ),
+                     child: Column(
+                       crossAxisAlignment: CrossAxisAlignment.start,
+                       children: [
+                         Row(
+                           children: [
+                             const Icon(Icons.history, color: Colors.black54),
+                             const SizedBox(width: 8),
+                             const Text(
+                               'Historique des réservations',
+                               style: TextStyle(
+                                 fontSize: 18,
+                                 fontWeight: FontWeight.w600,
+                                 color: Colors.black87,
+                               ),
+                             ),
+                           ],
+                         ),
+                         const SizedBox(height: 16),
+                         _buildReservationHistory(),
+                       ],
+                     ),
+                   ),
+                   const SizedBox(height: 16),
+                 ],
+                 
+                 // Actions
                 Container(
                   margin: const EdgeInsets.symmetric(horizontal: 16),
                   child: Column(
@@ -487,6 +653,44 @@ class _ProfileScreenState extends State<ProfileScreen> {
             maxLines: 2,
           ),
           
+          // Champs spécifiques aux bénéficiaires
+          Consumer<SimpleAuthProvider>(
+            builder: (context, authProvider, child) {
+              final user = authProvider.currentUser;
+              if (user?.role == UserRole.beneficiaire) {
+                return Column(
+                  children: [
+                    const SizedBox(height: 16),
+                    AuthTextField(
+                      controller: _preferredZoneController,
+                      labelText: 'Zone de récupération préférée',
+                      prefixIcon: Icons.place_outlined,
+                    ),
+                    
+                    const SizedBox(height: 16),
+                    _buildMultiSelectField(
+                      'Préférences alimentaires',
+                      _availableDietaryPreferences,
+                      _selectedDietaryPreferences,
+                      Icons.restaurant_outlined,
+                      (selected) => setState(() => _selectedDietaryPreferences = selected),
+                    ),
+                    
+                    const SizedBox(height: 16),
+                    _buildMultiSelectField(
+                      'Allergies',
+                      _availableAllergies,
+                      _selectedAllergies,
+                      Icons.warning_outlined,
+                      (selected) => setState(() => _selectedAllergies = selected),
+                    ),
+                  ],
+                );
+              }
+              return const SizedBox.shrink();
+            },
+          ),
+          
           const SizedBox(height: 24),
           
           // Boutons
@@ -518,7 +722,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Widget _buildInfoDisplay(UserModel user) {
+  Widget _buildInfoDisplay(SimpleUser user) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -536,6 +740,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
         _buildInfoRow('Téléphone', user.phoneNumber ?? 'Non renseigné', Icons.phone_outlined),
         const SizedBox(height: 16),
         _buildInfoRow('Adresse', user.address ?? 'Non renseignée', Icons.location_on_outlined),
+        
+        // Informations spécifiques aux bénéficiaires
+        if (user.role == UserRole.beneficiaire) ...[
+          const SizedBox(height: 16),
+          _buildInfoRow('Zone préférée', user.preferredPickupZone ?? 'Non renseignée', Icons.place_outlined),
+          if (user.dietaryPreferences != null && user.dietaryPreferences!.isNotEmpty) ...[
+            const SizedBox(height: 16),
+            _buildInfoRow('Préférences alimentaires', user.dietaryPreferences!.join(', '), Icons.restaurant_outlined),
+          ],
+          if (user.allergies != null && user.allergies!.isNotEmpty) ...[
+            const SizedBox(height: 16),
+            _buildInfoRow('Allergies', user.allergies!.join(', '), Icons.warning_outlined),
+          ],
+        ],
+        
         const SizedBox(height: 16),
         _buildInfoRow('Membre depuis', _formatDate(user.createdAt), Icons.calendar_today_outlined),
       ],
@@ -615,7 +834,225 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  String _formatDate(DateTime date) {
+  Widget _buildMultiSelectField(
+    String label,
+    List<String> availableOptions,
+    List<String> selectedOptions,
+    IconData icon,
+    Function(List<String>) onChanged,
+  ) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Icon(icon, size: 20, color: Colors.black54),
+            const SizedBox(width: 8),
+            Text(
+              label,
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+                color: Colors.black87,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: availableOptions.map((option) {
+            final isSelected = selectedOptions.contains(option);
+            return FilterChip(
+              label: Text(option),
+              selected: isSelected,
+              onSelected: (selected) {
+                final newSelection = List<String>.from(selectedOptions);
+                if (selected) {
+                  newSelection.add(option);
+                } else {
+                  newSelection.remove(option);
+                }
+                onChanged(newSelection);
+              },
+              selectedColor: const Color(0xFF4CAF50).withOpacity(0.2),
+              checkmarkColor: const Color(0xFF4CAF50),
+            );
+          }).toList(),
+        ),
+      ],
+    );
+  }
+ 
+   Widget _buildReservationHistory() {
+     // TODO: Récupérer les vraies réservations depuis le service
+     final mockReservations = [
+       {
+         'title': 'Légumes frais',
+         'date': DateTime.now().subtract(const Duration(days: 2)),
+         'status': 'Récupéré',
+         'location': 'Marché Central',
+         'savings': '12€',
+       },
+       {
+         'title': 'Pain et viennoiseries',
+         'date': DateTime.now().subtract(const Duration(days: 5)),
+         'status': 'Récupéré',
+         'location': 'Boulangerie Dupont',
+         'savings': '8€',
+       },
+       {
+         'title': 'Produits laitiers',
+         'date': DateTime.now().subtract(const Duration(days: 8)),
+         'status': 'Annulé',
+         'location': 'Supermarché Bio',
+         'savings': '0€',
+       },
+     ];
+ 
+     if (mockReservations.isEmpty) {
+       return Container(
+         padding: const EdgeInsets.all(20),
+         child: Column(
+           children: [
+             Icon(
+               Icons.inbox_outlined,
+               size: 48,
+               color: Colors.grey[400],
+             ),
+             const SizedBox(height: 12),
+             Text(
+               'Aucune réservation pour le moment',
+               style: TextStyle(
+                 color: Colors.grey[600],
+                 fontSize: 16,
+               ),
+             ),
+             const SizedBox(height: 8),
+             Text(
+               'Vos réservations apparaîtront ici',
+               style: TextStyle(
+                 color: Colors.grey[500],
+                 fontSize: 14,
+               ),
+             ),
+           ],
+         ),
+       );
+     }
+ 
+     return Column(
+       children: mockReservations.map((reservation) {
+         final isLast = mockReservations.indexOf(reservation) == mockReservations.length - 1;
+         return Column(
+           children: [
+             Container(
+               padding: const EdgeInsets.all(16),
+               decoration: BoxDecoration(
+                 color: Colors.grey[50],
+                 borderRadius: BorderRadius.circular(8),
+                 border: Border.all(color: Colors.grey[200]!),
+               ),
+               child: Row(
+                 children: [
+                   Container(
+                     width: 40,
+                     height: 40,
+                     decoration: BoxDecoration(
+                       color: reservation['status'] == 'Récupéré' 
+                           ? Colors.green.withOpacity(0.1)
+                           : Colors.red.withOpacity(0.1),
+                       borderRadius: BorderRadius.circular(20),
+                     ),
+                     child: Icon(
+                       reservation['status'] == 'Récupéré' 
+                           ? Icons.check_circle
+                           : Icons.cancel,
+                       color: reservation['status'] == 'Récupéré' 
+                           ? Colors.green
+                           : Colors.red,
+                       size: 20,
+                     ),
+                   ),
+                   const SizedBox(width: 12),
+                   Expanded(
+                     child: Column(
+                       crossAxisAlignment: CrossAxisAlignment.start,
+                       children: [
+                         Text(
+                           reservation['title'] as String,
+                           style: const TextStyle(
+                             fontWeight: FontWeight.w600,
+                             fontSize: 16,
+                           ),
+                         ),
+                         const SizedBox(height: 4),
+                         Text(
+                           reservation['location'] as String,
+                           style: TextStyle(
+                             color: Colors.grey[600],
+                             fontSize: 14,
+                           ),
+                         ),
+                         const SizedBox(height: 4),
+                         Text(
+                           _formatDate(reservation['date'] as DateTime),
+                           style: TextStyle(
+                             color: Colors.grey[500],
+                             fontSize: 12,
+                           ),
+                         ),
+                       ],
+                     ),
+                   ),
+                   Column(
+                     crossAxisAlignment: CrossAxisAlignment.end,
+                     children: [
+                       Container(
+                         padding: const EdgeInsets.symmetric(
+                           horizontal: 8,
+                           vertical: 4,
+                         ),
+                         decoration: BoxDecoration(
+                           color: reservation['status'] == 'Récupéré' 
+                               ? Colors.green.withOpacity(0.1)
+                               : Colors.red.withOpacity(0.1),
+                           borderRadius: BorderRadius.circular(12),
+                         ),
+                         child: Text(
+                           reservation['status'] as String,
+                           style: TextStyle(
+                             color: reservation['status'] == 'Récupéré' 
+                                 ? Colors.green[700]
+                                 : Colors.red[700],
+                             fontSize: 12,
+                             fontWeight: FontWeight.w500,
+                           ),
+                         ),
+                       ),
+                       const SizedBox(height: 4),
+                       Text(
+                         'Économie: ${reservation['savings']}',
+                         style: TextStyle(
+                           color: Colors.grey[600],
+                           fontSize: 12,
+                           fontWeight: FontWeight.w500,
+                         ),
+                       ),
+                     ],
+                   ),
+                 ],
+               ),
+             ),
+             if (!isLast) const SizedBox(height: 12),
+           ],
+         );
+       }).toList(),
+     );
+   }
+ 
+   String _formatDate(DateTime date) {
     final months = [
       'janvier', 'février', 'mars', 'avril', 'mai', 'juin',
       'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'

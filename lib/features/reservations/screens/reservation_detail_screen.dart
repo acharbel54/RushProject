@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../core/providers/reservation_provider.dart';
-import '../../../core/providers/auth_provider.dart';
+import '../../../core/providers/simple_auth_provider.dart';
 import '../../../core/models/reservation.dart';
 import '../../../core/models/donation.dart';
 import '../../../core/utils/date_utils.dart';
@@ -43,7 +43,7 @@ class _ReservationDetailScreenState extends State<ReservationDetailScreen> {
         context,
         listen: false,
       );
-      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      final authProvider = Provider.of<SimpleAuthProvider>(context, listen: false);
 
       // Récupérer la réservation
       final reservation = await reservationProvider.getReservationById(

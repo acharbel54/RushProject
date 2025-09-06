@@ -4,7 +4,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:geolocator/geolocator.dart';
 import 'dart:io';
 import '../../../core/providers/donation_provider.dart';
-import '../../../core/providers/auth_provider.dart';
+import '../../../core/providers/simple_auth_provider.dart';
 import '../../../core/models/donation_model.dart';
 import '../../../shared/widgets/custom_button.dart';
 import '../../../shared/widgets/custom_text_field.dart';
@@ -193,7 +193,7 @@ class _CreateDonationScreenState extends State<CreateDonationScreen> {
       return;
     }
     
-    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final authProvider = Provider.of<SimpleAuthProvider>(context, listen: false);
     final donationProvider = Provider.of<DonationProvider>(context, listen: false);
     
     if (authProvider.currentUser == null) {

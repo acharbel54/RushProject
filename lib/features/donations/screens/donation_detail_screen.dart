@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../providers/donation_provider.dart';
-import '../../../core/providers/auth_provider.dart';
+import '../../../core/providers/simple_auth_provider.dart';
 import '../../../core/models/donation.dart';
 import '../../../core/models/user_model.dart';
 import '../../../shared/widgets/loading_overlay.dart';
@@ -116,7 +116,7 @@ class _DonationDetailScreenState extends State<DonationDetailScreen> {
       );
     }
 
-    return Consumer2<AuthProvider, DonationProvider>(
+    return Consumer2<SimpleAuthProvider, DonationProvider>(
       builder: (context, authProvider, donationProvider, child) {
         final currentUser = authProvider.currentUser;
         final isOwner = currentUser?.id == donation!.donorId;
@@ -587,7 +587,7 @@ class _DonationDetailScreenState extends State<DonationDetailScreen> {
 
   Widget? _buildBottomActions(
     BuildContext context,
-    AuthProvider authProvider,
+    SimpleAuthProvider authProvider,
     DonationProvider donationProvider,
     bool isOwner,
     bool canReserve,
@@ -639,7 +639,7 @@ class _DonationDetailScreenState extends State<DonationDetailScreen> {
   }
 
   Future<void> _reserveDonation(
-    AuthProvider authProvider,
+    SimpleAuthProvider authProvider,
     DonationProvider donationProvider,
   ) async {
     final confirmed = await showDialog<bool>(

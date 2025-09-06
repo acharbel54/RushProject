@@ -1,0 +1,28 @@
+[
+    {
+        "phoneNumber":  "0123456789",
+        "id":  "donateur_001",
+        "displayName":  "Jean Donateur",
+        "totalDonations":  5,
+        "createdAt":  "2025-09-06T00:18:50.114Z",
+        "password":  "123456",
+        "role":  "donateur",
+        "address":  "123 Rue du Don, Paris",
+        "email":  "donateur@test.com"
+    },
+    {
+        "phoneNumber":  "0987654321",
+        "id":  "beneficiaire_001",
+        "displayName":  "Marie Bénéficiaire",
+        "totalDonations":  0,
+        "totalReservations":  3,
+        "createdAt":  "2025-09-06T00:18:50.122Z",
+        "password":  "123456",
+        "role":  "beneficiaire",
+        "address":  "456 Avenue de l\u0027Aide, Lyon",
+        "email":  "beneficiaire@test.com",
+        "preferredPickupZone":  "Lyon Centre",
+        "dietaryPreferences":  ["Végétarien", "Sans gluten"],
+        "allergies":  ["Arachides", "Lait"]
+    }
+]

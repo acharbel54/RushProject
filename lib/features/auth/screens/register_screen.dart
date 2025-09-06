@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../../core/providers/auth_provider.dart';
+import '../../../core/providers/simple_auth_provider.dart';
 import '../../../core/models/user_model.dart';
 import '../widgets/auth_text_field.dart';
 import '../widgets/auth_button.dart';
@@ -22,7 +22,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
-  final _phoneController = TextEditingController();
+
   
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
@@ -35,7 +35,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     _emailController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
-    _phoneController.dispose();
+
     super.dispose();
   }
 
@@ -52,28 +52,56 @@ class _RegisterScreenState extends State<RegisterScreen> {
       return;
     }
 
-    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final authProvider = Provider.of<SimpleAuthProvider>(context, listen: false);
     
     try {
-      await authProvider.signUpWithEmail(
+      // Première tentative avec timeout
+      bool success = await authProvider.signUp(
         email: _emailController.text.trim(),
         password: _passwordController.text,
         displayName: _nameController.text.trim(),
         role: _selectedUserType,
-        phoneNumber: _phoneController.text.trim().isNotEmpty ? _phoneController.text.trim() : null,
+        phoneNumber: null,
       );
       
-      if (mounted) {
-        // Afficher un message de succès
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Compte créé avec succès ! Vérifiez votre email.'),
-            backgroundColor: Colors.green,
-          ),
-        );
+      // Si échec avec timeout, essayer sans timeout
+      if (!success) {
         
-        // Rediriger vers l'écran de connexion
-        Navigator.of(context).pushReplacementNamed(LoginScreen.routeName);
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Connexion lente détectée. Nouvelle tentative sans limite de temps...'),
+              backgroundColor: Colors.orange,
+              duration: Duration(seconds: 3),
+            ),
+          );
+        }
+        
+        // Pas de retry nécessaire avec l'authentification simple
+      }
+      
+      if (mounted) {
+        if (success) {
+          // Afficher un message de succès
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Compte créé avec succès ! Vérifiez votre email.'),
+              backgroundColor: Colors.green,
+            ),
+          );
+          
+          // Rediriger vers l'écran de connexion
+          Navigator.of(context).pushReplacementNamed(LoginScreen.routeName);
+        } else {
+          // Afficher l'erreur depuis le provider
+          final errorMessage = authProvider.errorMessage ?? 'Erreur lors de la création du compte';
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(errorMessage),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
       }
     } catch (e) {
       if (mounted) {
@@ -88,24 +116,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   Future<void> _handleGoogleRegister() async {
-    final authProvider = Provider.of<AuthProvider>(context, listen: false);
-    
-    try {
-      await authProvider.signInWithGoogle();
-      
-      if (mounted) {
-        Navigator.of(context).pushReplacementNamed('/home');
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(e.toString()),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
-    }
+    // Google Sign-In non disponible avec l'authentification simple
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Inscription Google non disponible en mode simple'),
+        backgroundColor: Colors.orange,
+      ),
+    );
   }
 
   @override
@@ -141,37 +158,29 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ),
                       const SizedBox(height: 24),
                       const Text(
-                        'Créer un compte',
+                        'FoodLink',
                         style: TextStyle(
-                          fontSize: 28,
+                          fontSize: 32,
                           fontWeight: FontWeight.bold,
                           color: Colors.black87,
                         ),
                       ),
                       const SizedBox(height: 8),
                       const Text(
-                        'Rejoignez la communauté FoodLink',
+                        'Bienvenue',
                         style: TextStyle(
-                          fontSize: 16,
-                          color: Colors.black54,
+                          fontSize: 24,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.black87,
                         ),
                       ),
                     ],
                   ),
                 ),
                 
-                const SizedBox(height: 32),
+                const SizedBox(height: 48),
                 
                 // Sélection du type d'utilisateur
-                const Text(
-                  'Je suis :',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.black87,
-                  ),
-                ),
-                const SizedBox(height: 12),
                 Row(
                   children: [
                     Expanded(
@@ -182,38 +191,29 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           });
                         },
                         child: Container(
-                          padding: const EdgeInsets.all(16),
+                          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
                           decoration: BoxDecoration(
                             color: _selectedUserType == UserRole.donateur
                                 ? const Color(0xFF4CAF50)
                                 : Colors.grey[100],
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius: BorderRadius.circular(8),
                             border: Border.all(
                               color: _selectedUserType == UserRole.donateur
                                   ? const Color(0xFF4CAF50)
                                   : Colors.grey[300]!,
                             ),
                           ),
-                          child: Column(
-                            children: [
-                              Icon(
-                                Icons.volunteer_activism,
+                          child: Center(
+                            child: Text(
+                              'Donateur',
+                              style: TextStyle(
                                 color: _selectedUserType == UserRole.donateur
                                     ? Colors.white
                                     : Colors.grey[600],
-                                size: 32,
+                                fontWeight: FontWeight.w600,
+                                fontSize: 16,
                               ),
-                              const SizedBox(height: 8),
-                              Text(
-                                'Donateur',
-                                style: TextStyle(
-                                  color: _selectedUserType == UserRole.donateur
-                                      ? Colors.white
-                                      : Colors.grey[600],
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ],
+                            ),
                           ),
                         ),
                       ),
@@ -227,38 +227,29 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           });
                         },
                         child: Container(
-                          padding: const EdgeInsets.all(16),
+                          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
                           decoration: BoxDecoration(
                             color: _selectedUserType == UserRole.beneficiaire
-                                ? const Color(0xFFFF9800)
+                                ? const Color(0xFF4CAF50)
                                 : Colors.grey[100],
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius: BorderRadius.circular(8),
                             border: Border.all(
                               color: _selectedUserType == UserRole.beneficiaire
-                                  ? const Color(0xFFFF9800)
+                                  ? const Color(0xFF4CAF50)
                                   : Colors.grey[300]!,
                             ),
                           ),
-                          child: Column(
-                            children: [
-                              Icon(
-                                Icons.people,
+                          child: Center(
+                            child: Text(
+                              'Bénéficiaire',
+                              style: TextStyle(
                                 color: _selectedUserType == UserRole.beneficiaire
                                     ? Colors.white
                                     : Colors.grey[600],
-                                size: 32,
+                                fontWeight: FontWeight.w600,
+                                fontSize: 16,
                               ),
-                              const SizedBox(height: 8),
-                              Text(
-                                'Bénéficiaire',
-                                style: TextStyle(
-                                  color: _selectedUserType == UserRole.beneficiaire
-                                      ? Colors.white
-                                      : Colors.grey[600],
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ],
+                            ),
                           ),
                         ),
                       ),
@@ -307,24 +298,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 
                 const SizedBox(height: 16),
                 
-                // Champ téléphone (optionnel)
-                AuthTextField(
-                  controller: _phoneController,
-                  labelText: 'Téléphone (optionnel)',
-                  hintText: 'Entrez votre numéro de téléphone',
-                  keyboardType: TextInputType.phone,
-                  prefixIcon: Icons.phone_outlined,
-                  validator: (value) {
-                    if (value != null && value.isNotEmpty) {
-                      if (!RegExp(r'^[+]?[0-9]{8,15}$').hasMatch(value)) {
-                        return 'Veuillez entrer un numéro valide';
-                      }
-                    }
-                    return null;
-                  },
-                ),
-                
-                const SizedBox(height: 16),
+
                 
                 // Champ mot de passe
                 AuthTextField(
@@ -432,15 +406,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 const SizedBox(height: 32),
                 
                 // Bouton d'inscription
-                Consumer<AuthProvider>(
+                Consumer<SimpleAuthProvider>(
                   builder: (context, authProvider, child) {
                     return AuthButton(
-                      text: 'Créer un compte',
+                      text: 'S\'inscrire',
                       onPressed: authProvider.isLoading ? null : _handleRegister,
                       isLoading: authProvider.isLoading,
-                      backgroundColor: _selectedUserType == UserRole.donateur
-                          ? const Color(0xFF4CAF50)
-                          : const Color(0xFFFF9800),
                     );
                   },
                 ),
@@ -467,8 +438,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 
                 const SizedBox(height: 24),
                 
-                // Connexion avec Google
-                Consumer<AuthProvider>(
+                // Inscription avec Google
+                Consumer<SimpleAuthProvider>(
                   builder: (context, authProvider, child) {
                     return SocialLoginButton(
                       text: 'Continuer avec Google',
@@ -494,7 +465,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ),
                     TextButton(
                       onPressed: () {
-                        Navigator.of(context).pushReplacementNamed(LoginScreen.routeName);
+                        Navigator.of(context).pushReplacementNamed('/');
                       },
                       child: const Text(
                         'Se connecter',

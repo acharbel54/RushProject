@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../core/providers/donation_provider.dart';
-import '../../../core/providers/auth_provider.dart';
+import '../../../core/providers/simple_auth_provider.dart';
 import '../../../core/models/donation_model.dart';
 import '../../../core/models/user_model.dart';
 import '../widgets/donation_card.dart';
@@ -63,7 +63,7 @@ class _DonationsListScreenState extends State<DonationsListScreen>
 
   Future<void> _loadDonations() async {
     final donationProvider = Provider.of<DonationProvider>(context, listen: false);
-    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final authProvider = Provider.of<SimpleAuthProvider>(context, listen: false);
     
     if (_showMyDonations && authProvider.currentUser != null) {
       await donationProvider.fetchUserDonations(authProvider.currentUser!.id);
@@ -110,7 +110,7 @@ class _DonationsListScreenState extends State<DonationsListScreen>
 
   @override
   Widget build(BuildContext context) {
-    final authProvider = Provider.of<AuthProvider>(context);
+    final authProvider = Provider.of<SimpleAuthProvider>(context);
     final isDonor = authProvider.currentUser?.role == UserRole.donateur;
     
     return Scaffold(
@@ -357,7 +357,7 @@ class _DonationsListScreenState extends State<DonationsListScreen>
   }
 
   Future<void> _reserveDonation(DonationModel donation) async {
-    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final authProvider = Provider.of<SimpleAuthProvider>(context, listen: false);
     final donationProvider = Provider.of<DonationProvider>(context, listen: false);
     
     if (authProvider.currentUser == null) {

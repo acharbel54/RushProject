@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../../core/providers/auth_provider.dart';
+import '../../../core/providers/simple_auth_provider.dart';
 import '../widgets/auth_text_field.dart';
 import '../widgets/auth_button.dart';
 import '../widgets/social_login_button.dart';
@@ -33,11 +33,11 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<void> _handleLogin() async {
     if (!_formKey.currentState!.validate()) return;
 
-    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final authProvider = Provider.of<SimpleAuthProvider>(context, listen: false);
     
-    final success = await authProvider.signInWithEmail(
+    final success = await authProvider.signIn(
       email: _emailController.text.trim(),
-      password: _passwordController.text,
+      password: _passwordController.text.trim(),
     );
     
     if (mounted) {
@@ -58,25 +58,13 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> _handleGoogleLogin() async {
-    final authProvider = Provider.of<AuthProvider>(context, listen: false);
-    
-    final success = await authProvider.signInWithGoogle();
-    
-    if (mounted) {
-      if (success) {
-        Navigator.of(context).pushReplacementNamed('/home');
-      } else {
-        // Afficher l'erreur depuis le provider
-        final errorMessage = authProvider.errorMessage ?? 'Erreur de connexion Google';
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(errorMessage),
-            backgroundColor: Colors.red,
-            duration: const Duration(seconds: 4),
-          ),
-        );
-      }
-    }
+    // Google Sign-In non disponible avec l'authentification simple
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Connexion Google non disponible en mode simple'),
+        backgroundColor: Colors.orange,
+      ),
+    );
   }
 
   @override
@@ -97,29 +85,15 @@ class _LoginScreenState extends State<LoginScreen> {
                 Center(
                   child: Column(
                     children: [
-                      Container(
-                        width: 80,
-                        height: 80,
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF4CAF50),
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        child: const Icon(
-                          Icons.restaurant,
-                          color: Colors.white,
-                          size: 40,
-                        ),
-                      ),
-                      const SizedBox(height: 24),
                       const Text(
                         'FoodLink',
                         style: TextStyle(
-                          fontSize: 32,
+                          fontSize: 28,
                           fontWeight: FontWeight.bold,
                           color: Colors.black87,
                         ),
                       ),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: 16),
                       const Text(
                         'Bienvenue',
                         style: TextStyle(
@@ -182,42 +156,53 @@ class _LoginScreenState extends State<LoginScreen> {
                   },
                 ),
                 
-                const SizedBox(height: 16),
+                const SizedBox(height: 24),
                 
-                // Se souvenir de moi et mot de passe oublié
+                // Sélection du type d'utilisateur
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Row(
-                      children: [
-                        Checkbox(
-                          value: _rememberMe,
-                          onChanged: (value) {
-                            setState(() {
-                              _rememberMe = value ?? false;
-                            });
-                          },
-                          activeColor: const Color(0xFF4CAF50),
-                        ),
-                        const Text(
-                          'Se souvenir de moi',
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Colors.black54,
+                    Expanded(
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                        decoration: BoxDecoration(
+                          color: Colors.grey[100],
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(
+                            color: Colors.grey[300]!,
                           ),
                         ),
-                      ],
+                        child: const Center(
+                          child: Text(
+                            'Donateur',
+                            style: TextStyle(
+                              color: Colors.black87,
+                              fontWeight: FontWeight.w600,
+                              fontSize: 16,
+                            ),
+                          ),
+                        ),
+                      ),
                     ),
-                    TextButton(
-                      onPressed: () {
-                        Navigator.of(context).pushNamed(ForgotPasswordScreen.routeName);
-                      },
-                      child: const Text(
-                        'Mot de passe oublié ?',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Color(0xFF4CAF50),
-                          fontWeight: FontWeight.w500,
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                        decoration: BoxDecoration(
+                          color: Colors.grey[100],
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(
+                            color: Colors.grey[300]!,
+                          ),
+                        ),
+                        child: const Center(
+                          child: Text(
+                            'Bénéficiaire',
+                            style: TextStyle(
+                              color: Colors.black87,
+                              fontWeight: FontWeight.w600,
+                              fontSize: 16,
+                            ),
+                          ),
                         ),
                       ),
                     ),
@@ -227,7 +212,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 const SizedBox(height: 32),
                 
                 // Bouton de connexion
-                Consumer<AuthProvider>(
+                Consumer<SimpleAuthProvider>(
                   builder: (context, authProvider, child) {
                     return AuthButton(
                       text: 'Se connecter',
@@ -260,7 +245,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 const SizedBox(height: 24),
                 
                 // Connexion avec Google
-                Consumer<AuthProvider>(
+                Consumer<SimpleAuthProvider>(
                   builder: (context, authProvider, child) {
                     return SocialLoginButton(
                       text: 'Continuer avec Google',
@@ -286,7 +271,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     TextButton(
                       onPressed: () {
-                        Navigator.of(context).pushReplacementNamed(RegisterScreen.routeName);
+                        Navigator.of(context).pushReplacementNamed('/register');
                       },
                       child: const Text(
                         'S\'inscrire',

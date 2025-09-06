@@ -4,8 +4,9 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:provider/provider.dart';
-import 'firebase_options.dart';
-import 'core/providers/auth_provider.dart';
+import 'core/providers/simple_auth_provider.dart';
+import 'core/providers/local_auth_provider.dart';
+import 'core/config/app_config.dart';
 import 'core/services/firebase_service.dart';
 import 'core/services/notification_service.dart';
 import 'features/onboarding/screens/splash_screen.dart';
@@ -65,7 +66,7 @@ class FoodLinkApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(
-          create: (context) => AuthProvider(),
+          create: (context) => SimpleAuthProvider(),
         ),
         ChangeNotifierProvider(
           create: (context) => NotificationProvider(),
@@ -119,9 +120,9 @@ class FoodLinkApp extends StatelessWidget {
           
           outlinedButtonTheme: OutlinedButtonThemeData(
             style: OutlinedButton.styleFrom(
-              foregroundColor: const Color(0xFF4CAF50),
-              side: const BorderSide(
-                color: Color(0xFF4CAF50),
+              foregroundColor: Color(AppConfig.primaryColorValue),
+              side: BorderSide(
+                color: Color(AppConfig.primaryColorValue),
                 width: 1.5,
               ),
               padding: const EdgeInsets.symmetric(
@@ -171,8 +172,8 @@ class FoodLinkApp extends StatelessWidget {
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(
-                color: Color(0xFF4CAF50),
+              borderSide: BorderSide(
+                color: Color(AppConfig.primaryColorValue),
                 width: 2,
               ),
             ),

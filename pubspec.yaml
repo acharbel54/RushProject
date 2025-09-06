@@ -19,7 +19,7 @@ dependencies:
   firebase_messaging: ^14.9.0
   
   # Notifications
-  flutter_local_notifications: ^16.3.2
+  # flutter_local_notifications: ^16.3.2
   
   # State Management
   provider: ^6.1.1
@@ -42,6 +42,8 @@ dependencies:
   uuid: ^4.2.1
   shared_preferences: ^2.2.2
   permission_handler: ^11.1.0
+  path_provider: ^2.1.1
+  crypto: ^3.0.3
   
   # HTTP & Networking
   http: ^1.1.0

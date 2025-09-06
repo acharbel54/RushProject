@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import '../../../core/providers/auth_provider.dart';
+import '../../../core/providers/simple_auth_provider.dart';
 import '../../../core/models/user_model.dart';
 import '../../../core/models/donation_model.dart';
 import '../../../core/models/reservation_model.dart';
@@ -33,7 +33,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> with Single
 
   @override
   Widget build(BuildContext context) {
-    final authProvider = Provider.of<AuthProvider>(context);
+    final authProvider = Provider.of<SimpleAuthProvider>(context);
     
     // Vérifier si l'utilisateur est admin
     if (authProvider.currentUser?.role != UserRole.admin) {

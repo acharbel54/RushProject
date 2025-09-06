@@ -1,15 +1,10 @@
 import 'package:flutter/foundation.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-
-import '../services/notification_service.dart';
 import '../models/notification_model.dart';
+import '../config/app_config.dart';
 
 class NotificationProvider with ChangeNotifier {
-  final NotificationService _notificationService = NotificationService();
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final FirebaseAuth _auth = FirebaseAuth.instance;
+  // Stockage local des notifications
+  static final List<NotificationModel> _localNotifications = [];
   
   List<NotificationModel> _notifications = [];
   bool _isLoading = false;
@@ -24,22 +19,15 @@ class NotificationProvider with ChangeNotifier {
   int get unreadCount => _unreadCount;
   bool get isInitialized => _isInitialized;
 
-  // Initialiser le provider
+  // Initialiser le provider (version locale)
   Future<void> initialize() async {
     if (_isInitialized) return;
     
     try {
       _setLoading(true);
-      _setError(null);
       
-      // Initialiser le service de notifications
-      await _notificationService.initialize();
-      
-      // Charger les notifications existantes
+      // Charger les notifications locales
       await fetchNotifications();
-      
-      // Écouter les nouvelles notifications
-      _listenToNotifications();
       
       _isInitialized = true;
     } catch (e) {
@@ -49,25 +37,15 @@ class NotificationProvider with ChangeNotifier {
     }
   }
 
-  // Charger les notifications de l'utilisateur
+  // Charger les notifications locales
   Future<void> fetchNotifications() async {
-    final user = _auth.currentUser;
-    if (user == null) return;
-
     try {
       _setLoading(true);
       _setError(null);
 
-      final querySnapshot = await _firestore
-          .collection('notifications')
-          .where('userId', isEqualTo: user.uid)
-          .orderBy('createdAt', descending: true)
-          .limit(50)
-          .get();
-
-      _notifications = querySnapshot.docs
-          .map((doc) => NotificationModel.fromFirestore(doc))
-          .toList();
+      // Utiliser les notifications locales
+      _notifications = List.from(_localNotifications);
+      _notifications.sort((a, b) => b.createdAt.compareTo(a.createdAt));
 
       _updateUnreadCount();
     } catch (e) {
@@ -77,40 +55,16 @@ class NotificationProvider with ChangeNotifier {
     }
   }
 
-  // Écouter les nouvelles notifications en temps réel
-  void _listenToNotifications() {
-    final user = _auth.currentUser;
-    if (user == null) return;
-
-    _firestore
-        .collection('notifications')
-        .where('userId', isEqualTo: user.uid)
-        .orderBy('createdAt', descending: true)
-        .limit(50)
-        .snapshots()
-        .listen(
-      (snapshot) {
-        _notifications = snapshot.docs
-            .map((doc) => NotificationModel.fromFirestore(doc))
-            .toList();
-        _updateUnreadCount();
-        notifyListeners();
-      },
-      onError: (error) {
-        _setError('Erreur lors de l\'écoute des notifications: $error');
-      },
-    );
-  }
-
-  // Marquer une notification comme lue
+  // Marquer une notification comme lue (version locale)
   Future<void> markAsRead(String notificationId) async {
     try {
-      await _firestore
-          .collection('notifications')
-          .doc(notificationId)
-          .update({'isRead': true});
+      // Mettre à jour dans le stockage local
+      final localIndex = _localNotifications.indexWhere((n) => n.id == notificationId);
+      if (localIndex != -1) {
+        _localNotifications[localIndex] = _localNotifications[localIndex].copyWith(isRead: true);
+      }
 
-      // Mettre à jour localement
+      // Mettre à jour dans la liste affichée
       final index = _notifications.indexWhere((n) => n.id == notificationId);
       if (index != -1) {
         _notifications[index] = _notifications[index].copyWith(isRead: true);
@@ -122,25 +76,17 @@ class NotificationProvider with ChangeNotifier {
     }
   }
 
-  // Marquer toutes les notifications comme lues
+  // Marquer toutes les notifications comme lues (version locale)
   Future<void> markAllAsRead() async {
-    final user = _auth.currentUser;
-    if (user == null) return;
-
     try {
       _setLoading(true);
       
-      final batch = _firestore.batch();
-      final unreadNotifications = _notifications.where((n) => !n.isRead);
-      
-      for (final notification in unreadNotifications) {
-        final docRef = _firestore.collection('notifications').doc(notification.id);
-        batch.update(docRef, {'isRead': true});
+      // Mettre à jour dans le stockage local
+      for (int i = 0; i < _localNotifications.length; i++) {
+        _localNotifications[i] = _localNotifications[i].copyWith(isRead: true);
       }
       
-      await batch.commit();
-      
-      // Mettre à jour localement
+      // Mettre à jour dans la liste affichée
       _notifications = _notifications
           .map((n) => n.copyWith(isRead: true))
           .toList();
@@ -152,15 +98,13 @@ class NotificationProvider with ChangeNotifier {
     }
   }
 
-  // Supprimer une notification
+  // Supprimer une notification (version locale)
   Future<void> deleteNotification(String notificationId) async {
     try {
-      await _firestore
-          .collection('notifications')
-          .doc(notificationId)
-          .delete();
-
-      // Mettre à jour localement
+      // Supprimer du stockage local
+      _localNotifications.removeWhere((n) => n.id == notificationId);
+      
+      // Mettre à jour la liste affichée
       _notifications.removeWhere((n) => n.id == notificationId);
       _updateUnreadCount();
       notifyListeners();
@@ -169,24 +113,15 @@ class NotificationProvider with ChangeNotifier {
     }
   }
 
-  // Supprimer toutes les notifications
+  // Supprimer toutes les notifications (version locale)
   Future<void> deleteAllNotifications() async {
-    final user = _auth.currentUser;
-    if (user == null) return;
-
     try {
       _setLoading(true);
       
-      final batch = _firestore.batch();
+      // Vider le stockage local
+      _localNotifications.clear();
       
-      for (final notification in _notifications) {
-        final docRef = _firestore.collection('notifications').doc(notification.id);
-        batch.delete(docRef);
-      }
-      
-      await batch.commit();
-      
-      // Mettre à jour localement
+      // Mettre à jour la liste affichée
       _notifications.clear();
       _updateUnreadCount();
     } catch (e) {
@@ -196,9 +131,8 @@ class NotificationProvider with ChangeNotifier {
     }
   }
 
-  // Envoyer une notification à un utilisateur spécifique
-  Future<void> sendNotificationToUser({
-    required String userId,
+  // Ajouter une notification locale
+  Future<void> addLocalNotification({
     required String title,
     required String body,
     required NotificationType type,
@@ -206,8 +140,8 @@ class NotificationProvider with ChangeNotifier {
   }) async {
     try {
       final notification = NotificationModel(
-        id: '', // Sera généré par Firestore
-        userId: userId,
+        id: DateTime.now().millisecondsSinceEpoch.toString(),
+        userId: 'local_user',
         title: title,
         body: body,
         type: type,
@@ -216,21 +150,25 @@ class NotificationProvider with ChangeNotifier {
         createdAt: DateTime.now(),
       );
 
-      await _firestore.collection('notifications').add(notification.toMap());
+      // Ajouter au stockage local
+      _localNotifications.add(notification);
+      
+      // Rafraîchir la liste
+      await fetchNotifications();
+      notifyListeners();
     } catch (e) {
-      _setError('Erreur lors de l\'envoi de la notification: $e');
+      _setError('Erreur lors de l\'ajout de la notification: $e');
     }
   }
 
-  // Envoyer une notification de nouvelle réservation
+  // Envoyer une notification de nouvelle réservation (version locale)
   Future<void> sendNewReservationNotification({
     required String donorId,
     required String donationTitle,
     required String beneficiaryName,
     required String reservationId,
   }) async {
-    await sendNotificationToUser(
-      userId: donorId,
+    await addLocalNotification(
       title: 'Nouvelle réservation',
       body: '$beneficiaryName a réservé votre don "$donationTitle"',
       type: NotificationType.newReservation,
@@ -242,15 +180,14 @@ class NotificationProvider with ChangeNotifier {
     );
   }
 
-  // Envoyer une notification de confirmation de réservation
+  // Envoyer une notification de confirmation de réservation (version locale)
   Future<void> sendReservationConfirmedNotification({
     required String beneficiaryId,
     required String donationTitle,
     required String donorName,
     required String reservationId,
   }) async {
-    await sendNotificationToUser(
-      userId: beneficiaryId,
+    await addLocalNotification(
       title: 'Réservation confirmée',
       body: '$donorName a confirmé votre réservation pour "$donationTitle"',
       type: NotificationType.reservationConfirmed,
@@ -262,92 +199,13 @@ class NotificationProvider with ChangeNotifier {
     );
   }
 
-  // Envoyer une notification d'annulation de réservation
-  Future<void> sendReservationCancelledNotification({
-    required String userId,
-    required String donationTitle,
-    required String reason,
-    required String reservationId,
-  }) async {
-    await sendNotificationToUser(
-      userId: userId,
-      title: 'Réservation annulée',
-      body: 'Votre réservation pour "$donationTitle" a été annulée. Raison: $reason',
-      type: NotificationType.reservationCancelled,
-      data: {
-        'reservationId': reservationId,
-        'donationTitle': donationTitle,
-        'reason': reason,
-      },
+  // Envoyer une notification de test (version locale)
+  Future<void> sendTestNotification() async {
+    await addLocalNotification(
+      title: 'Notification de test',
+      body: 'Ceci est une notification de test pour vérifier que le système fonctionne correctement.',
+      type: NotificationType.systemMessage,
     );
-  }
-
-  // Envoyer une notification de nouveau don
-  Future<void> sendNewDonationNotification({
-    required String beneficiaryId,
-    required String donationTitle,
-    required String donorName,
-    required String donationId,
-  }) async {
-    await sendNotificationToUser(
-      userId: beneficiaryId,
-      title: 'Nouveau don disponible',
-      body: '$donorName a publié un nouveau don: "$donationTitle"',
-      type: NotificationType.newDonation,
-      data: {
-        'donationId': donationId,
-        'donationTitle': donationTitle,
-        'donorName': donorName,
-      },
-    );
-  }
-
-  // Envoyer une notification d'expiration de don
-  Future<void> sendDonationExpiringNotification({
-    required String donorId,
-    required String donationTitle,
-    required String donationId,
-    required int hoursUntilExpiry,
-  }) async {
-    await sendNotificationToUser(
-      userId: donorId,
-      title: 'Don bientôt expiré',
-      body: 'Votre don "$donationTitle" expire dans $hoursUntilExpiry heures',
-      type: NotificationType.donationExpiring,
-      data: {
-        'donationId': donationId,
-        'donationTitle': donationTitle,
-        'hoursUntilExpiry': hoursUntilExpiry,
-      },
-    );
-  }
-
-  // Obtenir le token FCM de l'appareil
-  Future<String?> getDeviceToken() async {
-    try {
-      return await FirebaseMessaging.instance.getToken();
-    } catch (e) {
-      _setError('Erreur lors de l\'obtention du token: $e');
-      return null;
-    }
-  }
-
-  // Souscrire à un topic
-  Future<void> subscribeToTopic(String topic) async {
-    try {
-      await FirebaseMessaging.instance.subscribeToTopic(topic);
-    } catch (e) {
-      _setError('Erreur lors de la souscription au topic: $e');
-    }
-  }
-
-  // Se désabonner d'un topic
-  Future<void> unsubscribeFromTopic(String topic) async {
-    try {
-      await FirebaseMessaging.instance.unsubscribeFromTopic(topic);
-    } catch (e) {
-      _setError('Erreur lors du désabonnement du topic: $e');
-    }
   }
 
   // Méthodes privées
@@ -371,20 +229,7 @@ class NotificationProvider with ChangeNotifier {
     super.dispose();
   }
 
-  // Envoyer une notification de test
-  Future<void> sendTestNotification() async {
-    final user = _auth.currentUser;
-    if (user == null) return;
-
-    await sendNotificationToUser(
-      userId: user.uid,
-      title: 'Notification de test',
-      body: 'Ceci est une notification de test pour vérifier que le système fonctionne correctement.',
-      type: NotificationType.systemMessage,
-    );
-  }
-
-  // Effacer toutes les notifications
+  // Effacer toutes les notifications (version locale)
   Future<void> clearAllNotifications() async {
     await deleteAllNotifications();
   }
@@ -392,6 +237,7 @@ class NotificationProvider with ChangeNotifier {
   // Réinitialiser le provider
   void reset() {
     _notifications.clear();
+    _localNotifications.clear();
     _isLoading = false;
     _error = null;
     _unreadCount = 0;

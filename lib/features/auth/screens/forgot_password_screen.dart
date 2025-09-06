@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../../core/providers/auth_provider.dart';
+import '../../../core/providers/simple_auth_provider.dart';
 import '../widgets/auth_text_field.dart';
 import '../widgets/auth_button.dart';
 import 'login_screen.dart';
@@ -28,10 +28,16 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   Future<void> _handleResetPassword() async {
     if (!_formKey.currentState!.validate()) return;
 
-    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    // Réinitialisation de mot de passe non disponible avec l'authentification simple
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Réinitialisation de mot de passe non disponible en mode simple'),
+        backgroundColor: Colors.orange,
+      ),
+    );
+    return;
     
     try {
-      await authProvider.resetPassword(_emailController.text.trim());
       
       if (mounted) {
         setState(() {
@@ -145,7 +151,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                   const SizedBox(height: 32),
                   
                   // Bouton d'envoi
-                  Consumer<AuthProvider>(
+                  Consumer<SimpleAuthProvider>(
                     builder: (context, authProvider, child) {
                       return AuthButton(
                         text: 'Envoyer le lien',

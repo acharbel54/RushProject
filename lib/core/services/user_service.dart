@@ -45,8 +45,36 @@ class UserService {
   // Créer un utilisateur avec un UserModel
   Future<void> createUser(UserModel userModel) async {
     try {
-      await _usersCollection.doc(userModel.id).set(userModel.toFirestore());
+      print('UserService: Début de la création utilisateur pour ID: ${userModel.id}');
+      print('UserService: Données à enregistrer: ${userModel.toFirestore()}');
+      
+      // Vérifier la connexion Firestore
+      print('UserService: Vérification de la connexion Firestore...');
+      
+      // Créer le document avec retry en cas d'échec
+      int retryCount = 0;
+      const maxRetries = 3;
+      
+      while (retryCount < maxRetries) {
+        try {
+          await _usersCollection.doc(userModel.id).set(userModel.toFirestore());
+          print('UserService: Utilisateur créé avec succès dans Firestore (tentative ${retryCount + 1})');
+          return;
+        } catch (e) {
+          retryCount++;
+          print('UserService: Échec tentative $retryCount/$maxRetries: $e');
+          
+          if (retryCount >= maxRetries) {
+            throw e;
+          }
+          
+          // Attendre avant de réessayer
+          await Future.delayed(Duration(seconds: retryCount * 2));
+        }
+      }
     } catch (e) {
+      print('UserService: Erreur finale lors de la création: $e');
+      print('UserService: Type d\'erreur: ${e.runtimeType}');
       throw Exception('Erreur lors de la création de l\'utilisateur: $e');
     }
   }
@@ -54,18 +82,12 @@ class UserService {
   // Obtenir un utilisateur par ID
   Future<UserModel?> getUserById(String uid) async {
     try {
-      print('Recherche du document utilisateur pour UID: $uid');
       final doc = await _usersCollection.doc(uid).get();
-      print('Document existe: ${doc.exists}');
       if (doc.exists) {
-        print('Données du document: ${doc.data()}');
         return UserModel.fromDocument(doc);
-      } else {
-        print('Aucun document trouvé pour UID: $uid');
       }
       return null;
     } catch (e) {
-      print('Erreur détaillée lors de la récupération de l\'utilisateur: $e');
       throw Exception('Erreur lors de la récupération de l\'utilisateur: $e');
     }
   }

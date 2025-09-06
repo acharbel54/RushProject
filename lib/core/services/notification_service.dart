@@ -1,5 +1,5 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+// import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'dart:convert';
@@ -11,7 +11,7 @@ class NotificationService {
   NotificationService._internal();
   
   final FirebaseMessaging _messaging = FirebaseMessaging.instance;
-  final FlutterLocalNotificationsPlugin _localNotifications = FlutterLocalNotificationsPlugin();
+  // final FlutterLocalNotificationsPlugin _localNotifications = FlutterLocalNotificationsPlugin();
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
   
@@ -22,7 +22,7 @@ class NotificationService {
       await _requestPermissions();
       
       // Initialiser les notifications locales
-      await _initializeLocalNotifications();
+      // await _initializeLocalNotifications();
       
       // Configurer les handlers de messages
       _configureMessageHandlers();
@@ -52,7 +52,7 @@ class NotificationService {
   }
   
   // Initialiser les notifications locales
-  Future<void> _initializeLocalNotifications() async {
+  /*Future<void> _initializeLocalNotifications() async {
     const AndroidInitializationSettings androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
     
     const DarwinInitializationSettings iosSettings = DarwinInitializationSettings(
@@ -70,7 +70,7 @@ class NotificationService {
       initSettings,
       onDidReceiveNotificationResponse: _onNotificationTapped,
     );
-  }
+  }*/
   
   // Configurer les handlers de messages
   void _configureMessageHandlers() {
@@ -163,7 +163,7 @@ class NotificationService {
     required String body,
     String? payload,
   }) async {
-    const AndroidNotificationDetails androidDetails = AndroidNotificationDetails(
+    /*const AndroidNotificationDetails androidDetails = AndroidNotificationDetails(
       'foodlink_channel',
       'FoodLink Notifications',
       channelDescription: 'Notifications pour l\'application FoodLink',
@@ -181,19 +181,19 @@ class NotificationService {
     const NotificationDetails details = NotificationDetails(
       android: androidDetails,
       iOS: iosDetails,
-    );
+    );*/
     
-    await _localNotifications.show(
+    /*await _localNotifications.show(
       DateTime.now().millisecondsSinceEpoch.remainder(100000),
       title,
       body,
       details,
       payload: payload,
-    );
+    );*/
   }
   
   // Gérer le tap sur une notification
-  void _onNotificationTapped(NotificationResponse response) {
+  /*void _onNotificationTapped(NotificationResponse response) {
     try {
       if (response.payload != null) {
         final Map<String, dynamic> data = jsonDecode(response.payload!);
@@ -202,7 +202,7 @@ class NotificationService {
     } catch (e) {
       print('Erreur lors de la gestion du tap sur notification: $e');
     }
-  }
+  }*/
   
   // Gérer la navigation selon le type de notification
   void _handleNotificationNavigation(Map<String, dynamic> data) {

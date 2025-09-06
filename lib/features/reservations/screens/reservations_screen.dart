@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../core/providers/reservation_provider.dart';
-import '../../../core/providers/auth_provider.dart';
+import '../../../core/providers/simple_auth_provider.dart';
 import '../../../core/models/reservation_model.dart';
 import '../../../core/models/donation_model.dart';
 import '../../../core/utils/date_utils.dart';
@@ -36,7 +36,7 @@ class _ReservationsScreenState extends State<ReservationsScreen>
   }
 
   void _loadReservations() {
-    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final authProvider = Provider.of<SimpleAuthProvider>(context, listen: false);
     final reservationProvider = Provider.of<ReservationProvider>(context, listen: false);
     
     if (authProvider.currentUser != null) {

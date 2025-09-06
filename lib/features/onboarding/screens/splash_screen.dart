@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../../core/providers/auth_provider.dart';
+import '../../../core/providers/simple_auth_provider.dart';
 import '../../auth/screens/login_screen.dart';
 import 'onboarding_screen.dart';
 import '../../../shared/widgets/bottom_navigation.dart';
@@ -52,7 +52,7 @@ class _SplashScreenState extends State<SplashScreen>
   }
 
   Future<void> _initializeApp() async {
-    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final authProvider = Provider.of<SimpleAuthProvider>(context, listen: false);
     
     // Attendre que l'animation se termine
     await Future.delayed(const Duration(milliseconds: 3000));
@@ -61,7 +61,7 @@ class _SplashScreenState extends State<SplashScreen>
     
     try {
       // Vérifier si l'utilisateur est déjà connecté
-      await authProvider.checkAuthState();
+      // Vérification d'état simplifiée - l'utilisateur est déjà chargé dans le provider
       
       if (!mounted) return;
       
