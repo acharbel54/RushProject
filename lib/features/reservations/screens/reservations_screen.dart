@@ -30,6 +30,7 @@ class _ReservationsScreenState extends State<ReservationsScreen> {
   }
 
   Future<void> _loadUserReservations() async {
+    print('DEBUG ReservationsScreen: _loadUserReservations appelée');
     setState(() {
       _isLoading = true;
     });
@@ -38,13 +39,21 @@ class _ReservationsScreenState extends State<ReservationsScreen> {
     final reservationProvider = Provider.of<ReservationProvider>(context, listen: false);
     
     final currentUser = authProvider.currentUser;
+    print('DEBUG ReservationsScreen: currentUser = ${currentUser?.id}');
+    
     if (currentUser != null) {
+      print('DEBUG ReservationsScreen: Appel de getReservationsWithDonations pour ${currentUser.id}');
       final reservationsWithDonations = await reservationProvider.getReservationsWithDonations(currentUser.id);
+      print('DEBUG ReservationsScreen: Réservations reçues: ${reservationsWithDonations.length}');
+      
       setState(() {
         _userReservations = reservationsWithDonations;
         _isLoading = false;
       });
+      
+      print('DEBUG ReservationsScreen: État mis à jour, _userReservations.length = ${_userReservations.length}');
     } else {
+      print('DEBUG ReservationsScreen: Aucun utilisateur connecté');
       setState(() {
         _userReservations = [];
         _isLoading = false;

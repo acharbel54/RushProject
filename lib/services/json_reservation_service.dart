@@ -7,53 +7,68 @@ class JsonReservationService {
   static const String _fileName = 'reservations.json';
   List<ReservationModel> _reservations = [];
 
-  // Obtenir le fichier local
-  Future<File> get _localFile async {
-    // Utiliser le fichier de test dans le dossier du projet
-    return File('base_de_donnees/$_fileName');
+  // Obtenir le chemin du fichier JSON
+  Future<String> get _localPath async {
+    final directory = await getApplicationDocumentsDirectory();
+    final dbDir = Directory('${directory.path}/base_de_donnees');
+    if (!await dbDir.exists()) {
+      await dbDir.create(recursive: true);
+    }
+    return dbDir.path;
   }
 
-  // Initialiser avec les données de test depuis les assets
-  Future<void> _initializeWithTestData() async {
+  // Obtenir le fichier local
+  Future<File> get _localFile async {
+    final path = await _localPath;
+    return File('$path/$_fileName');
+  }
+
+  // Initialiser avec les données depuis le fichier du projet si le fichier sur le téléphone n'existe pas
+  Future<void> _initializeWithProjectData() async {
     try {
-      // Essayer de lire le fichier depuis les assets du projet
+      // Essayer de lire le fichier depuis le projet comme données initiales
       final projectFile = File('base_de_donnees/$_fileName');
       if (await projectFile.exists()) {
         final contents = await projectFile.readAsString();
         final List<dynamic> jsonData = json.decode(contents);
         _reservations = jsonData.map((json) => ReservationModel.fromJson(json)).toList();
-        print('DEBUG: Données chargées depuis le fichier projet: ${_reservations.length} réservations');
+        print('DEBUG: Données initiales chargées depuis le fichier projet: ${_reservations.length} réservations');
+        
+        // Sauvegarder ces données sur le téléphone
+        await saveReservations();
         return;
       }
     } catch (e) {
       print('DEBUG: Erreur lors du chargement depuis le projet: $e');
     }
     
-    // Fallback: créer une réservation de test
-    final testReservation = ReservationModel(
-      id: 'test-reservation-001',
-      donationId: 'donation_001',
-      donorId: 'donateur_001',
-      beneficiaryId: 'beneficiaire_001',
-      beneficiaryName: 'Bénéficiaire Test',
-      donationTitle: 'Don de test',
-      donationQuantity: 1,
-      status: ReservationStatus.pending,
-      createdAt: DateTime.now(),
-      updatedAt: DateTime.now(),
-      donorName: 'Donateur Test',
-      pickupAddress: 'Adresse de test',
-    );
-    
-    _reservations = [testReservation];
-    print('DEBUG: Données de test créées avec 1 réservation');
+    // Si aucun fichier projet, initialiser avec une liste vide
+    _reservations = [];
+    print('DEBUG: Aucune donnée initiale trouvée, liste vide créée');
   }
 
   // Charger les réservations depuis le fichier JSON
   Future<void> loadReservations() async {
-    print('DEBUG loadReservations: Début du chargement');
-    await _initializeWithTestData();
-    print('DEBUG loadReservations: Fin du chargement, ${_reservations.length} réservations');
+    try {
+      final file = await _localFile;
+      print('DEBUG: Chemin du fichier reservations.json: ${file.path}');
+      print('DEBUG: Le fichier existe: ${await file.exists()}');
+      
+      if (await file.exists()) {
+        final contents = await file.readAsString();
+        print('DEBUG: Contenu du fichier (${contents.length} caractères)');
+        
+        final List<dynamic> jsonData = json.decode(contents);
+        _reservations = jsonData.map((json) => ReservationModel.fromJson(json)).toList();
+        print('DEBUG: Nombre de réservations chargées: ${_reservations.length}');
+      } else {
+        print('DEBUG: Fichier reservations.json n\'existe pas, initialisation avec données du projet');
+        await _initializeWithProjectData();
+      }
+    } catch (e) {
+      print('DEBUG: Erreur lors du chargement des réservations: $e');
+      await _initializeWithProjectData();
+    }
   }
 
   // Sauvegarder les réservations dans le fichier JSON

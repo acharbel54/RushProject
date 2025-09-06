@@ -31,12 +31,25 @@ class JsonDonationService {
   Future<void> loadDonations() async {
     try {
       final file = await _localFile;
+      print('DEBUG: Chemin du fichier donations.json: ${file.path}');
+      print('DEBUG: Le fichier existe: ${await file.exists()}');
+      
       if (await file.exists()) {
         final contents = await file.readAsString();
+        print('DEBUG: Contenu du fichier (${contents.length} caractères):');
+        print('DEBUG: Premiers 200 caractères: ${contents.length > 200 ? contents.substring(0, 200) : contents}');
+        
         final List<dynamic> jsonData = json.decode(contents);
         _donations = jsonData.map((json) => DonationModel.fromJson(json)).toList();
+        print('DEBUG: Nombre de donations chargées: ${_donations.length}');
         
-
+        // Afficher les donateurs des premières donations
+        for (int i = 0; i < _donations.length && i < 3; i++) {
+          print('DEBUG: Donation ${i + 1}: "${_donations[i].title}" par "${_donations[i].donorName}" (ID: ${_donations[i].donorId})');
+        }
+      } else {
+        print('DEBUG: Le fichier donations.json n\'existe pas, initialisation avec liste vide');
+        _donations = [];
       }
     } catch (e) {
       print('Erreur lors du chargement des donations: $e');
