@@ -16,21 +16,21 @@ class DiscoverScreen extends StatefulWidget {
 
 class _DiscoverScreenState extends State<DiscoverScreen> {
   final TextEditingController _searchController = TextEditingController();
-  String _selectedCategory = 'Toutes';
+  String _selectedCategory = 'All';
   List<DonationModel> _filteredDonations = [];
   bool _isLoading = true;
 
   final List<String> _categories = [
-    'Toutes',
+    'All',
     'Fruits',
-    'Légumes', 
-    'Produits laitiers',
-    'Viande',
-    'Poisson',
-    'Céréales',
-    'Conserves',
-    'Boulangerie',
-    'Autre',
+    'Vegetables', 
+    'Dairy products',
+    'Meat',
+    'Fish',
+    'Cereals',
+    'Canned goods',
+    'Bakery',
+    'Other',
   ];
 
 
@@ -55,7 +55,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
     
     setState(() {
       _filteredDonations = allDonations.where((donation) {
-        bool matchesCategory = _selectedCategory == 'Toutes' || 
+        bool matchesCategory = _selectedCategory == 'All' || 
                               _getCategoryDisplayName(donation.category) == _selectedCategory;
         bool matchesSearch = _searchController.text.isEmpty ||
                             donation.title.toLowerCase().contains(_searchController.text.toLowerCase()) ||
@@ -70,21 +70,21 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
       case DonationCategory.fruits:
         return 'Fruits';
       case DonationCategory.legumes:
-        return 'Légumes';
+        return 'Vegetables';
       case DonationCategory.produits_laitiers:
-        return 'Produits laitiers';
+        return 'Dairy products';
       case DonationCategory.viande:
-        return 'Viande';
+        return 'Meat';
       case DonationCategory.poisson:
-        return 'Poisson';
+        return 'Fish';
       case DonationCategory.cereales:
-        return 'Céréales';
+        return 'Cereals';
       case DonationCategory.conserves:
-        return 'Conserves';
+        return 'Canned goods';
       case DonationCategory.boulangerie:
-        return 'Boulangerie';
+        return 'Bakery';
       case DonationCategory.autre:
-        return 'Autre';
+        return 'Other';
     }
   }
 
@@ -93,13 +93,13 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
     final difference = now.difference(dateTime);
     
     if (difference.inDays > 0) {
-      return 'Il y a ${difference.inDays} jour${difference.inDays > 1 ? 's' : ''}';
+      return '${difference.inDays} day${difference.inDays > 1 ? 's' : ''} ago';
     } else if (difference.inHours > 0) {
-      return 'Il y a ${difference.inHours} heure${difference.inHours > 1 ? 's' : ''}';
+      return '${difference.inHours} hour${difference.inHours > 1 ? 's' : ''} ago';
     } else if (difference.inMinutes > 0) {
-      return 'Il y a ${difference.inMinutes} minute${difference.inMinutes > 1 ? 's' : ''}';
+      return '${difference.inMinutes} minute${difference.inMinutes > 1 ? 's' : ''} ago';
     } else {
-      return 'À l\'instant';
+      return 'Just now';
     }
   }
 
@@ -109,7 +109,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
       backgroundColor: Colors.grey[50],
       appBar: AppBar(
         title: const Text(
-          'Découvrir',
+          'Discover',
           style: TextStyle(
             fontWeight: FontWeight.w600,
             color: Colors.black87,
@@ -123,18 +123,18 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
         builder: (context, donationProvider, child) {
           return Column(
             children: [
-              // Barre de recherche et filtres
+              // Search bar and filters
               Container(
                 color: Colors.white,
                 padding: const EdgeInsets.all(16),
                 child: Column(
                   children: [
-                    // Barre de recherche
+                    // Search bar
                     TextField(
                       controller: _searchController,
                       onChanged: (value) => _filterDonations(),
                       decoration: InputDecoration(
-                        hintText: 'Rechercher des dons...',
+                        hintText: 'Search for donations...',
                         prefixIcon: const Icon(Icons.search, color: Colors.grey),
                         filled: true,
                         fillColor: Colors.grey[100],
@@ -150,7 +150,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
                     ),
                     const SizedBox(height: 16),
                     
-                    // Filtres par catégorie
+                    // Category filters
                     SizedBox(
                       height: 40,
                       child: ListView.builder(
@@ -189,7 +189,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
                 ),
               ),
               
-              // Liste des dons
+              // Donations list
               Expanded(
                 child: donationProvider.isLoading
                     ? const Center(child: CircularProgressIndicator())
@@ -205,7 +205,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
                                 ),
                                 SizedBox(height: 16),
                                 Text(
-                                  'Aucun don trouvé',
+                                  'No donations found',
                                   style: TextStyle(
                                     fontSize: 18,
                                     color: Colors.grey,
@@ -214,7 +214,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
                                 ),
                                 SizedBox(height: 8),
                                 Text(
-                                  'Essayez de modifier vos critères de recherche',
+                                  'Try modifying your search criteria',
                                   style: TextStyle(
                                     fontSize: 14,
                                     color: Colors.grey,
@@ -255,7 +255,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
           );
         },
         onReserve: () {
-          // Callback optionnel pour rafraîchir la liste après réservation
+          // Optional callback to refresh list after reservation
           _loadDonations();
         },
       ),

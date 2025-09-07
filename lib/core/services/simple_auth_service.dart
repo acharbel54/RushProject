@@ -126,8 +126,8 @@ class SimpleAuthService {
       _isInitialized = true;
       
       if (kDebugMode) {
-        print('SimpleAuthService initialisé avec ${_users.length} utilisateurs');
-        print('Utilisateur actuel: ${_currentUser?.email ?? "Aucun"}');
+        print('SimpleAuthService initialized with ${_users.length} users');
+        print('Current user: ${_currentUser?.email ?? "None"}');
       }
     } catch (e) {
       if (kDebugMode) {

@@ -62,7 +62,7 @@ class JsonDonationService {
   Future<void> saveDonations() async {
     try {
       final file = await _localFile;
-      // Créer le répertoire s'il n'existe pas
+      // Create directory if it doesn't exist
       await file.parent.create(recursive: true);
       final jsonData = _donations.map((donation) => donation.toJson()).toList();
       await file.writeAsString(json.encode(jsonData));

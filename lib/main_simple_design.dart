@@ -63,7 +63,7 @@ class _LoginPageState extends State<LoginPage> {
               ),
               const SizedBox(height: 8),
               const Text(
-                'Bienvenue',
+                'Welcome',
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.w600,
@@ -303,7 +303,7 @@ class _LoginPageState extends State<LoginPage> {
   Future<void> _handleLogin() async {
     if (_emailController.text.isEmpty || _passwordController.text.isEmpty) {
       setState(() {
-        _errorMessage = 'Veuillez remplir tous les champs';
+        _errorMessage = 'Please fill in all fields';
       });
       return;
     }
@@ -326,7 +326,7 @@ class _LoginPageState extends State<LoginPage> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Connexion réussie! Bienvenue ${result['user'].fullName}'),
+            content: Text('Login successful! Welcome ${result['user'].fullName}'),
             backgroundColor: Colors.green,
           ),
         );
@@ -380,9 +380,9 @@ class _RegisterPageState extends State<RegisterPage> {
                 ),
               ),
               const SizedBox(height: 32),
-              // Créer un compte subtitle
+              // Create account subtitle
               const Text(
-                'Créer un compte',
+                'Create an account',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 20,
@@ -703,21 +703,21 @@ class _RegisterPageState extends State<RegisterPage> {
         _passwordController.text.isEmpty || 
         _confirmPasswordController.text.isEmpty) {
       setState(() {
-        _errorMessage = 'Veuillez remplir tous les champs';
+        _errorMessage = 'Please fill in all fields';
       });
       return;
     }
 
     if (_passwordController.text != _confirmPasswordController.text) {
       setState(() {
-        _errorMessage = 'Les mots de passe ne correspondent pas';
+        _errorMessage = 'Passwords do not match';
       });
       return;
     }
 
     if (_passwordController.text.length < 6) {
       setState(() {
-        _errorMessage = 'Le mot de passe doit contenir au moins 6 caractères';
+        _errorMessage = 'Password must contain at least 6 characters';
       });
       return;
     }
@@ -743,7 +743,7 @@ class _RegisterPageState extends State<RegisterPage> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Inscription réussie! Bienvenue ${result['user'].fullName}'),
+            content: Text('Registration successful! Welcome ${result['user'].fullName}'),
             backgroundColor: Colors.green,
           ),
         );

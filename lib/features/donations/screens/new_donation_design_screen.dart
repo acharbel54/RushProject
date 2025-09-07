@@ -64,7 +64,7 @@ class _NewDonationDesignScreenState extends State<NewDonationDesignScreen> {
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Erreur lors de la sélection de l\'image: $e'),
+          content: Text('Error selecting image: $e'),
           backgroundColor: Colors.red,
         ),
       );
@@ -122,7 +122,7 @@ class _NewDonationDesignScreenState extends State<NewDonationDesignScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Erreur de localisation: $e'),
+            content: Text('Location error: $e'),
             backgroundColor: Colors.orange,
           ),
         );
@@ -142,7 +142,7 @@ class _NewDonationDesignScreenState extends State<NewDonationDesignScreen> {
     if (_selectedDate == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Veuillez sélectionner une date limite de consommation'),
+          content: Text('Please select an expiration date'),
           backgroundColor: Colors.red,
         ),
       );
@@ -152,7 +152,7 @@ class _NewDonationDesignScreenState extends State<NewDonationDesignScreen> {
     if (_currentPosition == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Localisation requise pour créer un don'),
+          content: Text('Location required to create donation'),
           backgroundColor: Colors.red,
         ),
       );
@@ -165,7 +165,7 @@ class _NewDonationDesignScreenState extends State<NewDonationDesignScreen> {
     if (authProvider.currentUser == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Vous devez être connecté pour créer un don'),
+          content: Text('You must be logged in to create a donation'),
           backgroundColor: Colors.red,
         ),
       );
@@ -174,7 +174,7 @@ class _NewDonationDesignScreenState extends State<NewDonationDesignScreen> {
     
     final success = await donationProvider.createDonation(
       title: _titleController.text.trim(),
-      description: 'Don créé via l\'interface simplifiée',
+      description: 'Donation created via simplified interface',
       category: DonationCategory.autre,
       quantity: _quantityController.text.trim(),
       expirationDate: _selectedDate!,
@@ -182,14 +182,14 @@ class _NewDonationDesignScreenState extends State<NewDonationDesignScreen> {
       latitude: _currentPosition!.latitude,
       longitude: _currentPosition!.longitude,
       donorId: authProvider.currentUser!.id,
-      donorName: authProvider.currentUser!.displayName ?? 'Donateur',
+      donorName: authProvider.currentUser!.displayName ?? 'Donor',
     );
     
     if (success) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Don créé avec succès!'),
+            content: Text('Donation created successfully!'),
             backgroundColor: Colors.green,
           ),
         );
@@ -199,7 +199,7 @@ class _NewDonationDesignScreenState extends State<NewDonationDesignScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(donationProvider.error ?? 'Erreur lors de la création du don'),
+            content: Text(donationProvider.error ?? 'Error creating donation'),
             backgroundColor: Colors.red,
           ),
         );
@@ -213,7 +213,7 @@ class _NewDonationDesignScreenState extends State<NewDonationDesignScreen> {
       backgroundColor: Colors.white,
       appBar: AppBar(
         title: const Text(
-          'Nouveau don',
+          'New Donation',
           style: TextStyle(
             color: Colors.black,
             fontWeight: FontWeight.w600,
@@ -269,7 +269,7 @@ class _NewDonationDesignScreenState extends State<NewDonationDesignScreen> {
                                   ),
                                   const SizedBox(height: 12),
                                   Text(
-                                    'Ajouter une photo',
+                                    'Add a photo',
                                     style: TextStyle(
                                       color: Colors.grey[600],
                                       fontSize: 16,
@@ -278,7 +278,7 @@ class _NewDonationDesignScreenState extends State<NewDonationDesignScreen> {
                                   ),
                                   const SizedBox(height: 4),
                                   Text(
-                                    'Appuyez pour choisir une image',
+                                    'Tap to choose an image',
                                     style: TextStyle(
                                       color: Colors.grey[500],
                                       fontSize: 12,
@@ -291,7 +291,7 @@ class _NewDonationDesignScreenState extends State<NewDonationDesignScreen> {
                     
                     const SizedBox(height: 24),
                     
-                    // Nom du produit
+                    // Product name
                     Container(
                       decoration: BoxDecoration(
                         color: Colors.grey[50],
@@ -300,7 +300,7 @@ class _NewDonationDesignScreenState extends State<NewDonationDesignScreen> {
                       child: TextFormField(
                         controller: _titleController,
                         decoration: InputDecoration(
-                          hintText: 'Nom du produit',
+                          hintText: 'Product name',
                           hintStyle: TextStyle(
                             color: Colors.grey[500],
                             fontSize: 16,
@@ -317,7 +317,7 @@ class _NewDonationDesignScreenState extends State<NewDonationDesignScreen> {
                         ),
                         validator: (value) {
                           if (value == null || value.trim().isEmpty) {
-                            return 'Le nom du produit est requis';
+                            return 'Product name is required';
                           }
                           return null;
                         },
@@ -326,7 +326,7 @@ class _NewDonationDesignScreenState extends State<NewDonationDesignScreen> {
                     
                     const SizedBox(height: 16),
                     
-                    // Quantité
+                    // Quantity
                     Container(
                       decoration: BoxDecoration(
                         color: Colors.grey[50],
@@ -335,7 +335,7 @@ class _NewDonationDesignScreenState extends State<NewDonationDesignScreen> {
                       child: TextFormField(
                         controller: _quantityController,
                         decoration: InputDecoration(
-                          hintText: 'Quantité (ex: 5kg, 10 unités)',
+                          hintText: 'Quantity (e.g.: 5kg, 10 units)',
                           hintStyle: TextStyle(
                             color: Colors.grey[500],
                             fontSize: 16,
@@ -352,7 +352,7 @@ class _NewDonationDesignScreenState extends State<NewDonationDesignScreen> {
                         ),
                         validator: (value) {
                           if (value == null || value.trim().isEmpty) {
-                            return 'La quantité est requise';
+                            return 'Quantity is required';
                           }
                           return null;
                         },
@@ -361,7 +361,7 @@ class _NewDonationDesignScreenState extends State<NewDonationDesignScreen> {
                     
                     const SizedBox(height: 16),
                     
-                    // Date limite de consommation
+                    // Expiration date
                     GestureDetector(
                       onTap: _selectDate,
                       child: Container(
@@ -383,8 +383,8 @@ class _NewDonationDesignScreenState extends State<NewDonationDesignScreen> {
                             Expanded(
                               child: Text(
                                 _selectedDate != null
-                                    ? 'Date limite: ${_selectedDate!.day}/${_selectedDate!.month}/${_selectedDate!.year}'
-                                    : 'Date limite de consommation',
+                                    ? 'Expiration: ${_selectedDate!.day}/${_selectedDate!.month}/${_selectedDate!.year}'
+                                    : 'Expiration date',
                                 style: TextStyle(
                                   color: _selectedDate != null
                                       ? Colors.black87
@@ -438,7 +438,7 @@ class _NewDonationDesignScreenState extends State<NewDonationDesignScreen> {
                         ),
                         validator: (value) {
                           if (value == null || value.trim().isEmpty) {
-                            return 'La localisation est requise';
+                            return 'Location is required';
                           }
                           return null;
                         },
@@ -447,7 +447,7 @@ class _NewDonationDesignScreenState extends State<NewDonationDesignScreen> {
                     
                     const SizedBox(height: 40),
                     
-                    // Bouton Publier le don
+                    // Publish donation button
                     Container(
                       width: double.infinity,
                       height: 56,
@@ -471,7 +471,7 @@ class _NewDonationDesignScreenState extends State<NewDonationDesignScreen> {
                                 ),
                               )
                             : const Text(
-                                'Publier le don',
+                                'Publish Donation',
                                 style: TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w600,

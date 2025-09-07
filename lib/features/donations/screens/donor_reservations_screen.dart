@@ -38,7 +38,7 @@ class _DonorReservationsScreenState extends State<DonorReservationsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: const CustomAppBar(
-        title: 'Réservations de mes dons',
+        title: 'My Donations Reservations',
       ),
       body: Consumer<ReservationProvider>(
         builder: (context, reservationProvider, child) {
@@ -60,7 +60,7 @@ class _DonorReservationsScreenState extends State<DonorReservationsScreen> {
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    'Erreur de chargement',
+                    'Loading Error',
                     style: Theme.of(context).textTheme.headlineSmall,
                   ),
                   const SizedBox(height: 8),
@@ -72,7 +72,7 @@ class _DonorReservationsScreenState extends State<DonorReservationsScreen> {
                   const SizedBox(height: 16),
                   ElevatedButton(
                     onPressed: _loadReservations,
-                    child: const Text('Réessayer'),
+                    child: const Text('Retry'),
                   ),
                 ],
               ),
@@ -95,12 +95,12 @@ class _DonorReservationsScreenState extends State<DonorReservationsScreen> {
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    'Aucune réservation en attente',
+                    'No Pending Reservations',
                     style: Theme.of(context).textTheme.headlineSmall,
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Les réservations de vos dons apparaîtront ici',
+                    'Reservations for your donations will appear here',
                     textAlign: TextAlign.center,
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       color: Colors.grey[600],
@@ -162,7 +162,7 @@ class _DonorReservationsScreenState extends State<DonorReservationsScreen> {
                     ),
                   ),
                   child: Text(
-                    'En attente',
+                    'Pending',
                     style: TextStyle(
                       color: AppColors.warning,
                       fontSize: 12,
@@ -182,7 +182,7 @@ class _DonorReservationsScreenState extends State<DonorReservationsScreen> {
                 ),
                 const SizedBox(width: 8),
                 Text(
-                  'Demandé par: ${reservation.beneficiaryName}',
+                  'Requested by: ${reservation.beneficiaryName}',
                   style: Theme.of(context).textTheme.bodyMedium,
                 ),
               ],
@@ -197,7 +197,7 @@ class _DonorReservationsScreenState extends State<DonorReservationsScreen> {
                 ),
                 const SizedBox(width: 8),
                 Text(
-                  'Le ${_formatDate(reservation.createdAt)}',
+                  'On ${_formatDate(reservation.createdAt)}',
                   style: Theme.of(context).textTheme.bodyMedium,
                 ),
               ],
@@ -232,7 +232,7 @@ class _DonorReservationsScreenState extends State<DonorReservationsScreen> {
                       foregroundColor: Colors.red,
                       side: const BorderSide(color: Colors.red),
                     ),
-                    child: const Text('Refuser'),
+                    child: const Text('Refuse'),
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -243,7 +243,7 @@ class _DonorReservationsScreenState extends State<DonorReservationsScreen> {
                       backgroundColor: AppColors.success,
                       foregroundColor: Colors.white,
                     ),
-                    child: const Text('Confirmer'),
+                    child: const Text('Confirm'),
                   ),
                 ),
               ],
@@ -263,15 +263,15 @@ class _DonorReservationsScreenState extends State<DonorReservationsScreen> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Confirmer la réservation'),
+          title: const Text('Confirm Reservation'),
           content: Text(
-            'Voulez-vous confirmer la réservation de "${reservation.donationTitle}" par ${reservation.beneficiaryName} ?\n\n'
-            'Le bénéficiaire sera notifié et pourra venir récupérer le don.',
+            'Do you want to confirm the reservation of "${reservation.donationTitle}" by ${reservation.beneficiaryName}?\n\n'
+            'The beneficiary will be notified and can come to collect the donation.',
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(false),
-              child: const Text('Annuler'),
+              child: const Text('Cancel'),
             ),
             ElevatedButton(
               onPressed: () => Navigator.of(context).pop(true),
@@ -279,7 +279,7 @@ class _DonorReservationsScreenState extends State<DonorReservationsScreen> {
                 backgroundColor: AppColors.success,
                 foregroundColor: Colors.white,
               ),
-              child: const Text('Confirmer'),
+              child: const Text('Confirm'),
             ),
           ],
         );
@@ -305,7 +305,7 @@ class _DonorReservationsScreenState extends State<DonorReservationsScreen> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text('Réservation confirmée avec succès!'),
+              content: Text('Reservation confirmed successfully!'),
               backgroundColor: Colors.green,
             ),
           );
@@ -315,7 +315,7 @@ class _DonorReservationsScreenState extends State<DonorReservationsScreen> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(reservationProvider.error ?? 'Erreur lors de la confirmation'),
+              content: Text(reservationProvider.error ?? 'Error during confirmation'),
               backgroundColor: Colors.red,
             ),
           );
@@ -329,15 +329,15 @@ class _DonorReservationsScreenState extends State<DonorReservationsScreen> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Refuser la réservation'),
+          title: const Text('Refuse Reservation'),
           content: Text(
-            'Voulez-vous refuser la réservation de "${reservation.donationTitle}" par ${reservation.beneficiaryName} ?\n\n'
-            'Le don redeviendra disponible pour d\'autres bénéficiaires.',
+            'Do you want to refuse the reservation of "${reservation.donationTitle}" by ${reservation.beneficiaryName}?\n\n'
+            'The donation will become available again for other beneficiaries.',
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(false),
-              child: const Text('Annuler'),
+              child: const Text('Cancel'),
             ),
             ElevatedButton(
               onPressed: () => Navigator.of(context).pop(true),
@@ -345,7 +345,7 @@ class _DonorReservationsScreenState extends State<DonorReservationsScreen> {
                 backgroundColor: Colors.red,
                 foregroundColor: Colors.white,
               ),
-              child: const Text('Refuser'),
+              child: const Text('Refuse'),
             ),
           ],
         );
@@ -364,7 +364,7 @@ class _DonorReservationsScreenState extends State<DonorReservationsScreen> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text('Réservation refusée. Le don est à nouveau disponible.'),
+              content: Text('Reservation refused. The donation is available again.'),
               backgroundColor: Colors.orange,
             ),
           );
@@ -374,7 +374,7 @@ class _DonorReservationsScreenState extends State<DonorReservationsScreen> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(reservationProvider.error ?? 'Erreur lors du refus'),
+              content: Text(reservationProvider.error ?? 'Error during refusal'),
               backgroundColor: Colors.red,
             ),
           );

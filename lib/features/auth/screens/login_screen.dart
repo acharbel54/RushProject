@@ -44,8 +44,8 @@ class _LoginScreenState extends State<LoginScreen> {
       if (success) {
         Navigator.of(context).pushReplacementNamed('/home');
       } else {
-        // Afficher l'erreur depuis le provider
-        final errorMessage = authProvider.errorMessage ?? 'Erreur de connexion';
+        // Display error from provider
+        final errorMessage = authProvider.errorMessage ?? 'Connection error';
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(errorMessage),
@@ -58,10 +58,10 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> _handleGoogleLogin() async {
-    // Google Sign-In non disponible avec l'authentification simple
+    // Google Sign-In not available with simple authentication
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
-        content: Text('Connexion Google non disponible en mode simple'),
+        content: Text('Google Sign-In not available in simple mode'),
         backgroundColor: Colors.orange,
       ),
     );
@@ -81,7 +81,7 @@ class _LoginScreenState extends State<LoginScreen> {
               children: [
                 const SizedBox(height: 60),
                 
-                // Logo et titre
+                // Logo and title
                 Center(
                   child: Column(
                     children: [
@@ -95,7 +95,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                       const SizedBox(height: 16),
                       const Text(
-                        'Bienvenue',
+                        'Welcome',
                         style: TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.w600,
@@ -108,19 +108,19 @@ class _LoginScreenState extends State<LoginScreen> {
                 
                 const SizedBox(height: 48),
                 
-                // Champ email
+                // Email field
                 AuthTextField(
                   controller: _emailController,
                   labelText: 'Email',
-                  hintText: 'Entrez votre email',
+                  hintText: 'Enter your email',
                   keyboardType: TextInputType.emailAddress,
                   prefixIcon: Icons.email_outlined,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Veuillez entrer votre email';
+                      return 'Please enter your email';
                     }
                     if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
-                      return 'Veuillez entrer un email valide';
+                      return 'Please enter a valid email';
                     }
                     return null;
                   },
@@ -128,11 +128,11 @@ class _LoginScreenState extends State<LoginScreen> {
                 
                 const SizedBox(height: 16),
                 
-                // Champ mot de passe
+                // Password field
                 AuthTextField(
                   controller: _passwordController,
-                  labelText: 'Mot de passe',
-                  hintText: 'Entrez votre mot de passe',
+                  labelText: 'Password',
+                  hintText: 'Enter your password',
                   obscureText: _obscurePassword,
                   prefixIcon: Icons.lock_outlined,
                   suffixIcon: IconButton(
@@ -147,10 +147,10 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Veuillez entrer votre mot de passe';
+                      return 'Please enter your password';
                     }
                     if (value.length < 6) {
-                      return 'Le mot de passe doit contenir au moins 6 caractères';
+                      return 'Password must contain at least 6 characters';
                     }
                     return null;
                   },
@@ -158,11 +158,11 @@ class _LoginScreenState extends State<LoginScreen> {
                 
                 const SizedBox(height: 32),
                 
-                // Bouton de connexion
+                // Login button
                 Consumer<SimpleAuthProvider>(
                   builder: (context, authProvider, child) {
                     return AuthButton(
-                      text: 'Se connecter',
+                      text: 'Sign In',
                       onPressed: authProvider.isLoading ? null : _handleLogin,
                       isLoading: authProvider.isLoading,
                     );
@@ -171,14 +171,14 @@ class _LoginScreenState extends State<LoginScreen> {
                 
                 const SizedBox(height: 24),
                 
-                // Ou
+                // Or
                 const Row(
                   children: [
                     Expanded(child: Divider()),
                     Padding(
                       padding: EdgeInsets.symmetric(horizontal: 16),
                       child: Text(
-                        'Ou',
+                        'Or',
                         style: TextStyle(
                           color: Colors.black54,
                           fontSize: 14,
@@ -191,11 +191,11 @@ class _LoginScreenState extends State<LoginScreen> {
                 
                 const SizedBox(height: 24),
                 
-                // Connexion avec Google
+                // Login with Google
                 Consumer<SimpleAuthProvider>(
                   builder: (context, authProvider, child) {
                     return SocialLoginButton(
-                      text: 'Continuer avec Google',
+                      text: 'Continue with Google',
                       icon: Icons.g_mobiledata,
                       onPressed: authProvider.isLoading ? null : _handleGoogleLogin,
                       isLoading: authProvider.isLoading,
@@ -205,12 +205,12 @@ class _LoginScreenState extends State<LoginScreen> {
                 
                 const SizedBox(height: 32),
                 
-                // Lien vers l'inscription
+                // Link to registration
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     const Text(
-                      'Pas encore de compte ? ',
+                      'Don\'t have an account? ',
                       style: TextStyle(
                         color: Colors.black54,
                         fontSize: 14,
@@ -221,7 +221,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         Navigator.of(context).pushReplacementNamed('/register');
                       },
                       child: const Text(
-                        'S\'inscrire',
+                        'Sign Up',
                         style: TextStyle(
                           color: Color(0xFF4CAF50),
                           fontSize: 14,

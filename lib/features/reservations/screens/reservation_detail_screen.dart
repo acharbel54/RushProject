@@ -54,7 +54,7 @@ class _ReservationDetailScreenState extends State<ReservationDetailScreen> {
 
       if (reservation == null) {
         setState(() {
-          _error = 'Réservation introuvable';
+          _error = 'Reservation not found';
           _isLoading = false;
         });
         return;
@@ -78,13 +78,13 @@ class _ReservationDetailScreenState extends State<ReservationDetailScreen> {
         });
       } else {
         setState(() {
-          _error = 'Impossible de charger les détails';
+          _error = 'Unable to load details';
           _isLoading = false;
         });
       }
     } catch (e) {
       setState(() {
-        _error = 'Erreur lors du chargement: $e';
+        _error = 'Loading error: $e';
         _isLoading = false;
       });
     }
@@ -95,7 +95,7 @@ class _ReservationDetailScreenState extends State<ReservationDetailScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          'Détails de la réservation',
+          'Reservation Details',
           style: TextStyle(
             fontWeight: FontWeight.bold,
             color: Colors.white,
@@ -109,7 +109,7 @@ class _ReservationDetailScreenState extends State<ReservationDetailScreen> {
             IconButton(
               onPressed: () => _navigateToDonationDetail(),
               icon: const Icon(Icons.info_outline),
-              tooltip: 'Voir le don',
+              tooltip: 'View donation',
             ),
         ],
       ),
@@ -152,7 +152,7 @@ class _ReservationDetailScreenState extends State<ReservationDetailScreen> {
                 backgroundColor: const Color(0xFF4CAF50),
                 foregroundColor: Colors.white,
               ),
-              child: const Text('Réessayer'),
+              child: const Text('Retry'),
             ),
           ],
         ),
@@ -161,7 +161,7 @@ class _ReservationDetailScreenState extends State<ReservationDetailScreen> {
 
     if (_reservation == null || _donation == null) {
       return const Center(
-        child: Text('Aucune donnée disponible'),
+        child: Text('No data available'),
       );
     }
 
@@ -195,40 +195,40 @@ class _ReservationDetailScreenState extends State<ReservationDetailScreen> {
       case 'pending':
         backgroundColor = Colors.orange[50]!;
         textColor = Colors.orange[800]!;
-        statusText = 'En attente de confirmation';
+        statusText = 'Pending confirmation';
         icon = Icons.schedule;
-        description = 'Votre réservation a été envoyée au donateur. '
-            'Vous recevrez une notification dès qu\'elle sera confirmée.';
+        description = 'Your reservation has been sent to the donor. '
+            'You will receive a notification once it is confirmed.';
         break;
       case 'confirmed':
         backgroundColor = Colors.blue[50]!;
         textColor = Colors.blue[800]!;
-        statusText = 'Réservation confirmée';
+        statusText = 'Reservation confirmed';
         icon = Icons.check_circle;
-        description = 'Le donateur a confirmé votre réservation. '
-            'Vous pouvez maintenant organiser la récupération.';
+        description = 'The donor has confirmed your reservation. '
+            'You can now organize the pickup.';
         break;
       case 'completed':
         backgroundColor = Colors.green[50]!;
         textColor = Colors.green[800]!;
-        statusText = 'Don récupéré';
+        statusText = 'Donation collected';
         icon = Icons.done_all;
-        description = 'Vous avez récupéré ce don avec succès. '
-            'Merci de contribuer à la lutte contre le gaspillage !';
+        description = 'You have successfully collected this donation. '
+            'Thank you for contributing to the fight against waste!';
         break;
       case 'cancelled':
         backgroundColor = Colors.red[50]!;
         textColor = Colors.red[800]!;
-        statusText = 'Réservation annulée';
+        statusText = 'Reservation cancelled';
         icon = Icons.cancel;
-        description = 'Cette réservation a été annulée.';
+        description = 'This reservation has been cancelled.';
         break;
       default:
         backgroundColor = Colors.grey[50]!;
         textColor = Colors.grey[800]!;
-        statusText = 'Statut inconnu';
+        statusText = 'Unknown status';
         icon = Icons.help;
-        description = 'Statut de la réservation non reconnu.';
+        description = 'Reservation status not recognized.';
     }
 
     return Card(
@@ -291,7 +291,7 @@ class _ReservationDetailScreenState extends State<ReservationDetailScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
-              'Don réservé',
+              'Reserved Donation',
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -350,7 +350,7 @@ class _ReservationDetailScreenState extends State<ReservationDetailScreen> {
                           ),
                           const SizedBox(width: 4),
                           Text(
-                            'Expire ${AppDateUtils.formatDate(_donation!.expirationDate)}',
+                            'Expires ${AppDateUtils.formatDate(_donation!.expirationDate)}',
                             style: const TextStyle(fontSize: 14),
                           ),
                         ],
@@ -394,7 +394,7 @@ class _ReservationDetailScreenState extends State<ReservationDetailScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
-              'Informations de réservation',
+              'Reservation Information',
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -403,7 +403,7 @@ class _ReservationDetailScreenState extends State<ReservationDetailScreen> {
             const SizedBox(height: 12),
             _buildInfoRow(
               Icons.schedule,
-              'Date de réservation',
+              'Reservation Date',
               AppDateUtils.formatDateTime(_reservation!.createdAt),
             ),
             if (_reservation!.notes != null && _reservation!.notes!.isNotEmpty) ...[
@@ -418,7 +418,7 @@ class _ReservationDetailScreenState extends State<ReservationDetailScreen> {
               const SizedBox(height: 12),
               _buildInfoRow(
                 Icons.check_circle,
-                'Date de récupération',
+                'Pickup Date',
                 AppDateUtils.formatDateTime(_reservation!.completedAt!),
               ),
             ],
@@ -440,7 +440,7 @@ class _ReservationDetailScreenState extends State<ReservationDetailScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
-              'Lieu de récupération',
+              'Pickup Location',
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -496,7 +496,7 @@ class _ReservationDetailScreenState extends State<ReservationDetailScreen> {
               padding: const EdgeInsets.symmetric(vertical: 12),
             ),
             child: const Text(
-              'Annuler la réservation',
+              'Cancel Reservation',
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
@@ -655,7 +655,7 @@ class _ReservationDetailScreenState extends State<ReservationDetailScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Impossible d\'ouvrir la carte'),
+            content: Text('Unable to open map'),
             backgroundColor: Colors.red,
           ),
         );
@@ -667,15 +667,15 @@ class _ReservationDetailScreenState extends State<ReservationDetailScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Annuler la réservation'),
+        title: const Text('Cancel Reservation'),
         content: const Text(
-          'Êtes-vous sûr de vouloir annuler cette réservation ? '
-          'Cette action ne peut pas être annulée.',
+          'Are you sure you want to cancel this reservation? '
+          'This action cannot be undone.',
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Non'),
+            child: const Text('No'),
           ),
           ElevatedButton(
             onPressed: () => Navigator.of(context).pop(true),
@@ -683,7 +683,7 @@ class _ReservationDetailScreenState extends State<ReservationDetailScreen> {
               backgroundColor: Colors.red,
               foregroundColor: Colors.white,
             ),
-            child: const Text('Oui, annuler'),
+            child: const Text('Yes, cancel'),
           ),
         ],
       ),
@@ -703,7 +703,7 @@ class _ReservationDetailScreenState extends State<ReservationDetailScreen> {
         if (success) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text('Réservation annulée avec succès'),
+              content: Text('Reservation cancelled successfully'),
               backgroundColor: Color(0xFF4CAF50),
             ),
           );
@@ -712,7 +712,7 @@ class _ReservationDetailScreenState extends State<ReservationDetailScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
-                reservationProvider.error ?? 'Erreur lors de l\'annulation',
+                reservationProvider.error ?? 'Error during cancellation',
               ),
               backgroundColor: Colors.red,
             ),
@@ -726,10 +726,10 @@ class _ReservationDetailScreenState extends State<ReservationDetailScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Confirmer la récupération'),
+        title: const Text('Confirm Pickup'),
         content: const Text(
-          'Confirmez-vous avoir récupéré ce don ? '
-          'Cette action marquera la réservation comme terminée.',
+          'Do you confirm that you have picked up this donation? '
+          'This action will mark the reservation as completed.',
         ),
         actions: [
           TextButton(
@@ -742,7 +742,7 @@ class _ReservationDetailScreenState extends State<ReservationDetailScreen> {
               backgroundColor: const Color(0xFF4CAF50),
               foregroundColor: Colors.white,
             ),
-            child: const Text('Oui, confirmer'),
+            child: const Text('Yes, confirm'),
           ),
         ],
       ),
@@ -771,7 +771,7 @@ class _ReservationDetailScreenState extends State<ReservationDetailScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
-                reservationProvider.error ?? 'Erreur lors de la confirmation',
+                reservationProvider.error ?? 'Error during confirmation',
               ),
               backgroundColor: Colors.red,
             ),

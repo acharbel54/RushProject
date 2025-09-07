@@ -46,7 +46,7 @@ class _DonationCardState extends State<DonationCard> {
     
     final currentUser = authProvider.currentUser;
     if (currentUser != null) {
-      // Charger les réservations de l'utilisateur si pas encore fait
+      // Load user reservations if not already done
       if (reservationProvider.userReservations.isEmpty) {
         await reservationProvider.fetchUserReservations(currentUser.id);
       }
@@ -122,7 +122,7 @@ class _DonationCardState extends State<DonationCard> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Titre et catégorie
+                  // Title and category
                   Row(
                     children: [
                       Expanded(
@@ -142,7 +142,7 @@ class _DonationCardState extends State<DonationCard> {
                   
                   const SizedBox(height: 8),
                   
-                  // Quantité et unité
+                  // Quantity and unit
                   Row(
                     children: [
                       Icon(
@@ -190,7 +190,7 @@ class _DonationCardState extends State<DonationCard> {
                       ),
                       const SizedBox(width: 4),
                       Text(
-                        'Expire le ${DateFormat('dd/MM/yyyy').format(widget.donation.expirationDate)}',
+                        'Expires on ${DateFormat('dd/MM/yyyy').format(widget.donation.expirationDate)}',
                         style: theme.textTheme.bodySmall?.copyWith(
                           color: isExpired
                               ? Colors.red
@@ -232,7 +232,7 @@ class _DonationCardState extends State<DonationCard> {
                   // Date de création
                   const SizedBox(height: 4),
                   Text(
-                    'Publié ${AppDateUtils.getRelativeTime(widget.donation.createdAt)}',
+                    'Published ${AppDateUtils.getRelativeTime(widget.donation.createdAt)}',
                     style: theme.textTheme.bodySmall?.copyWith(
                       color: Colors.grey[500],
                       fontSize: 12,
@@ -256,9 +256,9 @@ class _DonationCardState extends State<DonationCard> {
   Widget _buildDonationImage() {
     final String imageUrl = widget.donation.imageUrls.first;
     
-    // Vérifier si c'est un chemin local (commence par assets/) ou une URL
+    // Check if it's a local path (starts with assets/) or a URL
     if (imageUrl.startsWith('assets/')) {
-      // Image locale dans le dossier assets - utiliser FutureBuilder pour obtenir le chemin absolu
+      // Local image in assets folder - use FutureBuilder to get absolute path
       return FutureBuilder<String>(
         future: LocalImageService.getAbsolutePath(imageUrl),
         builder: (context, snapshot) {
@@ -279,7 +279,7 @@ class _DonationCardState extends State<DonationCard> {
         },
       );
     } else {
-      // Image réseau (URL)
+      // Network image (URL)
       return Image.network(
         imageUrl,
         fit: BoxFit.cover,
@@ -309,7 +309,7 @@ class _DonationCardState extends State<DonationCard> {
           ),
           const SizedBox(height: 8),
           Text(
-            'Aucune image',
+            'No image',
             style: TextStyle(
               color: Colors.grey[500],
               fontSize: 12,
@@ -340,25 +340,25 @@ class _DonationCardState extends State<DonationCard> {
       case DonationStatus.disponible:
         backgroundColor = Colors.green;
         textColor = Colors.white;
-        text = 'Disponible';
+        text = 'Available';
         icon = Icons.check_circle;
         break;
       case DonationStatus.reserve:
         backgroundColor = Colors.orange;
         textColor = Colors.white;
-        text = 'Réservé';
+        text = 'Reserved';
         icon = Icons.bookmark;
         break;
       case DonationStatus.recupere:
         backgroundColor = Colors.grey;
         textColor = Colors.white;
-        text = 'Récupéré';
+        text = 'Collected';
         icon = Icons.done_all;
         break;
       default:
         backgroundColor = Colors.grey;
         textColor = Colors.white;
-        text = 'Inconnu';
+        text = 'Unknown';
         icon = Icons.help;
     }
 
@@ -407,7 +407,7 @@ class _DonationCardState extends State<DonationCard> {
           ),
           const SizedBox(width: 4),
           Text(
-            isExpired ? 'Expiré' : 'Expire bientôt',
+            isExpired ? 'Expired' : 'Expires soon',
             style: const TextStyle(
               color: Colors.white,
               fontSize: 10,
@@ -421,14 +421,14 @@ class _DonationCardState extends State<DonationCard> {
 
   Widget _buildCategoryChip(ThemeData theme) {
     final categoryLabels = {
-      'fruits_legumes': 'Fruits & Légumes',
-      'produits_laitiers': 'Produits laitiers',
-      'viandes_poissons': 'Viandes & Poissons',
-      'cereales_feculents': 'Céréales & Féculents',
-      'conserves_pates': 'Conserves & Pâtes',
-      'boulangerie': 'Boulangerie',
-      'boissons': 'Boissons',
-      'autres': 'Autres',
+      'fruits_legumes': 'Fruits & Vegetables',
+      'produits_laitiers': 'Dairy Products',
+      'viandes_poissons': 'Meat & Fish',
+      'cereales_feculents': 'Cereals & Starches',
+      'conserves_pates': 'Canned & Pasta',
+      'boulangerie': 'Bakery',
+      'boissons': 'Beverages',
+      'autres': 'Others',
     };
 
     return Container(
@@ -453,7 +453,7 @@ class _DonationCardState extends State<DonationCard> {
 
   Widget _buildActionButtons(ThemeData theme) {
     if (widget.showActions) {
-      // Actions pour le propriétaire du don
+      // Actions for donation owner
       return Row(
         children: [
           if (widget.onEdit != null)
@@ -461,7 +461,7 @@ class _DonationCardState extends State<DonationCard> {
               child: OutlinedButton.icon(
                 onPressed: widget.onEdit,
                 icon: const Icon(Icons.edit, size: 16),
-                label: const Text('Modifier'),
+                label: const Text('Edit'),
                 style: OutlinedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 8),
                 ),
@@ -473,7 +473,7 @@ class _DonationCardState extends State<DonationCard> {
               child: OutlinedButton.icon(
                 onPressed: widget.onDelete,
                 icon: const Icon(Icons.delete, size: 16),
-                label: const Text('Supprimer'),
+                label: const Text('Delete'),
                 style: OutlinedButton.styleFrom(
                   foregroundColor: Colors.red,
                   side: const BorderSide(color: Colors.red),
@@ -484,7 +484,7 @@ class _DonationCardState extends State<DonationCard> {
         ],
       );
     } else if (widget.onReserve != null && widget.donation.status == DonationStatus.disponible) {
-      // Action pour réserver le don
+      // Action to reserve the donation
       return SizedBox(
         width: double.infinity,
         child: ElevatedButton.icon(
@@ -494,7 +494,7 @@ class _DonationCardState extends State<DonationCard> {
             size: 16
           ),
           label: Text(
-            _isReserving ? 'Réservation...' : (_isReserved ? 'En attente' : 'Réserver')
+            _isReserving ? 'Reserving...' : (_isReserved ? 'Pending' : 'Reserve')
           ),
           style: ElevatedButton.styleFrom(
             padding: const EdgeInsets.symmetric(vertical: 12),
@@ -522,9 +522,9 @@ class _DonationCardState extends State<DonationCard> {
       if (currentUser == null) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Vous devez être connecté pour réserver'),
-            backgroundColor: Colors.red,
-          ),
+              content: Text('You must be logged in to reserve'),
+              backgroundColor: Colors.red,
+            ),
         );
         setState(() {
           _isReserving = false;
@@ -546,12 +546,12 @@ class _DonationCardState extends State<DonationCard> {
           
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text('Réservation créée avec succès !'),
+              content: Text('Reservation created successfully!'),
               backgroundColor: Colors.green,
             ),
           );
           
-          // Appeler le callback si fourni
+          // Call the callback if provided
           if (widget.onReserve != null) {
             widget.onReserve!();
           }
@@ -562,7 +562,7 @@ class _DonationCardState extends State<DonationCard> {
           
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(reservationProvider.error ?? 'Erreur lors de la réservation'),
+              content: Text(reservationProvider.error ?? 'Error during reservation'),
               backgroundColor: Colors.red,
             ),
           );
@@ -576,7 +576,7 @@ class _DonationCardState extends State<DonationCard> {
         
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Erreur: $e'),
+            content: Text('Error: $e'),
             backgroundColor: Colors.red,
           ),
         );

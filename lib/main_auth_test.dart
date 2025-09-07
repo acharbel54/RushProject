@@ -100,7 +100,7 @@ class JsonAuthService {
       if (_users.any((user) => user.email.toLowerCase() == email.toLowerCase())) {
         return {
           'success': false,
-          'message': 'Cet email est déjà utilisé'
+          'message': 'This email is already in use'
         };
       }
 
@@ -156,7 +156,7 @@ class JsonAuthService {
     } catch (e) {
       return {
         'success': false,
-        'message': 'Email ou mot de passe incorrect'
+        'message': 'Incorrect email or password'
       };
     }
   }
@@ -285,7 +285,7 @@ class _LoginPageState extends State<LoginPage> {
   Future<void> _handleLogin() async {
     if (_emailController.text.isEmpty || _passwordController.text.isEmpty) {
       setState(() {
-        _errorMessage = 'Veuillez remplir tous les champs';
+        _errorMessage = 'Please fill in all fields';
       });
       return;
     }
@@ -307,7 +307,7 @@ class _LoginPageState extends State<LoginPage> {
     if (result['success']) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Connexion réussie! Bienvenue ${result['user'].fullName}'),
+          content: Text('Login successful! Welcome ${result['user'].fullName}'),
           backgroundColor: Colors.green,
         ),
       );
@@ -350,7 +350,7 @@ class _RegisterPageState extends State<RegisterPage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             const Text(
-              'Créer un compte',
+              'Create an account',
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
@@ -428,7 +428,7 @@ class _RegisterPageState extends State<RegisterPage> {
         _passwordController.text.isEmpty || 
         _fullNameController.text.isEmpty) {
       setState(() {
-        _errorMessage = 'Veuillez remplir tous les champs';
+        _errorMessage = 'Please fill in all fields';
       });
       return;
     }
@@ -458,7 +458,7 @@ class _RegisterPageState extends State<RegisterPage> {
     if (result['success']) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Inscription réussie! Bienvenue ${result['user'].fullName}'),
+          content: Text('Registration successful! Welcome ${result['user'].fullName}'),
           backgroundColor: Colors.green,
         ),
       );

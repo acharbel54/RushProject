@@ -28,25 +28,25 @@ class _ProfileScreenState extends State<ProfileScreen> {
   List<String> _selectedAllergies = [];
   
   final List<String> _availableDietaryPreferences = [
-    'Végétarien',
-    'Végétalien',
-    'Sans gluten',
+    'Vegetarian',
+    'Vegan',
+    'Gluten-free',
     'Halal',
-    'Casher',
-    'Bio uniquement',
-    'Produits locaux',
+    'Kosher',
+    'Organic only',
+    'Local products',
   ];
   
   final List<String> _availableAllergies = [
-    'Arachides',
-    'Fruits à coque',
-    'Lait',
-    'Œufs',
-    'Poisson',
-    'Crustacés',
-    'Soja',
+    'Peanuts',
+    'Tree nuts',
+    'Milk',
+    'Eggs',
+    'Fish',
+    'Shellfish',
+    'Soy',
     'Gluten',
-    'Sésame',
+    'Sesame',
   ];
   
   bool _isEditing = false;
@@ -126,7 +126,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text('Profil mis à jour avec succès'),
+              content: Text('Profile updated successfully'),
               backgroundColor: Colors.green,
             ),
           );
@@ -161,19 +161,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Déconnexion'),
-        content: const Text('Êtes-vous sûr de vouloir vous déconnecter ?'),
+        title: const Text('Sign Out'),
+        content: const Text('Are you sure you want to sign out?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Annuler'),
+            child: const Text('Cancel'),
           ),
           TextButton(
             onPressed: () => Navigator.of(context).pop(true),
             style: TextButton.styleFrom(
               foregroundColor: Colors.red,
             ),
-            child: const Text('Déconnexion'),
+            child: const Text('Sign Out'),
           ),
         ],
       ),
@@ -196,21 +196,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Supprimer le compte'),
+        title: const Text('Delete Account'),
         content: const Text(
-          'Cette action est irréversible. Toutes vos données seront définitivement supprimées.\n\nÊtes-vous sûr de vouloir supprimer votre compte ?',
+          'This action is irreversible. All your data will be permanently deleted.\n\nAre you sure you want to delete your account?',
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Annuler'),
+            child: const Text('Cancel'),
           ),
           TextButton(
             onPressed: () => Navigator.of(context).pop(true),
             style: TextButton.styleFrom(
               foregroundColor: Colors.red,
             ),
-            child: const Text('Supprimer'),
+            child: const Text('Delete'),
           ),
         ],
       ),
@@ -218,10 +218,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
     if (confirmed == true) {
       try {
-        // Suppression de compte non implémentée dans SimpleAuthProvider
+        // Account deletion not implemented in SimpleAuthProvider
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
-        content: Text('Suppression de compte non disponible en mode simple'),
+        content: Text('Account deletion not available in simple mode'),
         backgroundColor: Colors.orange,
       ),
     );
@@ -252,7 +252,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       backgroundColor: Colors.grey[50],
       appBar: AppBar(
         title: const Text(
-          'Mon Profil',
+          'My Profile',
           style: TextStyle(
             fontWeight: FontWeight.w600,
             color: Colors.black87,
@@ -282,7 +282,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           if (user == null) {
             print('DEBUG ProfileScreen: user is null, showing not connected message');
             return const Center(
-              child: Text('Utilisateur non connecté'),
+              child: Text('User not connected'),
             );
           }
 
@@ -293,7 +293,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           return SingleChildScrollView(
             child: Column(
               children: [
-                // En-tête du profil
+                // Profile header
                 Container(
                   width: double.infinity,
                   color: Colors.white,
@@ -317,9 +317,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       
                       const SizedBox(height: 16),
                       
-                      // Nom
+                      // Name
                       Text(
-                        user.displayName ?? 'Utilisateur',
+                        user.displayName ?? 'User',
                         style: const TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
@@ -329,7 +329,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       
                       const SizedBox(height: 4),
                       
-                      // Type d'utilisateur
+                      // User type
                       Container(
                         padding: const EdgeInsets.symmetric(
                           horizontal: 12,
@@ -342,7 +342,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: Text(
-                          user.role == UserRole.donateur ? 'Donateur' : 'Bénéficiaire',
+                          user.role == UserRole.donateur ? 'Donor' : 'Beneficiary',
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 12,
@@ -367,7 +367,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 
                 const SizedBox(height: 16),
                 
-                // Formulaire d'édition ou informations
+                // Edit form or information
                 Container(
                   margin: const EdgeInsets.symmetric(horizontal: 16),
                   padding: const EdgeInsets.all(20),
@@ -387,7 +387,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 
                 const SizedBox(height: 16),
                 
-                // Statistiques (pour les donateurs)
+                // Statistics (for donors)
                 if (user.role == UserRole.donateur) ...[
                   Container(
                     margin: const EdgeInsets.symmetric(horizontal: 16),
@@ -407,7 +407,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const Text(
-                          'Mes statistiques',
+                          'My Statistics',
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.w600,
@@ -419,7 +419,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           children: [
                             Expanded(
                               child: _buildStatCard(
-                                  'Dons créés',
+                                  'Donations Created',
                                   '${user.totalDonations}',
                                   Icons.restaurant,
                                   const Color(0xFF4CAF50),
@@ -428,7 +428,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             const SizedBox(width: 12),
                             Expanded(
                               child: _buildStatCard(
-                                'Kg donnés',
+                                'Kg Donated',
                                 '${user.totalKgDonated.toStringAsFixed(1)} kg',
                                 Icons.scale,
                                 const Color(0xFFFF9800),
@@ -442,7 +442,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   const SizedBox(height: 16),
                 ],
                 
-                // Statistiques (pour les bénéficiaires)
+                // Statistics (for beneficiaries)
                 if (user.role == UserRole.beneficiaire) ...[
                   Container(
                     margin: const EdgeInsets.symmetric(horizontal: 16),
@@ -462,7 +462,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const Text(
-                          'Mes statistiques',
+                          'My Statistics',
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.w600,
@@ -474,7 +474,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           children: [
                             Expanded(
                               child: _buildStatCard(
-                                'Réservations',
+                                'Reservations',
                                 '${user.totalReservations ?? 0}',
                                 Icons.bookmark,
                                 const Color(0xFFFF9800),
@@ -483,7 +483,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             const SizedBox(width: 12),
                             Expanded(
                               child: _buildStatCard(
-                                'Dons reçus',
+                                'Donations Received',
                                 '0', // TODO: Calculer depuis les dons reçus
                                 Icons.card_giftcard,
                                 const Color(0xFF9C27B0),
@@ -496,8 +496,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           children: [
                             Expanded(
                               child: _buildStatCard(
-                                'Économies',
-                                '0€', // TODO: Calculer les économies
+                                'Savings',
+                                '0€', // TODO: Calculate savings
                                 Icons.savings,
                                 const Color(0xFF4CAF50),
                               ),
@@ -526,7 +526,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   margin: const EdgeInsets.symmetric(horizontal: 16),
                   child: Column(
                     children: [
-                      // Gestion des réservations (pour les donateurs)
+                      // Reservation management (for donors)
                       if (user.role == UserRole.donateur) ...[
                         SizedBox(
                           width: double.infinity,
@@ -536,7 +536,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             },
                             icon: const Icon(Icons.assignment, color: Color(0xFF4CAF50)),
                             label: const Text(
-                              'Gérer mes réservations',
+                              'Manage My Reservations',
                               style: TextStyle(color: Color(0xFF4CAF50)),
                             ),
                             style: OutlinedButton.styleFrom(
@@ -548,14 +548,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         const SizedBox(height: 12),
                       ],
                       
-                      // Déconnexion
+                      // Sign out
                       SizedBox(
                         width: double.infinity,
                         child: OutlinedButton.icon(
                           onPressed: _handleSignOut,
                           icon: const Icon(Icons.logout, color: Colors.orange),
                           label: const Text(
-                            'Se déconnecter',
+                            'Sign Out',
                             style: TextStyle(color: Colors.orange),
                           ),
                           style: OutlinedButton.styleFrom(
@@ -567,14 +567,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       
                       const SizedBox(height: 12),
                       
-                      // Supprimer le compte
+                      // Delete account
                       SizedBox(
                         width: double.infinity,
                         child: OutlinedButton.icon(
                           onPressed: _handleDeleteAccount,
                           icon: const Icon(Icons.delete_forever, color: Colors.red),
                           label: const Text(
-                            'Supprimer mon compte',
+                            'Delete My Account',
                             style: TextStyle(color: Colors.red),
                           ),
                           style: OutlinedButton.styleFrom(
@@ -603,7 +603,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text(
-            'Modifier mes informations',
+            'Edit My Information',
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w600,
@@ -613,14 +613,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
           
           const SizedBox(height: 20),
           
-          // Nom
+          // Name
           AuthTextField(
             controller: _nameController,
-            labelText: 'Nom complet',
+            labelText: 'Full Name',
             prefixIcon: Icons.person_outlined,
             validator: (value) {
               if (value == null || value.isEmpty) {
-                return 'Veuillez entrer votre nom';
+                return 'Please enter your name';
               }
               return null;
             },
@@ -628,25 +628,25 @@ class _ProfileScreenState extends State<ProfileScreen> {
           
           const SizedBox(height: 16),
           
-          // Téléphone
+          // Phone
           AuthTextField(
             controller: _phoneController,
-            labelText: 'Téléphone',
+            labelText: 'Phone',
             keyboardType: TextInputType.phone,
             prefixIcon: Icons.phone_outlined,
           ),
           
           const SizedBox(height: 16),
           
-          // Adresse
+          // Address
           AuthTextField(
             controller: _addressController,
-            labelText: 'Adresse',
+            labelText: 'Address',
             prefixIcon: Icons.location_on_outlined,
             maxLines: 2,
           ),
           
-          // Champs spécifiques aux bénéficiaires
+          // Beneficiary-specific fields
           Consumer<SimpleAuthProvider>(
             builder: (context, authProvider, child) {
               final user = authProvider.currentUser;
@@ -656,13 +656,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     const SizedBox(height: 16),
                     AuthTextField(
                       controller: _preferredZoneController,
-                      labelText: 'Zone de récupération préférée',
+                      labelText: 'Preferred Pickup Zone',
                       prefixIcon: Icons.place_outlined,
                     ),
                     
                     const SizedBox(height: 16),
                     _buildMultiSelectField(
-                      'Préférences alimentaires',
+                      'Dietary Preferences',
                       _availableDietaryPreferences,
                       _selectedDietaryPreferences,
                       Icons.restaurant_outlined,
@@ -686,7 +686,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           
           const SizedBox(height: 24),
           
-          // Boutons
+          // Buttons
           Row(
             children: [
               Expanded(
@@ -695,15 +695,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     setState(() {
                       _isEditing = false;
                     });
-                    _loadUserData(); // Recharger les données originales
+                    _loadUserData(); // Reload original data
                   },
-                  child: const Text('Annuler'),
+                  child: const Text('Cancel'),
                 ),
               ),
               const SizedBox(width: 12),
               Expanded(
                 child: AuthButton(
-                  text: 'Sauvegarder',
+                  text: 'Save',
                   onPressed: _isLoading ? null : _handleUpdateProfile,
                   isLoading: _isLoading,
                 ),
@@ -720,7 +720,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
-          'Mes informations',
+          'My Information',
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.w600,
@@ -730,17 +730,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
         
         const SizedBox(height: 20),
         
-        _buildInfoRow('Téléphone', user.phoneNumber ?? 'Non renseigné', Icons.phone_outlined),
+        _buildInfoRow('Phone', user.phoneNumber ?? 'Not provided', Icons.phone_outlined),
         const SizedBox(height: 16),
-        _buildInfoRow('Adresse', user.address ?? 'Non renseignée', Icons.location_on_outlined),
+        _buildInfoRow('Address', user.address ?? 'Not provided', Icons.location_on_outlined),
         
-        // Informations spécifiques aux bénéficiaires
+        // Beneficiary-specific information
         if (user.role == UserRole.beneficiaire) ...[
           const SizedBox(height: 16),
-          _buildInfoRow('Zone préférée', user.preferredPickupZone ?? 'Non renseignée', Icons.place_outlined),
+          _buildInfoRow('Preferred Zone', user.preferredPickupZone ?? 'Not provided', Icons.place_outlined),
           if (user.dietaryPreferences != null && user.dietaryPreferences!.isNotEmpty) ...[
             const SizedBox(height: 16),
-            _buildInfoRow('Préférences alimentaires', user.dietaryPreferences!.join(', '), Icons.restaurant_outlined),
+            _buildInfoRow('Dietary Preferences', user.dietaryPreferences!.join(', '), Icons.restaurant_outlined),
           ],
           if (user.allergies != null && user.allergies!.isNotEmpty) ...[
             const SizedBox(height: 16),
@@ -749,7 +749,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ],
         
         const SizedBox(height: 16),
-        _buildInfoRow('Membre depuis', _formatDate(user.createdAt), Icons.calendar_today_outlined),
+        _buildInfoRow('Member since', _formatDate(user.createdAt), Icons.calendar_today_outlined),
       ],
     );
   }
@@ -879,7 +879,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
  
    Widget _buildReservationHistory() {
-     // TODO: Récupérer les vraies réservations depuis le service
+     // TODO: Get real reservations from service
      final mockReservations = [
        {
          'title': 'Légumes frais',
@@ -892,7 +892,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
          'title': 'Pain et viennoiseries',
          'date': DateTime.now().subtract(const Duration(days: 5)),
          'status': 'Récupéré',
-         'location': 'Boulangerie Dupont',
+         'location': 'Dupont Bakery',
          'savings': '8€',
        },
        {
@@ -916,7 +916,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
              ),
              const SizedBox(height: 12),
              Text(
-               'Aucune réservation pour le moment',
+               'No reservations at the moment',
                style: TextStyle(
                  color: Colors.grey[600],
                  fontSize: 16,
@@ -924,7 +924,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
              ),
              const SizedBox(height: 8),
              Text(
-               'Vos réservations apparaîtront ici',
+               'Your reservations will appear here',
                style: TextStyle(
                  color: Colors.grey[500],
                  fontSize: 14,
@@ -1047,8 +1047,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
  
    String _formatDate(DateTime date) {
     final months = [
-      'janvier', 'février', 'mars', 'avril', 'mai', 'juin',
-      'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'
+      'January', 'February', 'March', 'April', 'May', 'June',
+      'July', 'August', 'September', 'October', 'November', 'December'
     ];
     
     return '${date.day} ${months[date.month - 1]} ${date.year}';

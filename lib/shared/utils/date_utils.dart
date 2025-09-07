@@ -7,29 +7,29 @@ class AppDateUtils {
 
     if (difference.inDays > 0) {
       if (difference.inDays == 1) {
-        return 'il y a 1 jour';
+        return '1 day ago';
       } else if (difference.inDays < 7) {
-        return 'il y a ${difference.inDays} jours';
+        return '${difference.inDays} days ago';
       } else if (difference.inDays < 30) {
         final weeks = (difference.inDays / 7).floor();
-        return weeks == 1 ? 'il y a 1 semaine' : 'il y a $weeks semaines';
+        return weeks == 1 ? '1 week ago' : '$weeks weeks ago';
       } else if (difference.inDays < 365) {
         final months = (difference.inDays / 30).floor();
-        return months == 1 ? 'il y a 1 mois' : 'il y a $months mois';
+        return months == 1 ? '1 month ago' : '$months months ago';
       } else {
         final years = (difference.inDays / 365).floor();
-        return years == 1 ? 'il y a 1 an' : 'il y a $years ans';
+        return years == 1 ? '1 year ago' : '$years years ago';
       }
     } else if (difference.inHours > 0) {
       return difference.inHours == 1
-          ? 'il y a 1 heure'
-          : 'il y a ${difference.inHours} heures';
+          ? '1 hour ago'
+          : '${difference.inHours} hours ago';
     } else if (difference.inMinutes > 0) {
       return difference.inMinutes == 1
-          ? 'il y a 1 minute'
-          : 'il y a ${difference.inMinutes} minutes';
+          ? '1 minute ago'
+          : '${difference.inMinutes} minutes ago';
     } else {
-      return 'à l\'instant';
+      return 'just now';
     }
   }
 
@@ -70,11 +70,11 @@ class AppDateUtils {
 
   static String getDateLabel(DateTime date) {
     if (isToday(date)) {
-      return 'Aujourd\'hui';
+      return 'Today';
     } else if (isYesterday(date)) {
-      return 'Hier';
+      return 'Yesterday';
     } else if (isTomorrow(date)) {
-      return 'Demain';
+      return 'Tomorrow';
     } else {
       return formatDate(date);
     }
@@ -98,26 +98,26 @@ class AppDateUtils {
 
   static String getExpirationStatus(DateTime expiryDate) {
     if (isExpired(expiryDate)) {
-      return 'Expiré';
+      return 'Expired';
     } else if (isExpiringSoon(expiryDate)) {
       final daysLeft = daysBetween(DateTime.now(), expiryDate);
       if (daysLeft == 0) {
-        return 'Expire aujourd\'hui';
+        return 'Expires today';
       } else if (daysLeft == 1) {
-        return 'Expire demain';
+        return 'Expires tomorrow';
       } else {
-        return 'Expire dans $daysLeft jours';
+        return 'Expires in $daysLeft days';
       }
     } else {
       final daysLeft = daysBetween(DateTime.now(), expiryDate);
       if (daysLeft < 7) {
-        return 'Expire dans $daysLeft jours';
+        return 'Expires in $daysLeft days';
       } else if (daysLeft < 30) {
         final weeks = (daysLeft / 7).floor();
-        return weeks == 1 ? 'Expire dans 1 semaine' : 'Expire dans $weeks semaines';
+        return weeks == 1 ? 'Expires in 1 week' : 'Expires in $weeks weeks';
       } else {
         final months = (daysLeft / 30).floor();
-        return months == 1 ? 'Expire dans 1 mois' : 'Expire dans $months mois';
+        return months == 1 ? 'Expires in 1 month' : 'Expires in $months months';
       }
     }
   }
@@ -162,22 +162,22 @@ class AppDateUtils {
 
   static String getMonthName(int month) {
     const monthNames = [
-      'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
-      'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'
+      'January', 'February', 'March', 'April', 'May', 'June',
+      'July', 'August', 'September', 'October', 'November', 'December'
     ];
     return monthNames[month - 1];
   }
 
   static String getDayName(int weekday) {
     const dayNames = [
-      'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'
+      'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'
     ];
     return dayNames[weekday - 1];
   }
 
   static String getShortDayName(int weekday) {
     const shortDayNames = [
-      'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'
+      'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'
     ];
     return shortDayNames[weekday - 1];
   }

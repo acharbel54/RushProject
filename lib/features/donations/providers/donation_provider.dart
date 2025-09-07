@@ -23,7 +23,7 @@ class DonationProvider with ChangeNotifier {
       
       _error = null;
     } catch (e) {
-      _error = 'Erreur lors du chargement des dons: $e';
+      _error = 'Error loading donations: $e';
       if (kDebugMode) {
         print(_error);
       }
@@ -40,7 +40,7 @@ class DonationProvider with ChangeNotifier {
       
       _error = null;
     } catch (e) {
-      _error = 'Erreur lors du chargement de vos dons: $e';
+      _error = 'Error loading your donations: $e';
       if (kDebugMode) {
         print(_error);
       }
@@ -49,7 +49,7 @@ class DonationProvider with ChangeNotifier {
     }
   }
 
-  // Créer un nouveau don
+  // Create a new donation
   Future<bool> createDonation(DonationModel donation) async {
     _setLoading(true);
     try {
@@ -62,7 +62,7 @@ class DonationProvider with ChangeNotifier {
       _error = null;
       return true;
     } catch (e) {
-      _error = 'Erreur lors de la création du don: $e';
+      _error = 'Error creating donation: $e';
       if (kDebugMode) {
         print(_error);
       }
@@ -79,10 +79,10 @@ class DonationProvider with ChangeNotifier {
       // Récupérer la donation existante
       final existingDonation = await _donationService.getDonationById(donationId);
       if (existingDonation == null) {
-        throw Exception('Donation non trouvée');
+        throw Exception('Donation not found');
       }
       
-      // Créer une nouvelle donation avec les mises à jour
+      // Create a new donation with updates
       final updatedDonation = existingDonation.copyWith(
         status: updates['status'] != null ? DonationStatus.values.firstWhere(
           (e) => e.toString().split('.').last == updates['status'],
@@ -99,7 +99,7 @@ class DonationProvider with ChangeNotifier {
       _error = null;
       return true;
     } catch (e) {
-      _error = 'Erreur lors de la mise à jour du don: $e';
+      _error = 'Error updating donation: $e';
       if (kDebugMode) {
         print(_error);
       }
@@ -121,7 +121,7 @@ class DonationProvider with ChangeNotifier {
       _error = null;
       return true;
     } catch (e) {
-      _error = 'Erreur lors de la suppression du don: $e';
+      _error = 'Error deleting donation: $e';
       if (kDebugMode) {
         print(_error);
       }
@@ -143,7 +143,7 @@ class DonationProvider with ChangeNotifier {
       _error = null;
       return true;
     } catch (e) {
-      _error = 'Erreur lors de la réservation du don: $e';
+      _error = 'Error reserving donation: $e';
       if (kDebugMode) {
         print(_error);
       }
@@ -160,10 +160,10 @@ class DonationProvider with ChangeNotifier {
       // Récupérer la donation existante
       final existingDonation = await _donationService.getDonationById(donationId);
       if (existingDonation == null) {
-        throw Exception('Donation non trouvée');
+        throw Exception('Donation not found');
       }
       
-      // Créer une nouvelle donation avec les mises à jour
+      // Create a new donation with updates
       final updatedDonation = existingDonation.copyWith(
         status: DonationStatus.disponible,
         reservedBy: null,
@@ -179,7 +179,7 @@ class DonationProvider with ChangeNotifier {
       _error = null;
       return true;
     } catch (e) {
-      _error = 'Erreur lors de l\'annulation de la réservation: $e';
+      _error = 'Error cancelling reservation: $e';
       if (kDebugMode) {
         print(_error);
       }
@@ -196,10 +196,10 @@ class DonationProvider with ChangeNotifier {
       // Récupérer la donation existante
       final existingDonation = await _donationService.getDonationById(donationId);
       if (existingDonation == null) {
-        throw Exception('Donation non trouvée');
+        throw Exception('Donation not found');
       }
       
-      // Créer une nouvelle donation avec les mises à jour
+      // Create a new donation with updates
       final updatedDonation = existingDonation.copyWith(
         status: DonationStatus.recupere,
         updatedAt: DateTime.now(),
@@ -213,7 +213,7 @@ class DonationProvider with ChangeNotifier {
       _error = null;
       return true;
     } catch (e) {
-      _error = 'Erreur lors du marquage comme récupéré: $e';
+      _error = 'Error marking as collected: $e';
       if (kDebugMode) {
         print(_error);
       }
@@ -239,12 +239,12 @@ class DonationProvider with ChangeNotifier {
       // Filtrer par statut disponible
       results = results.where((donation) => donation.status == DonationStatus.disponible).toList();
 
-      // Filtrer par catégorie si fournie
+      // Filter by category if provided
       if (type != null) {
         results = results.where((donation) => donation.category == type).toList();
       }
 
-      // Filtrer par texte de recherche si fourni
+      // Filter by search text if provided
       if (query != null && query.isNotEmpty) {
         results = results.where((donation) {
           return donation.title.toLowerCase().contains(query.toLowerCase()) ||
@@ -252,7 +252,7 @@ class DonationProvider with ChangeNotifier {
         }).toList();
       }
 
-      // TODO: Filtrer par distance si les coordonnées sont fournies
+      // TODO: Filter by distance if coordinates are provided
       // if (maxDistance != null && userLat != null && userLng != null) {
       //   results = results.where((donation) {
       //     double distance = calculateDistance(userLat, userLng, donation.latitude, donation.longitude);
@@ -263,7 +263,7 @@ class DonationProvider with ChangeNotifier {
       _donations = results;
       _error = null;
     } catch (e) {
-      _error = 'Erreur lors de la recherche: $e';
+      _error = 'Error during search: $e';
       if (kDebugMode) {
         print(_error);
       }
@@ -277,7 +277,7 @@ class DonationProvider with ChangeNotifier {
     try {
       return await _donationService.getDonationById(donationId);
     } catch (e) {
-      _error = 'Erreur lors de la récupération du don: $e';
+      _error = 'Error retrieving donation: $e';
       if (kDebugMode) {
         print(_error);
       }

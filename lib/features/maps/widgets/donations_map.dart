@@ -111,7 +111,7 @@ class _DonationsMapState extends State<DonationsMap> {
         }).toList();
       }
 
-      // Créer les marqueurs
+      // Create markers
       await _createMarkers(donations);
 
       setState(() {

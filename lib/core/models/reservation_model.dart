@@ -227,13 +227,13 @@ class ReservationModel {
   String get statusDisplayText {
     switch (status) {
       case ReservationStatus.pending:
-        return 'En attente';
+        return 'Pending';
       case ReservationStatus.confirmed:
-        return 'Confirmée';
+        return 'Confirmed';
       case ReservationStatus.completed:
-        return 'Récupérée';
+        return 'Completed';
       case ReservationStatus.cancelled:
-        return 'Annulée';
+        return 'Cancelled';
     }
   }
 

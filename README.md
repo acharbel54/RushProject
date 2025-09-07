@@ -1,185 +1,185 @@
 # FoodLink 🍎
 
-**FoodLink** est une application mobile Flutter innovante qui lutte contre le gaspillage alimentaire en connectant donateurs et bénéficiaires. Notre plateforme géolocalisée facilite le partage de surplus alimentaires au sein de votre communauté.
+**FoodLink** is an innovative Flutter mobile application that fights food waste by connecting donors and beneficiaries. Our geolocated platform facilitates the sharing of food surplus within your community.
 
-## 🌟 Fonctionnalités principales
+## 🌟 Main Features
 
-### 🔐 Authentification et gestion des utilisateurs
-- **Inscription/Connexion sécurisée** avec validation d'email
-- **Trois types d'utilisateurs** : Donateurs, Bénéficiaires, Administrateurs
-- **Gestion de profil complète** avec statistiques personnalisées
-- **Récupération de mot de passe**
-- **Mode hors ligne** avec stockage local JSON
+### 🔐 Authentication and User Management
+- **Secure Registration/Login** with email validation
+- **Three user types**: Donors, Beneficiaries, Administrators
+- **Complete profile management** with personalized statistics
+- **Password recovery**
+- **Offline mode** with local JSON storage
 
-### 🍎 Gestion des dons alimentaires
-- **Création de dons** avec photos et géolocalisation
-- **Catégories variées** : Fruits, légumes, produits laitiers, viande, poisson, etc.
-- **Informations détaillées** : quantité, date d'expiration, adresse de récupération
-- **Statuts de suivi** : Disponible, réservé, récupéré, expiré
-- **Gestion par le donateur** de ses propres publications
+### 🍎 Food Donation Management
+- **Donation creation** with photos and geolocation
+- **Various categories**: Fruits, vegetables, dairy products, meat, fish, etc.
+- **Detailed information**: quantity, expiration date, pickup address
+- **Tracking statuses**: Available, reserved, collected, expired
+- **Donor management** of their own publications
 
-### 📋 Système de réservations
-- **Réservation simple** pour les bénéficiaires
-- **Gestion des créneaux** de récupération
-- **Suivi en temps réel** des statuts de réservation
-- **Historique complet** des transactions
-- **Notifications automatiques** pour les mises à jour
+### 📋 Reservation System
+- **Simple reservation** for beneficiaries
+- **Pickup slot management**
+- **Real-time tracking** of reservation statuses
+- **Complete history** of transactions
+- **Automatic notifications** for updates
 
-### 🗺️ Géolocalisation et cartographie
-- **Carte interactive** avec Google Maps
-- **Localisation automatique** de l'utilisateur
-- **Recherche par proximité** avec filtrage par distance
-- **Navigation intégrée** vers les points de récupération
+### 🗺️ Geolocation and Mapping
+- **Interactive map** with Google Maps
+- **Automatic user location**
+- **Proximity search** with distance filtering
+- **Integrated navigation** to pickup points
 
-### 🔍 Découverte et recherche
-- **Interface de découverte** intuitive
-- **Filtres avancés** par catégorie, distance, disponibilité
-- **Recherche textuelle** dans les titres et descriptions
-- **Tri personnalisable** par date, proximité, urgence
+### 🔍 Discovery and Search
+- **Intuitive discovery interface**
+- **Advanced filters** by category, distance, availability
+- **Text search** in titles and descriptions
+- **Customizable sorting** by date, proximity, urgency
 
-### 🔔 Système de notifications
-- **Notifications push** en temps réel
-- **Alertes personnalisées** : nouvelles réservations, confirmations, expirations
-- **Paramètres de notification** configurables
-- **Historique des notifications**
+### 🔔 Notification System
+- **Real-time push notifications**
+- **Personalized alerts**: new reservations, confirmations, expirations
+- **Configurable notification settings**
+- **Notification history**
 
 ### 👨‍💼 Administration
-- **Tableau de bord administrateur** avec métriques globales
-- **Gestion des utilisateurs** et modération
-- **Supervision des dons** et réservations
-- **Statistiques détaillées** de l'application
+- **Administrator dashboard** with global metrics
+- **User management** and moderation
+- **Donation and reservation supervision**
+- **Detailed application statistics**
 
-## 🛠️ Technologies utilisées
+## 🛠️ Technologies Used
 
-- **Framework** : Flutter (Dart)
-- **Stockage** : JSON local + Firebase (optionnel)
-- **Cartes** : Google Maps API
-- **Géolocalisation** : Geolocator
-- **Notifications** : Firebase Messaging
-- **Gestion d'état** : Provider
-- **Interface** : Material Design 3
+- **Framework**: Flutter (Dart)
+- **Storage**: Local JSON + Firebase (optional)
+- **Maps**: Google Maps API
+- **Geolocation**: Geolocator
+- **Notifications**: Firebase Messaging
+- **State Management**: Provider
+- **Interface**: Material Design 3
 
-## 📱 Plateformes supportées
+## 📱 Supported Platforms
 
 - ✅ Android
 - ✅ iOS
 - ✅ Web
 - ✅ Windows
 
-## 🚀 Installation et configuration
+## 🚀 Installation and Configuration
 
-### Prérequis
+### Prerequisites
 - Flutter SDK (>=3.0.0)
 - Dart SDK
 - Android Studio / VS Code
-- Compte Google Cloud (pour les cartes)
+- Google Cloud Account (for maps)
 
 ### Installation
 
-1. **Cloner le projet**
+1. **Clone the project**
    ```bash
-   git clone https://github.com/votre-username/foodlink.git
+   git clone https://github.com/acharbel54/foodlink.git
    cd foodlink
    ```
 
-2. **Installer les dépendances**
+2. **Install dependencies**
    ```bash
    flutter pub get
    ```
 
-3. **Configuration Google Maps**
-   - Créer un projet sur Google Cloud Console
-   - Activer l'API Google Maps
-   - Ajouter votre clé API dans :
+3. **Google Maps Configuration**
+   - Create a project on Google Cloud Console
+   - Enable Google Maps API
+   - Add your API key in:
      - `android/app/src/main/AndroidManifest.xml`
      - `ios/Runner/AppDelegate.swift`
 
-4. **Configuration Firebase (optionnel)**
+4. **Firebase Configuration (optional)**
    ```bash
-   # Installer Firebase CLI
+   # Install Firebase CLI
    npm install -g firebase-tools
    
-   # Configurer Firebase
+   # Configure Firebase
    firebase login
    flutterfire configure
    ```
 
-5. **Lancer l'application**
+5. **Run the application**
    ```bash
    flutter run
    ```
 
-## 📁 Structure du projet
+## 📁 Project Structure
 
 ```
 lib/
-├── core/                    # Logique métier centrale
-│   ├── models/             # Modèles de données
-│   ├── providers/          # Gestion d'état
-│   ├── services/           # Services métier
-│   └── utils/              # Utilitaires
-├── features/               # Fonctionnalités par module
-│   ├── auth/              # Authentification
-│   ├── donations/         # Gestion des dons
-│   ├── reservations/      # Système de réservations
-│   ├── maps/              # Cartographie
+├── core/                    # Core business logic
+│   ├── models/             # Data models
+│   ├── providers/          # State management
+│   ├── services/           # Business services
+│   └── utils/              # Utilities
+├── features/               # Features by module
+│   ├── auth/              # Authentication
+│   ├── donations/         # Donation management
+│   ├── reservations/      # Reservation system
+│   ├── maps/              # Mapping
 │   └── notifications/     # Notifications
-├── services/              # Services de stockage
-└── shared/                # Composants partagés
+├── services/              # Storage services
+└── shared/                # Shared components
 ```
 
-## 🎯 Utilisation
+## 🎯 Usage
 
-### Pour les donateurs
-1. **S'inscrire** en tant que donateur
-2. **Créer un don** avec photos et détails
-3. **Gérer les réservations** reçues
-4. **Confirmer les récupérations**
+### For Donors
+1. **Register** as a donor
+2. **Create a donation** with photos and details
+3. **Manage received reservations**
+4. **Confirm pickups**
 
-### Pour les bénéficiaires
-1. **S'inscrire** en tant que bénéficiaire
-2. **Découvrir les dons** disponibles
-3. **Réserver** les produits souhaités
-4. **Récupérer** aux adresses indiquées
+### For Beneficiaries
+1. **Register** as a beneficiary
+2. **Discover available donations**
+3. **Reserve** desired products
+4. **Pickup** at indicated addresses
 
 ## 🔧 Configuration
 
-### Mode de stockage
-Dans `lib/core/config/app_config.dart` :
+### Storage Mode
+In `lib/core/config/app_config.dart`:
 ```dart
-// Mode local (par défaut)
+// Local mode (default)
 static const String storageMode = 'local';
 
-// Mode Firebase
+// Firebase mode
 static const String storageMode = 'firebase';
 ```
 
-### Personnalisation
-- **Thème** : `lib/core/theme/`
-- **Localisation** : Support français/anglais
-- **Permissions** : Géolocalisation, notifications
+### Customization
+- **Theme**: `lib/core/theme/`
+- **Localization**: French/English support
+- **Permissions**: Geolocation, notifications
 
-## 🤝 Contribution
+## 🤝 Contributing
 
-1. Fork le projet
-2. Créer une branche (`git checkout -b feature/nouvelle-fonctionnalite`)
-3. Commit les changements (`git commit -m 'Ajout nouvelle fonctionnalité'`)
-4. Push vers la branche (`git push origin feature/nouvelle-fonctionnalite`)
-5. Ouvrir une Pull Request
+1. Fork the project
+2. Create a branch (`git checkout -b feature/new-feature`)
+3. Commit changes (`git commit -m 'Add new feature'`)
+4. Push to branch (`git push origin feature/new-feature`)
+5. Open a Pull Request
 
-## 📄 Licence
+## 📄 License
 
-Ce projet est sous licence MIT. Voir le fichier `LICENSE` pour plus de détails.
+This project is under MIT license. See the `LICENSE` file for more details.
 
 ## 📞 Contact
 
-- **Email** : contact@foodlink.app
-- **GitHub** : [FoodLink Repository](https://github.com/votre-username/foodlink)
+- **Email**: contact@foodlink.app
+- **GitHub**: [FoodLink Repository](https://github.com/acharbel54/foodlink)
 
-## 🙏 Remerciements
+## 🙏 Acknowledgments
 
-Merci à tous les contributeurs qui rendent cette application possible et qui participent à la lutte contre le gaspillage alimentaire.
+Thanks to all contributors who make this application possible and who participate in the fight against food waste.
 
 ---
 
-**Ensemble, réduisons le gaspillage alimentaire ! 🌱**
+**Together, let's reduce food waste! 🌱**

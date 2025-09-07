@@ -142,7 +142,7 @@ class ReservationCard extends StatelessWidget {
                         ),
                         const SizedBox(width: 4),
                         Text(
-                          'Réservé ${AppDateUtils.DateUtils.getRelativeTime(reservation.createdAt)}',
+                          'Reserved ${AppDateUtils.DateUtils.getRelativeTime(reservation.createdAt)}',
                           style: TextStyle(
                             fontSize: 12,
                             color: Colors.grey[600],
@@ -186,7 +186,7 @@ class ReservationCard extends StatelessWidget {
                           ),
                           const SizedBox(width: 4),
                           Text(
-                            'Récupéré ${AppDateUtils.DateUtils.getRelativeTime(reservation.completedAt!)}',
+                            'Picked up ${AppDateUtils.DateUtils.getRelativeTime(reservation.completedAt!)}',
                             style: TextStyle(
                               fontSize: 12,
                               color: Colors.green[600],
@@ -308,25 +308,25 @@ class ReservationCard extends StatelessWidget {
       case ReservationStatus.pending:
         backgroundColor = Colors.orange[100]!;
         textColor = Colors.orange[800]!;
-        text = 'En attente';
+        text = 'Pending';
         icon = Icons.schedule;
         break;
       case ReservationStatus.confirmed:
         backgroundColor = Colors.blue[100]!;
         textColor = Colors.blue[800]!;
-        text = 'Confirmée';
+        text = 'Confirmed';
         icon = Icons.check_circle;
         break;
       case ReservationStatus.completed:
         backgroundColor = Colors.green[100]!;
         textColor = Colors.green[800]!;
-        text = 'Terminée';
+        text = 'Completed';
         icon = Icons.done_all;
         break;
       case ReservationStatus.cancelled:
         backgroundColor = Colors.red[100]!;
         textColor = Colors.red[800]!;
-        text = 'Annulée';
+        text = 'Cancelled';
         icon = Icons.cancel;
         break;
       default:
@@ -380,7 +380,7 @@ class ReservationCard extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
           ),
           child: const Text(
-            'Annuler',
+            'Cancel',
             style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w600,
@@ -404,7 +404,7 @@ class ReservationCard extends StatelessWidget {
             minimumSize: Size.zero,
           ),
           child: const Text(
-            'Confirmer',
+            'Confirm',
             style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w600,
@@ -428,7 +428,7 @@ class ReservationCard extends StatelessWidget {
             minimumSize: Size.zero,
           ),
           child: const Text(
-            'Marquer récupéré',
+            'Mark as picked up',
             style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w600,

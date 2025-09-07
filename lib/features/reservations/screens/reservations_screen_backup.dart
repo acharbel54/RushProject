@@ -58,7 +58,7 @@ class _ReservationsScreenState extends State<ReservationsScreen> {
       backgroundColor: Colors.grey[50],
       appBar: AppBar(
         title: const Text(
-          'Réservations',
+          'Reservations',
           style: TextStyle(
             fontWeight: FontWeight.w600,
             color: Colors.black87,
@@ -208,7 +208,7 @@ class _ReservationsScreenState extends State<ReservationsScreen> {
                         backgroundColor: Colors.red,
                         foregroundColor: Colors.white,
                       ),
-                      child: const Text('Annuler la réservation'),
+                      child: const Text('Cancel Reservation'),
                     ),
                   ),
                 ],
@@ -232,7 +232,7 @@ class _ReservationsScreenState extends State<ReservationsScreen> {
           ),
           const SizedBox(height: 24),
           const Text(
-            'Aucune réservation',
+            'No Reservations',
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
@@ -279,10 +279,10 @@ class _ReservationsScreenState extends State<ReservationsScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Annuler la réservation'),
+        title: const Text('Cancel Reservation'),
         content: const Text(
-          'Êtes-vous sûr de vouloir annuler cette réservation ? '
-          'Cette action ne peut pas être annulée.',
+          'Are you sure you want to cancel this reservation? '
+            'This action cannot be undone.',
         ),
         actions: [
           TextButton(
@@ -313,7 +313,7 @@ class _ReservationsScreenState extends State<ReservationsScreen> {
         if (success) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text('Réservation annulée avec succès'),
+              content: Text('Reservation cancelled successfully'),
               backgroundColor: Color(0xFF4CAF50),
             ),
           );

@@ -47,39 +47,39 @@ class _SplashScreenState extends State<SplashScreen>
     
     _animationController.forward();
     
-    // Initialiser l'authentification et naviguer après 3 secondes
+    // Initialize authentication and navigate after 3 seconds
     _initializeApp();
   }
 
   Future<void> _initializeApp() async {
     final authProvider = Provider.of<SimpleAuthProvider>(context, listen: false);
     
-    // Attendre que l'animation se termine
+    // Wait for animation to complete
     await Future.delayed(const Duration(milliseconds: 3000));
     
     if (!mounted) return;
     
     try {
-      // Vérifier si l'utilisateur est déjà connecté
-      // Vérification d'état simplifiée - l'utilisateur est déjà chargé dans le provider
+      // Check if user is already logged in
+      // Simplified state check - user is already loaded in provider
       
       if (!mounted) return;
       
-      // Vérifier si c'est la première fois que l'utilisateur ouvre l'app
+      // Check if it's the first time user opens the app
       final isFirstTime = await _checkFirstTime();
       
       if (authProvider.isAuthenticated) {
-        // Utilisateur connecté, aller à l'écran principal
+        // User logged in, go to main screen
         Navigator.of(context).pushReplacementNamed(MainNavigationScreen.routeName);
       } else if (isFirstTime) {
-        // Première fois, montrer l'onboarding
+        // First time, show onboarding
         Navigator.of(context).pushReplacementNamed(OnboardingScreen.routeName);
       } else {
-        // Pas la première fois, aller directement à la connexion
+        // Not first time, go directly to login
         Navigator.of(context).pushReplacementNamed(LoginScreen.routeName);
       }
     } catch (e) {
-      // En cas d'erreur, aller à l'écran de connexion
+      // In case of error, go to login screen
       if (mounted) {
         Navigator.of(context).pushReplacementNamed(LoginScreen.routeName);
       }
@@ -87,8 +87,8 @@ class _SplashScreenState extends State<SplashScreen>
   }
 
   Future<bool> _checkFirstTime() async {
-    // TODO: Implémenter la vérification avec SharedPreferences
-    // Pour l'instant, on considère que c'est toujours la première fois
+    // TODO: Implement verification with SharedPreferences
+    // For now, we consider it's always the first time
     return true;
   }
 
@@ -113,7 +113,7 @@ class _SplashScreenState extends State<SplashScreen>
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    // Logo principal
+                    // Main logo
                     Container(
                       width: 120,
                       height: 120,
@@ -137,7 +137,7 @@ class _SplashScreenState extends State<SplashScreen>
                     
                     const SizedBox(height: 32),
                     
-                    // Nom de l'application
+                    // Application name
                     const Text(
                       'FoodLink',
                       style: TextStyle(
@@ -152,7 +152,7 @@ class _SplashScreenState extends State<SplashScreen>
                     
                     // Slogan
                     const Text(
-                      'Moins de gaspillage, plus de solidarité.',
+                      'Less waste, more sharing.',
                       style: TextStyle(
                         fontSize: 16,
                         color: Colors.white70,
@@ -163,7 +163,7 @@ class _SplashScreenState extends State<SplashScreen>
                     
                     const SizedBox(height: 60),
                     
-                    // Indicateur de chargement
+                    // Loading indicator
                     const SizedBox(
                       width: 40,
                       height: 40,

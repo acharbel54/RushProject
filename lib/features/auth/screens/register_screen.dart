@@ -45,7 +45,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     if (!_acceptTerms) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Veuillez accepter les conditions d\'utilisation'),
+          content: Text('Please accept the terms of use'),
           backgroundColor: Colors.red,
         ),
       );
@@ -55,7 +55,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     final authProvider = Provider.of<SimpleAuthProvider>(context, listen: false);
     
     try {
-      // Première tentative avec timeout
+      // First attempt with timeout
       bool success = await authProvider.signUp(
         email: _emailController.text.trim(),
         password: _passwordController.text,
@@ -64,37 +64,37 @@ class _RegisterScreenState extends State<RegisterScreen> {
         phoneNumber: null,
       );
       
-      // Si échec avec timeout, essayer sans timeout
+      // If timeout fails, try without timeout
       if (!success) {
         
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text('Connexion lente détectée. Nouvelle tentative sans limite de temps...'),
+              content: Text('Slow connection detected. Retrying without timeout...'),
               backgroundColor: Colors.orange,
               duration: Duration(seconds: 3),
             ),
           );
         }
         
-        // Pas de retry nécessaire avec l'authentification simple
+        // No retry needed with simple authentication
       }
       
       if (mounted) {
         if (success) {
-          // Afficher un message de succès
+          // Show success message
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text('Compte créé avec succès ! Vérifiez votre email.'),
+              content: Text('Account created successfully! Check your email.'),
               backgroundColor: Colors.green,
             ),
           );
           
-          // Rediriger vers l'écran de connexion
+          // Redirect to login screen
           Navigator.of(context).pushReplacementNamed(LoginScreen.routeName);
         } else {
-          // Afficher l'erreur depuis le provider
-          final errorMessage = authProvider.errorMessage ?? 'Erreur lors de la création du compte';
+          // Display error from provider
+          final errorMessage = authProvider.errorMessage ?? 'Error creating account';
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(errorMessage),
@@ -116,10 +116,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   Future<void> _handleGoogleRegister() async {
-    // Google Sign-In non disponible avec l'authentification simple
+    // Google Sign-In not available with simple authentication
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
-        content: Text('Inscription Google non disponible en mode simple'),
+        content: Text('Google Sign-Up not available in simple mode'),
         backgroundColor: Colors.orange,
       ),
     );
@@ -139,7 +139,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               children: [
                 const SizedBox(height: 40),
                 
-                // Logo et titre
+                // Logo and title
                 Center(
                   child: Column(
                     children: [
@@ -167,7 +167,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ),
                       const SizedBox(height: 8),
                       const Text(
-                        'Bienvenue',
+                        'Welcome',
                         style: TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.w600,
@@ -180,18 +180,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 
                 const SizedBox(height: 48),
                 
-                // Champ nom
+                // Name field
                 AuthTextField(
                   controller: _nameController,
-                  labelText: 'Nom complet',
-                  hintText: 'Entrez votre nom complet',
+                  labelText: 'Full Name',
+                  hintText: 'Enter your full name',
                   prefixIcon: Icons.person_outlined,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Veuillez entrer votre nom';
+                      return 'Please enter your name';
                     }
                     if (value.length < 2) {
-                      return 'Le nom doit contenir au moins 2 caractères';
+                      return 'Name must contain at least 2 characters';
                     }
                     return null;
                   },
@@ -199,19 +199,19 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 
                 const SizedBox(height: 16),
                 
-                // Champ email
+                // Email field
                 AuthTextField(
                   controller: _emailController,
                   labelText: 'Email',
-                  hintText: 'Entrez votre email',
+                  hintText: 'Enter your email',
                   keyboardType: TextInputType.emailAddress,
                   prefixIcon: Icons.email_outlined,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Veuillez entrer votre email';
+                      return 'Please enter your email';
                     }
                     if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
-                      return 'Veuillez entrer un email valide';
+                      return 'Please enter a valid email';
                     }
                     return null;
                   },
@@ -219,9 +219,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 
                 const SizedBox(height: 16),
                 
-                // Sélection du type d'utilisateur
+                // User type selection
                 const Text(
-                  'Je suis :',
+                  'I am a:',
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
@@ -264,7 +264,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               ),
                               const SizedBox(height: 8),
                               Text(
-                                'Bénéficiaire',
+                                'Beneficiary',
                                 style: TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.w600,
@@ -275,7 +275,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               ),
                               const SizedBox(height: 4),
                               Text(
-                                'Je reçois de l\'aide',
+                                'I receive help',
                                 style: TextStyle(
                                   fontSize: 12,
                                   color: Colors.grey[600],
@@ -320,7 +320,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               ),
                               const SizedBox(height: 8),
                               Text(
-                                'Donateur',
+                                'Donor',
                                 style: TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.w600,
@@ -331,7 +331,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               ),
                               const SizedBox(height: 4),
                               Text(
-                                'Je donne de l\'aide',
+                                'I give help',
                                 style: TextStyle(
                                   fontSize: 12,
                                   color: Colors.grey[600],
@@ -348,11 +348,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 
                 const SizedBox(height: 24),
                 
-                // Champ mot de passe
+                // Password field
                 AuthTextField(
                   controller: _passwordController,
-                  labelText: 'Mot de passe',
-                  hintText: 'Entrez votre mot de passe',
+                  labelText: 'Password',
+                  hintText: 'Enter your password',
                   obscureText: _obscurePassword,
                   prefixIcon: Icons.lock_outlined,
                   suffixIcon: IconButton(
@@ -367,10 +367,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Veuillez entrer un mot de passe';
+                      return 'Please enter a password';
                     }
                     if (value.length < 6) {
-                      return 'Le mot de passe doit contenir au moins 6 caractères';
+                      return 'Password must contain at least 6 characters';
                     }
                     return null;
                   },
@@ -378,11 +378,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 
                 const SizedBox(height: 16),
                 
-                // Champ confirmation mot de passe
+                // Password confirmation field
                 AuthTextField(
                   controller: _confirmPasswordController,
-                  labelText: 'Confirmer le mot de passe',
-                  hintText: 'Confirmez votre mot de passe',
+                  labelText: 'Confirm Password',
+                  hintText: 'Confirm your password',
                   obscureText: _obscureConfirmPassword,
                   prefixIcon: Icons.lock_outlined,
                   suffixIcon: IconButton(
@@ -397,10 +397,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Veuillez confirmer votre mot de passe';
+                      return 'Please confirm your password';
                     }
                     if (value != _passwordController.text) {
-                      return 'Les mots de passe ne correspondent pas';
+                      return 'Passwords do not match';
                     }
                     return null;
                   },
@@ -408,7 +408,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 
                 const SizedBox(height: 16),
                 
-                // Accepter les conditions
+                // Accept terms
                 Row(
                   children: [
                     Checkbox(
@@ -428,17 +428,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             color: Colors.black54,
                           ),
                           children: [
-                            TextSpan(text: 'J\'accepte les '),
+                            TextSpan(text: 'I accept the '),
                             TextSpan(
-                              text: 'conditions d\'utilisation',
+                              text: 'terms of use',
                               style: TextStyle(
                                 color: Color(0xFF4CAF50),
                                 fontWeight: FontWeight.w500,
                               ),
                             ),
-                            TextSpan(text: ' et la '),
+                            TextSpan(text: ' and '),
                             TextSpan(
-                              text: 'politique de confidentialité',
+                              text: 'privacy policy',
                               style: TextStyle(
                                 color: Color(0xFF4CAF50),
                                 fontWeight: FontWeight.w500,
@@ -453,11 +453,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 
                 const SizedBox(height: 32),
                 
-                // Bouton d'inscription
+                // Sign up button
                 Consumer<SimpleAuthProvider>(
                   builder: (context, authProvider, child) {
                     return AuthButton(
-                      text: 'S\'inscrire',
+                      text: 'Sign Up',
                       onPressed: authProvider.isLoading ? null : _handleRegister,
                       isLoading: authProvider.isLoading,
                     );
@@ -466,14 +466,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 
                 const SizedBox(height: 24),
                 
-                // Ou
+                // Or
                 const Row(
                   children: [
                     Expanded(child: Divider()),
                     Padding(
                       padding: EdgeInsets.symmetric(horizontal: 16),
                       child: Text(
-                        'Ou',
+                        'Or',
                         style: TextStyle(
                           color: Colors.black54,
                           fontSize: 14,
@@ -486,11 +486,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 
                 const SizedBox(height: 24),
                 
-                // Inscription avec Google
+                // Sign up with Google
                 Consumer<SimpleAuthProvider>(
                   builder: (context, authProvider, child) {
                     return SocialLoginButton(
-                      text: 'Continuer avec Google',
+                      text: 'Continue with Google',
                       icon: Icons.g_mobiledata,
                       onPressed: authProvider.isLoading ? null : _handleGoogleRegister,
                       isLoading: authProvider.isLoading,
@@ -500,12 +500,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 
                 const SizedBox(height: 32),
                 
-                // Lien vers la connexion
+                // Link to login
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     const Text(
-                      'Déjà un compte ? ',
+                      'Already have an account? ',
                       style: TextStyle(
                         color: Colors.black54,
                         fontSize: 14,
@@ -516,7 +516,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         Navigator.of(context).pushReplacementNamed(LoginScreen.routeName);
                       },
                       child: const Text(
-                        'Se connecter',
+                        'Sign In',
                         style: TextStyle(
                           color: Color(0xFF4CAF50),
                           fontSize: 14,

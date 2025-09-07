@@ -36,9 +36,9 @@ class _MyDonationsScreenState extends State<MyDonationsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Mes dons'),
+        title: const Text('My Donations'),
         elevation: 0,
-        // Actions supprimées
+        // Actions removed
       ),
       body: Consumer<DonationProvider>(
         builder: (context, donationProvider, child) {
@@ -79,7 +79,7 @@ class _MyDonationsScreenState extends State<MyDonationsScreen> {
             ),
             const SizedBox(height: 16),
             Text(
-              'Aucun don créé',
+              'No donations created',
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
@@ -88,7 +88,7 @@ class _MyDonationsScreenState extends State<MyDonationsScreen> {
             ),
             const SizedBox(height: 8),
             Text(
-              'Commencez par créer votre premier don',
+              'Start by creating your first donation',
               style: TextStyle(
                 color: Colors.grey[500],
               ),
@@ -99,7 +99,7 @@ class _MyDonationsScreenState extends State<MyDonationsScreen> {
                 Navigator.of(context).pushNamed(CreateDonationScreen.routeName);
               },
               icon: const Icon(Icons.add),
-              label: const Text('Créer un don'),
+              label: const Text('Create Donation'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF4CAF50),
                 foregroundColor: Colors.white,
@@ -247,13 +247,13 @@ class _MyDonationsScreenState extends State<MyDonationsScreen> {
   String _getStatusText(DonationStatus status) {
     switch (status) {
       case DonationStatus.disponible:
-        return 'Disponible';
+        return 'Available';
       case DonationStatus.reserve:
-        return 'Réservé';
+        return 'Reserved';
       case DonationStatus.recupere:
-        return 'Récupéré';
+        return 'Collected';
       case DonationStatus.expire:
-        return 'Expiré';
+        return 'Expired';
       default:
         return status.name;
     }

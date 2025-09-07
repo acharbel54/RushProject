@@ -28,10 +28,10 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   Future<void> _handleResetPassword() async {
     if (!_formKey.currentState!.validate()) return;
 
-    // Réinitialisation de mot de passe non disponible avec l'authentification simple
+    // Password reset not available with simple authentication
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
-        content: Text('Réinitialisation de mot de passe non disponible en mode simple'),
+        content: Text('Password reset not available in simple mode'),
         backgroundColor: Colors.orange,
       ),
     );
@@ -46,7 +46,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
         
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Email de réinitialisation envoyé ! Vérifiez votre boîte mail.'),
+            content: Text('Reset email sent! Check your mailbox.'),
             backgroundColor: Colors.green,
           ),
         );
@@ -85,7 +85,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
               children: [
                 const SizedBox(height: 40),
                 
-                // Icône et titre
+                // Icon and title
                 Center(
                   child: Column(
                     children: [
@@ -104,7 +104,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                       ),
                       const SizedBox(height: 24),
                       Text(
-                        _emailSent ? 'Email envoyé !' : 'Mot de passe oublié ?',
+                        _emailSent ? 'Email sent!' : 'Forgot password?',
                         style: const TextStyle(
                           fontSize: 28,
                           fontWeight: FontWeight.bold,
@@ -114,8 +114,8 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                       const SizedBox(height: 8),
                       Text(
                         _emailSent 
-                            ? 'Nous avons envoyé un lien de réinitialisation à votre adresse email.'
-                            : 'Pas de problème ! Entrez votre email et nous vous enverrons un lien pour réinitialiser votre mot de passe.',
+                            ? 'We have sent a reset link to your email address.'
+                            : 'No problem! Enter your email and we will send you a link to reset your password.',
                         textAlign: TextAlign.center,
                         style: const TextStyle(
                           fontSize: 16,
@@ -130,19 +130,19 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                 const SizedBox(height: 40),
                 
                 if (!_emailSent) ...[
-                  // Champ email
+                  // Email field
                   AuthTextField(
                     controller: _emailController,
                     labelText: 'Email',
-                    hintText: 'Entrez votre adresse email',
+                    hintText: 'Enter your email address',
                     keyboardType: TextInputType.emailAddress,
                     prefixIcon: Icons.email_outlined,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Veuillez entrer votre email';
+                        return 'Please enter your email';
                       }
                       if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
-                        return 'Veuillez entrer un email valide';
+                        return 'Please enter a valid email';
                       }
                       return null;
                     },
@@ -150,11 +150,11 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                   
                   const SizedBox(height: 32),
                   
-                  // Bouton d'envoi
+                  // Send button
                   Consumer<SimpleAuthProvider>(
                     builder: (context, authProvider, child) {
                       return AuthButton(
-                        text: 'Envoyer le lien',
+                        text: 'Send link',
                         onPressed: authProvider.isLoading ? null : _handleResetPassword,
                         isLoading: authProvider.isLoading,
                         backgroundColor: Colors.orange[600]!,
@@ -162,7 +162,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                     },
                   ),
                 ] else ...[
-                  // Instructions après envoi
+                  // Instructions after sending
                   Container(
                     padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
@@ -179,7 +179,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                         ),
                         const SizedBox(height: 12),
                         const Text(
-                          'Instructions :',
+                          'Instructions:',
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
@@ -188,10 +188,10 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                         ),
                         const SizedBox(height: 8),
                         const Text(
-                          '1. Vérifiez votre boîte de réception\n'
-                          '2. Cliquez sur le lien dans l\'email\n'
-                          '3. Créez un nouveau mot de passe\n'
-                          '4. Connectez-vous avec vos nouveaux identifiants',
+                          '1. Check your inbox\n'
+                          '2. Click on the link in the email\n'
+                          '3. Create a new password\n'
+                          '4. Log in with your new credentials',
                           style: TextStyle(
                             fontSize: 14,
                             color: Colors.black54,
@@ -204,7 +204,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                   
                   const SizedBox(height: 24),
                   
-                  // Bouton pour renvoyer l'email
+                  // Button to resend email
                   TextButton(
                     onPressed: () {
                       setState(() {
@@ -212,7 +212,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                       });
                     },
                     child: const Text(
-                      'Renvoyer l\'email',
+                      'Resend email',
                       style: TextStyle(
                         color: Color(0xFF4CAF50),
                         fontSize: 16,
@@ -224,12 +224,12 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                 
                 const SizedBox(height: 40),
                 
-                // Retour à la connexion
+                // Back to login
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     const Text(
-                      'Vous vous souvenez de votre mot de passe ? ',
+                      'Do you remember your password? ',
                       style: TextStyle(
                         color: Colors.black54,
                         fontSize: 14,
@@ -243,7 +243,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                         );
                       },
                       child: const Text(
-                        'Se connecter',
+                        'Log in',
                         style: TextStyle(
                           color: Color(0xFF4CAF50),
                           fontSize: 14,

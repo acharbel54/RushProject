@@ -49,7 +49,7 @@ class _DonationDetailScreenState extends State<DonationDetailScreen> {
       final authProvider = Provider.of<SimpleAuthProvider>(context, listen: false);
       final loadedDonation = await donationProvider.getDonationById(widget.donationId);
       
-      // Charger les informations du donateur
+      // Load donor information
       SimpleUser? loadedDonorInfo;
       if (loadedDonation != null && loadedDonation.donorId.isNotEmpty) {
         loadedDonorInfo = await authProvider.getUserById(loadedDonation.donorId);
@@ -77,7 +77,7 @@ class _DonationDetailScreenState extends State<DonationDetailScreen> {
     if (isLoading) {
       return Scaffold(
         appBar: AppBar(
-          title: const Text('Détails du don'),
+          title: const Text('Donation Details'),
           backgroundColor: Colors.white,
           foregroundColor: Colors.black,
           elevation: 0,
@@ -92,7 +92,7 @@ class _DonationDetailScreenState extends State<DonationDetailScreen> {
     if (error != null || donation == null) {
       return Scaffold(
         appBar: AppBar(
-          title: const Text('Détails du don'),
+          title: const Text('Donation Details'),
           backgroundColor: Colors.white,
           foregroundColor: Colors.black,
           elevation: 0,
@@ -108,7 +108,7 @@ class _DonationDetailScreenState extends State<DonationDetailScreen> {
               ),
               const SizedBox(height: 16),
               Text(
-                'Don introuvable',
+                'Donation not found',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w600,
@@ -117,7 +117,7 @@ class _DonationDetailScreenState extends State<DonationDetailScreen> {
               ),
               const SizedBox(height: 8),
               Text(
-                error ?? 'Ce don n\'existe plus ou a été supprimé',
+                error ?? 'This donation no longer exists or has been deleted',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: Colors.grey[500],
@@ -126,7 +126,7 @@ class _DonationDetailScreenState extends State<DonationDetailScreen> {
               const SizedBox(height: 16),
               ElevatedButton(
                 onPressed: () => Navigator.of(context).pop(),
-                child: const Text('Retour'),
+                child: const Text('Back'),
               ),
             ],
           ),
@@ -137,7 +137,7 @@ class _DonationDetailScreenState extends State<DonationDetailScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: const Text('Détails du don'),
+        title: const Text('Donation Details'),
         backgroundColor: Colors.white,
         foregroundColor: Colors.black,
         elevation: 0,
@@ -162,10 +162,10 @@ class _DonationDetailScreenState extends State<DonationDetailScreen> {
             ),
             const SizedBox(height: 24),
             
-            // Section Quantité
+            // Quantity section
             _buildInfoSection(
               Icons.inventory_2_outlined,
-              'Quantité',
+              'Quantity',
               donation!.quantity,
               const Color(0xFFFFA726), // Orange
             ),
@@ -174,7 +174,7 @@ class _DonationDetailScreenState extends State<DonationDetailScreen> {
             // Section Date d'expiration
             _buildInfoSection(
               Icons.calendar_today,
-              'Date d\'expiration',
+              'Expiration Date',
               DateFormat('dd MMMM yyyy', 'fr_FR').format(donation!.expirationDate),
               const Color(0xFFFFA726), // Orange
             ),
@@ -183,18 +183,18 @@ class _DonationDetailScreenState extends State<DonationDetailScreen> {
             // Section Instructions de récupération
             _buildInfoSection(
               Icons.info_outline,
-              'Instructions de récupération',
+              'Pickup Instructions',
               donation!.description.isNotEmpty 
                   ? donation!.description 
-                  : 'Se présenter à l\'arrière du restaurant entre 14h et 16h. Sonner à la porte de service.',
+                  : 'Present yourself at the back of the restaurant between 2pm and 4pm. Ring the service door.',
               const Color(0xFFFFA726), // Orange
             ),
             const SizedBox(height: 16),
             
-            // Section Contact du donateur
+            // Donor contact section
             _buildInfoSection(
               Icons.phone,
-              'Contact du donateur',
+              'Donor Contact',
               donorInfo?.displayName ?? 'Jean Dupont - 06 12 34 56 78',
               const Color(0xFFFFA726), // Orange
             ),
@@ -203,7 +203,7 @@ class _DonationDetailScreenState extends State<DonationDetailScreen> {
             // Section Localisation
             _buildInfoSection(
               Icons.location_on,
-              'Localisation',
+              'Location',
               donation!.address,
               const Color(0xFFFFA726), // Orange
             ),
@@ -242,7 +242,7 @@ class _DonationDetailScreenState extends State<DonationDetailScreen> {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'Aucune image disponible',
+                      'No image available',
                       style: TextStyle(
                         color: Colors.grey[600],
                         fontSize: 14,
@@ -329,7 +329,7 @@ class _DonationDetailScreenState extends State<DonationDetailScreen> {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        'Image non disponible',
+                        'Image not available',
                         style: TextStyle(
                           color: Colors.grey[600],
                           fontSize: 14,
@@ -353,7 +353,7 @@ class _DonationDetailScreenState extends State<DonationDetailScreen> {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Image non disponible',
+                    'Image not available',
                     style: TextStyle(
                       color: Colors.grey[600],
                       fontSize: 14,
@@ -389,7 +389,7 @@ class _DonationDetailScreenState extends State<DonationDetailScreen> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Image non disponible',
+                  'Image not available',
                   style: TextStyle(
                     color: Colors.grey[600],
                     fontSize: 14,

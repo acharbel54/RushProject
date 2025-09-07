@@ -52,7 +52,7 @@ class _NotificationsScreenState extends State<NotificationsScreen>
         elevation: 0,
         foregroundColor: AppColors.textPrimary,
         actions: [
-          // Bouton pour marquer toutes comme lues
+          // Button to mark all as read
           Consumer<NotificationProvider>(
             builder: (context, provider, child) {
               final hasUnread = provider.notifications
@@ -63,7 +63,7 @@ class _NotificationsScreenState extends State<NotificationsScreen>
               return IconButton(
                 onPressed: () => _markAllAsRead(context),
                 icon: const Icon(Icons.done_all),
-                tooltip: 'Marquer toutes comme lues',
+                tooltip: 'Mark all as read',
               );
             },
           ),
@@ -77,7 +77,7 @@ class _NotificationsScreenState extends State<NotificationsScreen>
                   children: [
                     Icon(Icons.clear_all, size: 20),
                     SizedBox(width: 8),
-                    Text('Supprimer toutes'),
+                    Text('Delete All'),
                   ],
                 ),
               ),
@@ -107,7 +107,7 @@ class _NotificationsScreenState extends State<NotificationsScreen>
                   return Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Text('Toutes'),
+                      const Text('All'),
                       if (count > 0) ...[
                         const SizedBox(width: 4),
                         Container(
@@ -143,7 +143,7 @@ class _NotificationsScreenState extends State<NotificationsScreen>
                   return Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Text('Non lues'),
+                      const Text('Unread'),
                       if (count > 0) ...[
                         const SizedBox(width: 4),
                         Container(
@@ -170,15 +170,15 @@ class _NotificationsScreenState extends State<NotificationsScreen>
                 },
               ),
             ),
-            const Tab(text: 'Importantes'),
+            const Tab(text: 'Important'),
           ],
         ),
       ),
       body: Column(
         children: [
-          // Filtres
+          // Filters
           _buildFilters(),
-          // Liste des notifications
+          // Notifications list
           Expanded(
             child: TabBarView(
               controller: _tabController,
@@ -202,7 +202,7 @@ class _NotificationsScreenState extends State<NotificationsScreen>
         child: Row(
           children: [
             NotificationFilterChip(
-              label: 'Toutes',
+              label: 'All',
               isSelected: _selectedFilter == null,
               onTap: () => setState(() => _selectedFilter = null),
             ),
@@ -244,7 +244,7 @@ class _NotificationsScreenState extends State<NotificationsScreen>
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  'Erreur lors du chargement',
+                  'Error loading',
                   style: AppTextStyles.heading3,
                 ),
                 const SizedBox(height: 8),
@@ -303,12 +303,12 @@ class _NotificationsScreenState extends State<NotificationsScreen>
     switch (filter) {
       case NotificationFilter.unread:
         title = 'Aucune notification non lue';
-        subtitle = 'Toutes vos notifications ont été lues';
+        subtitle = 'All your notifications have been read';
         icon = Icons.mark_email_read;
         break;
       case NotificationFilter.important:
         title = 'Aucune notification importante';
-        subtitle = 'Les notifications importantes apparaîtront ici';
+        subtitle = 'Important notifications will appear here';
         icon = Icons.priority_high;
         break;
       default:
@@ -376,25 +376,25 @@ class _NotificationsScreenState extends State<NotificationsScreen>
   String _getTypeLabel(NotificationType type) {
     switch (type) {
       case NotificationType.newReservation:
-        return 'Réservations';
+        return 'Reservations';
       case NotificationType.reservationConfirmed:
-        return 'Confirmées';
+        return 'Confirmed';
       case NotificationType.reservationCancelled:
-        return 'Annulées';
+        return 'Cancelled';
       case NotificationType.reservationCompleted:
-        return 'Terminées';
+        return 'Completed';
       case NotificationType.newDonation:
-        return 'Nouveaux dons';
+        return 'New Donations';
       case NotificationType.donationExpiring:
-        return 'Expirent';
+        return 'Expiring';
       case NotificationType.donationExpired:
-        return 'Expirés';
+        return 'Expired';
       case NotificationType.donationUpdated:
-        return 'Modifiés';
+        return 'Modified';
       case NotificationType.systemMessage:
-        return 'Système';
+        return 'System';
       case NotificationType.reminder:
-        return 'Rappels';
+        return 'Reminders';
     }
   }
 
@@ -467,7 +467,7 @@ class _NotificationsScreenState extends State<NotificationsScreen>
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Fermer'),
+            child: const Text('Close'),
           ),
         ],
       ),
@@ -501,15 +501,15 @@ class _NotificationsScreenState extends State<NotificationsScreen>
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Supprimer toutes les notifications'),
+        title: const Text('Delete All Notifications'),
         content: const Text(
-          'Êtes-vous sûr de vouloir supprimer toutes vos notifications ? '
-          'Cette action est irréversible.',
+          'Are you sure you want to delete all your notifications? '
+          'This action is irreversible.'
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Annuler'),
+            child: const Text('Cancel'),
           ),
           TextButton(
             onPressed: () {
@@ -519,7 +519,7 @@ class _NotificationsScreenState extends State<NotificationsScreen>
             style: TextButton.styleFrom(
               foregroundColor: AppColors.error,
             ),
-            child: const Text('Supprimer'),
+            child: const Text('Delete'),
           ),
         ],
       ),

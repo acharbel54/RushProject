@@ -175,7 +175,7 @@ class FoodLinkLocalApp extends StatelessWidget {
             builder: (context) => const Scaffold(
               body: Center(
                 child: Text(
-                  'Page non trouvée',
+                  'Page not found',
                   style: TextStyle(fontSize: 18),
                 ),
               ),

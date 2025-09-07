@@ -67,7 +67,7 @@ class _ReservationsScreenState extends State<ReservationsScreen> {
       backgroundColor: Colors.grey[50],
       appBar: AppBar(
         title: const Text(
-          'Réservations',
+          'Reservations',
           style: TextStyle(
             fontWeight: FontWeight.w600,
             color: Colors.black87,
@@ -197,7 +197,7 @@ class _ReservationsScreenState extends State<ReservationsScreen> {
                     ),
                     const SizedBox(width: 4),
                     Text(
-                      'Réservé le ${_formatDate(reservation.createdAt)}',
+                      'Reserved on ${_formatDate(reservation.createdAt)}',
                       style: TextStyle(
                         color: Colors.grey[600],
                         fontSize: 12,
@@ -215,7 +215,7 @@ class _ReservationsScreenState extends State<ReservationsScreen> {
                         backgroundColor: Colors.red,
                         foregroundColor: Colors.white,
                       ),
-                      child: const Text('Annuler la réservation'),
+                      child: const Text('Cancel Reservation'),
                     ),
                   ),
                 ],
@@ -239,7 +239,7 @@ class _ReservationsScreenState extends State<ReservationsScreen> {
           ),
           const SizedBox(height: 24),
           const Text(
-            'Aucune réservation',
+            'No reservations',
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
@@ -248,7 +248,7 @@ class _ReservationsScreenState extends State<ReservationsScreen> {
           ),
           const SizedBox(height: 8),
           Text(
-            'Commencez par réserver un don dans la section Découvrir',
+            'Start by reserving a donation in the Discover section',
             style: TextStyle(
               fontSize: 14,
               color: Colors.grey[600],
@@ -268,7 +268,7 @@ class _ReservationsScreenState extends State<ReservationsScreen> {
                 vertical: 12,
               ),
             ),
-            child: const Text('Découvrir les dons'),
+            child: const Text('Discover donations'),
           ),
         ],
       ),
@@ -279,15 +279,15 @@ class _ReservationsScreenState extends State<ReservationsScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Annuler la réservation'),
+        title: const Text('Cancel Reservation'),
         content: const Text(
-          'Êtes-vous sûr de vouloir annuler cette réservation ? '
-          'Cette action ne peut pas être annulée.',
+          'Are you sure you want to cancel this reservation? '
+          'This action cannot be undone.',
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Non'),
+            child: const Text('No'),
           ),
           ElevatedButton(
             onPressed: () => Navigator.of(context).pop(true),
@@ -295,7 +295,7 @@ class _ReservationsScreenState extends State<ReservationsScreen> {
               backgroundColor: Colors.red,
               foregroundColor: Colors.white,
             ),
-            child: const Text('Oui, annuler'),
+            child: const Text('Yes, Cancel'),
           ),
         ],
       ),
@@ -315,7 +315,7 @@ class _ReservationsScreenState extends State<ReservationsScreen> {
         if (success) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text('Réservation annulée avec succès'),
+              content: Text('Reservation cancelled successfully'),
               backgroundColor: Color(0xFF4CAF50),
             ),
           );
@@ -324,7 +324,7 @@ class _ReservationsScreenState extends State<ReservationsScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
-                reservationProvider.error ?? 'Erreur lors de l\'annulation',
+                reservationProvider.error ?? 'Error during cancellation',
               ),
               backgroundColor: Colors.red,
             ),

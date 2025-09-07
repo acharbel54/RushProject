@@ -44,7 +44,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
           );
         }
 
-        // Pages différentes selon le type d'utilisateur
+        // Different pages based on user type
         print('DEBUG: User role detected: ${user.role}');
         print('DEBUG: User role string: ${user.role.toString()}');
         print('DEBUG: Is donor: ${user.role == UserRole.donateur}');
@@ -92,17 +92,17 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
     if (userType == UserRole.donateur) {
       print('DEBUG: Returning donor pages (3 pages)');
       return [
-        DashboardScreen(onTabChanged: (index) => setState(() => _currentIndex = index)), // Accueil donateur
-        const MyDonationsScreen(), // Mes dons
-        const ProfileScreen(), // Profil
+        DashboardScreen(onTabChanged: (index) => setState(() => _currentIndex = index)), // Donor home
+        const MyDonationsScreen(), // My donations
+        const ProfileScreen(), // Profile
       ];
     } else {
       print('DEBUG: Returning beneficiary pages (4 pages)');
       return [
-        DashboardScreen(onTabChanged: (index) => setState(() => _currentIndex = index)), // Accueil bénéficiaire
-        const DiscoverScreen(), // Découvrir (liste des dons)
-        const ReservationsScreen(), // Réservation
-        const ProfileScreen(), // Profil
+        DashboardScreen(onTabChanged: (index) => setState(() => _currentIndex = index)), // Beneficiary home
+        const DiscoverScreen(), // Discover (donations list)
+        const ReservationsScreen(), // Reservations
+        const ProfileScreen(), // Profile
       ];
     }
   }
@@ -113,17 +113,17 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
         BottomNavigationBarItem(
           icon: Icon(Icons.dashboard_outlined),
           activeIcon: Icon(Icons.dashboard),
-          label: 'Accueil',
+          label: 'Home',
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.restaurant_outlined),
           activeIcon: Icon(Icons.restaurant),
-          label: 'Mes dons',
+          label: 'My Donations',
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.person_outlined),
           activeIcon: Icon(Icons.person),
-          label: 'Profil',
+          label: 'Profile',
         ),
       ];
     } else {
@@ -131,22 +131,22 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
         BottomNavigationBarItem(
           icon: Icon(Icons.dashboard_outlined),
           activeIcon: Icon(Icons.dashboard),
-          label: 'Accueil',
+          label: 'Home',
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.explore_outlined),
           activeIcon: Icon(Icons.explore),
-          label: 'Découvrir',
+          label: 'Discover',
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.bookmark_outlined),
           activeIcon: Icon(Icons.bookmark),
-          label: 'Réservation',
+          label: 'Reservations',
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.person_outlined),
           activeIcon: Icon(Icons.person),
-          label: 'Profil',
+          label: 'Profile',
         ),
       ];
     }
@@ -155,7 +155,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
   // Fonction _buildFloatingActionButton supprimée
 }
 
-// Écran de tableau de bord temporaire
+// Temporary dashboard screen
 class DashboardScreen extends StatelessWidget {
   final Function(int)? onTabChanged;
   
@@ -177,7 +177,7 @@ class DashboardScreen extends StatelessWidget {
           backgroundColor: Colors.grey[50],
           appBar: AppBar(
             title: Text(
-              'Bonjour ${(user.displayName ?? user.email).split(' ').first}',
+              'Hello ${(user.displayName ?? user.email).split(' ').first}',
               style: const TextStyle(
                 fontWeight: FontWeight.w600,
                 color: Colors.black87,
@@ -282,8 +282,8 @@ class DashboardScreen extends StatelessWidget {
                               children: [
                                 Text(
                                   user.role == UserRole.donateur
-                                      ? 'Tableau de bord Donateur'
-                                      : 'Tableau de bord Bénéficiaire',
+                                      ? 'Donor Dashboard'
+                                      : 'Beneficiary Dashboard',
                                   style: const TextStyle(
                                     color: Colors.white,
                                     fontSize: 18,
@@ -293,8 +293,8 @@ class DashboardScreen extends StatelessWidget {
                                 const SizedBox(height: 4),
                                 Text(
                                   user.role == UserRole.donateur
-                                      ? 'Partagez vos surplus alimentaires'
-                                      : 'Découvrez les dons disponibles',
+                                      ? 'Share your food surplus'
+                                      : 'Discover available donations',
                                   style: const TextStyle(
                                     color: Colors.white70,
                                     fontSize: 14,
@@ -314,7 +314,7 @@ class DashboardScreen extends StatelessWidget {
                 // Statistiques rapides
                 if (user.role == UserRole.donateur) ...[
                   const Text(
-                    'Mes statistiques',
+                    'My Statistics',
                     style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
@@ -326,7 +326,7 @@ class DashboardScreen extends StatelessWidget {
                     children: [
                       Expanded(
                         child: _buildStatCard(
-                          'Dons créés',
+                          'Donations Created',
                           user.totalDonations.toString(),
                           Icons.restaurant,
                           const Color(0xFF4CAF50),
@@ -335,7 +335,7 @@ class DashboardScreen extends StatelessWidget {
                       const SizedBox(width: 12),
                       Expanded(
                         child: _buildStatCard(
-                          'Kg donnés',
+                          'Kg Donated',
                           '${user.totalKgDonated.toStringAsFixed(1)} kg',
                           Icons.scale,
                           const Color(0xFFFF9800),
@@ -346,9 +346,9 @@ class DashboardScreen extends StatelessWidget {
                   const SizedBox(height: 24),
                 ],
                 
-                // Actions rapides
+                // Quick actions
                 const Text(
-                  'Actions rapides',
+                  'Quick Actions',
                   style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
@@ -359,8 +359,8 @@ class DashboardScreen extends StatelessWidget {
                 
                 if (user.role == UserRole.donateur) ...[
                   _buildActionCard(
-                    'Nouveau don',
-                    'Créer un nouveau don alimentaire',
+                    'New Donation',
+                    'Create a new food donation',
                     Icons.add_circle_outline,
                     const Color(0xFF4CAF50),
                     () {
@@ -369,41 +369,41 @@ class DashboardScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 12),
                   _buildActionCard(
-                    'Mes dons',
-                    'Gérer mes dons existants',
+                    'My Donations',
+                    'Manage my existing donations',
                     Icons.restaurant_outlined,
                     const Color(0xFF2196F3),
                     () {
-                      onTabChanged?.call(1); // Naviguer vers la section Mes dons
+                      onTabChanged?.call(1); // Navigate to My Donations section
                     },
                   ),
                 ] else ...[
                   _buildActionCard(
-                    'Découvrir',
-                    'Voir les dons disponibles',
+                    'Discover',
+                    'View available donations',
                     Icons.explore_outlined,
                     const Color(0xFF4CAF50),
                     () {
-                      onTabChanged?.call(1); // Naviguer vers la section Découvrir
+                      onTabChanged?.call(1); // Navigate to Discover section
                     },
                   ),
                   const SizedBox(height: 12),
                   _buildActionCard(
-                    'Mes réservations',
-                    'Voir mes réservations en cours',
+                    'My Reservations',
+                    'View my current reservations',
                     Icons.bookmark_outlined,
                     const Color(0xFFFF9800),
                     () {
-                      onTabChanged?.call(2); // Naviguer vers l'onglet Réservations
+                      onTabChanged?.call(2); // Navigate to Reservations tab
                     },
                   ),
                 ],
                 
-                // Historique des réservations pour les bénéficiaires
+                // Reservation history for beneficiaries
                 if (user.role == UserRole.beneficiaire) ...[
                   const SizedBox(height: 24),
                   const Text(
-                    'Historique des réservations',
+                    'Reservation History',
                     style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
@@ -565,7 +565,7 @@ class DashboardScreen extends StatelessWidget {
         if (snapshot.hasError) {
           return Center(
             child: Text(
-              'Erreur lors du chargement de l\'historique',
+              'Error loading history',
               style: TextStyle(color: Colors.grey[600]),
             ),
           );
@@ -584,7 +584,7 @@ class DashboardScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Aucune réservation dans l\'historique',
+                  'No reservations in history',
                   style: TextStyle(
                     color: Colors.grey[600],
                     fontSize: 16,
@@ -708,7 +708,7 @@ class DashboardScreen extends StatelessWidget {
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            'Qté: ${reservation.donationQuantity}',
+                            'Qty: ${reservation.donationQuantity}',
                             style: TextStyle(
                               color: Colors.grey[600],
                               fontSize: 12,
@@ -733,25 +733,25 @@ class DashboardScreen extends StatelessWidget {
     final reservationService = JsonReservationService();
     
     try {
-      print('DEBUG _getReservationHistory: Début du chargement');
+      print('DEBUG _getReservationHistory: Starting to load');
       
       // Utiliser SimpleAuthProvider passé en paramètre
       final currentUser = authProvider.currentUser;
-      print('DEBUG _getReservationHistory: Utilisateur actuel: ${currentUser?.id}');
+      print('DEBUG _getReservationHistory: Current user: ${currentUser?.id}');
       
       if (currentUser != null) {
-        print('DEBUG _getReservationHistory: Appel getUserReservations pour ${currentUser.id}');
+        print('DEBUG _getReservationHistory: Calling getUserReservations for ${currentUser.id}');
         final reservations = await reservationService.getUserReservations(currentUser.id);
-        print('DEBUG _getReservationHistory: Réservations récupérées: ${reservations.length}');
+        print('DEBUG _getReservationHistory: Reservations retrieved: ${reservations.length}');
         
-        // Trier par date de création (plus récent en premier)
+        // Sort by creation date (most recent first)
         reservations.sort((a, b) => b.createdAt.compareTo(a.createdAt));
         return reservations;
       } else {
-        print('DEBUG _getReservationHistory: Aucun utilisateur connecté');
+        print('DEBUG _getReservationHistory: No user logged in');
       }
     } catch (e) {
-      print('Erreur lors du chargement de l\'historique: $e');
+      print('Error loading history: $e');
       print('Stack trace: ${StackTrace.current}');
     }
     
@@ -786,8 +786,8 @@ class DashboardScreen extends StatelessWidget {
 
   String _formatDate(DateTime date) {
     final months = [
-      'janvier', 'février', 'mars', 'avril', 'mai', 'juin',
-      'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'
+      'January', 'February', 'March', 'April', 'May', 'June',
+      'July', 'August', 'September', 'October', 'November', 'December'
     ];
     
     return '${date.day} ${months[date.month - 1]} ${date.year}';

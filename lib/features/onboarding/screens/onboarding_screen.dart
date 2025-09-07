@@ -17,26 +17,26 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   final List<OnboardingPage> _pages = [
     OnboardingPage(
-      title: 'Bienvenue sur FoodLink',
-      description: 'Rejoignez une communauté engagée contre le gaspillage alimentaire. Donnez ou recevez de la nourriture facilement.',
+      title: 'Welcome to FoodLink',
+      description: 'Join a community committed to fighting food waste. Give or receive food easily.',
       imagePath: 'assets/images/onboarding1.svg',
       backgroundColor: const Color(0xFF4CAF50),
     ),
     OnboardingPage(
-      title: 'Partagez vos surplus',
-      description: 'Vous avez trop de nourriture ? Partagez-la avec ceux qui en ont besoin. Chaque don compte pour réduire le gaspillage.',
+      title: 'Share your surplus',
+      description: 'Do you have too much food? Share it with those who need it. Every donation counts to reduce waste.',
       imagePath: 'assets/images/onboarding2.svg',
       backgroundColor: const Color(0xFFFF9800),
     ),
     OnboardingPage(
-      title: 'Trouvez de la nourriture',
-      description: 'Découvrez les dons disponibles près de chez vous. Réservez facilement et récupérez gratuitement.',
+      title: 'Find food',
+      description: 'Discover donations available near you. Reserve easily and pick up for free.',
       imagePath: 'assets/images/onboarding3.svg',
       backgroundColor: const Color(0xFF2196F3),
     ),
     OnboardingPage(
-      title: 'Ensemble, agissons',
-      description: 'Rejoignez des milliers de personnes qui luttent contre le gaspillage alimentaire. Votre impact compte !',
+      title: 'Together, let\'s act',
+      description: 'Join thousands of people fighting food waste. Your impact matters!',
       imagePath: 'assets/images/onboarding4.svg',
       backgroundColor: const Color(0xFF9C27B0),
     ),
@@ -69,7 +69,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   }
 
   void _completeOnboarding() {
-    // TODO: Marquer l'onboarding comme terminé dans SharedPreferences
+    // TODO: Mark onboarding as completed in SharedPreferences
     Navigator.of(context).pushReplacementNamed(LoginScreen.routeName);
   }
 
@@ -82,7 +82,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     return Scaffold(
       body: Stack(
         children: [
-          // Pages de l'onboarding
+          // Onboarding pages
           PageView.builder(
             controller: _pageController,
             onPageChanged: (index) {
@@ -96,14 +96,14 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             },
           ),
           
-          // Bouton Skip en haut à droite
+          // Skip button in top right
           Positioned(
             top: 50,
             right: 20,
             child: TextButton(
               onPressed: _skipOnboarding,
               child: const Text(
-                'Passer',
+                'Skip',
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 16,
@@ -113,7 +113,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             ),
           ),
           
-          // Indicateurs de page et boutons de navigation
+          // Page indicators and navigation buttons
           Positioned(
             bottom: 0,
             left: 0,
@@ -123,7 +123,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  // Indicateurs de page
+                  // Page indicators
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: List.generate(
@@ -144,10 +144,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   
                   const SizedBox(height: 32),
                   
-                  // Boutons de navigation
+                  // Navigation buttons
                   Row(
                     children: [
-                      // Bouton Précédent
+                      // Previous button
                       if (_currentPage > 0)
                         Expanded(
                           child: OutlinedButton(
@@ -160,7 +160,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                               ),
                             ),
                             child: const Text(
-                              'Précédent',
+                              'Previous',
                               style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 16,
@@ -172,7 +172,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       
                       if (_currentPage > 0) const SizedBox(width: 16),
                       
-                      // Bouton Suivant/Commencer
+                      // Next/Start button
                       Expanded(
                         flex: _currentPage == 0 ? 1 : 1,
                         child: ElevatedButton(
@@ -187,7 +187,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                             elevation: 0,
                           ),
                           child: Text(
-                            _currentPage == _pages.length - 1 ? 'Commencer' : 'Suivant',
+                            _currentPage == _pages.length - 1 ? 'Get Started' : 'Next',
                             style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w600,
@@ -200,14 +200,14 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   
                   const SizedBox(height: 16),
                   
-                  // Lien vers l'inscription directe
+                  // Direct registration link
                   if (_currentPage == _pages.length - 1)
                     TextButton(
                       onPressed: () {
                         Navigator.of(context).pushReplacementNamed(RegisterScreen.routeName);
                       },
                       child: const Text(
-                        'Créer un compte maintenant',
+                        'Create an account now',
                         style: TextStyle(
                           color: Colors.white70,
                           fontSize: 14,
@@ -254,7 +254,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 ),
               ),
               
-              // Contenu textuel
+              // Text content
               Expanded(
                 flex: 2,
                 child: Column(
@@ -285,7 +285,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 ),
               ),
               
-              const SizedBox(height: 120), // Espace pour les boutons
+              const SizedBox(height: 120), // Space for buttons
             ],
           ),
         ),
@@ -294,7 +294,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   }
 
   Widget _buildIllustration(OnboardingPage page) {
-    // Pour l'instant, on utilise des icônes. Plus tard, on pourra remplacer par des SVG
+    // For now, we use icons. Later, we can replace with SVG
     IconData icon;
     switch (_currentPage) {
       case 0:

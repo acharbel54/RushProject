@@ -12,7 +12,7 @@ class LocalImageService {
     final dbDir = Directory('${directory.path}/base_de_donnees');
     final assetsDir = Directory('${dbDir.path}/assets');
     
-    // Créer les répertoires s'ils n'existent pas
+    // Create directories if they don't exist
     if (!await dbDir.exists()) {
       await dbDir.create(recursive: true);
     }

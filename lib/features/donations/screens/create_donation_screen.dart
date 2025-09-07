@@ -34,17 +34,17 @@ class _CreateDonationScreenState extends State<CreateDonationScreen> {
   bool _isLoadingLocation = false;
   
   final List<Map<String, String>> _categories = [
-    {'value': 'fruits_legumes', 'label': 'Fruits et légumes'},
-    {'value': 'produits_laitiers', 'label': 'Produits laitiers'},
-    {'value': 'viandes_poissons', 'label': 'Viandes et poissons'},
-    {'value': 'cereales_feculents', 'label': 'Céréales et féculents'},
-    {'value': 'conserves_pates', 'label': 'Conserves et pâtes'},
-    {'value': 'boulangerie', 'label': 'Boulangerie'},
-    {'value': 'boissons', 'label': 'Boissons'},
-    {'value': 'autres', 'label': 'Autres'},
+    {'value': 'fruits_legumes', 'label': 'Fruits and vegetables'},
+    {'value': 'produits_laitiers', 'label': 'Dairy products'},
+    {'value': 'viandes_poissons', 'label': 'Meat and fish'},
+    {'value': 'cereales_feculents', 'label': 'Cereals and starches'},
+    {'value': 'conserves_pates', 'label': 'Canned goods and pasta'},
+    {'value': 'boulangerie', 'label': 'Bakery'},
+    {'value': 'boissons', 'label': 'Beverages'},
+    {'value': 'autres', 'label': 'Others'},
   ];
   
-  final List<String> _units = ['kg', 'g', 'L', 'mL', 'pièce(s)', 'portion(s)'];
+  final List<String> _units = ['kg', 'g', 'L', 'mL', 'piece(s)', 'portion(s)'];
 
   @override
   void initState() {
@@ -69,33 +69,33 @@ class _CreateDonationScreenState extends State<CreateDonationScreen> {
     try {
       bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
       if (!serviceEnabled) {
-        throw Exception('Les services de localisation sont désactivés.');
+        throw Exception('Location services are disabled.');
       }
 
       LocationPermission permission = await Geolocator.checkPermission();
       if (permission == LocationPermission.denied) {
         permission = await Geolocator.requestPermission();
         if (permission == LocationPermission.denied) {
-          throw Exception('Les permissions de localisation sont refusées.');
+          throw Exception('Location permissions are denied.');
         }
       }
 
       if (permission == LocationPermission.deniedForever) {
-        throw Exception('Les permissions de localisation sont définitivement refusées.');
+        throw Exception('Location permissions are permanently denied.');
       }
 
       _currentPosition = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high,
       );
       
-      // Optionnel: Récupérer l'adresse à partir des coordonnées
-      // Vous pouvez utiliser un service de géocodage inverse ici
+      // Optional: Get address from coordinates
+      // You can use a reverse geocoding service here
       
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Erreur de localisation: $e'),
+            content: Text('Location error: $e'),
             backgroundColor: Colors.red,
           ),
         );
@@ -111,23 +111,23 @@ class _CreateDonationScreenState extends State<CreateDonationScreen> {
     try {
       final ImagePicker picker = ImagePicker();
       
-      // Afficher un dialog pour choisir la source
+      // Show dialog to choose source
       final ImageSource? source = await showDialog<ImageSource>(
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
-            title: const Text('Choisir une image'),
+            title: const Text('Choose an image'),
             content: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 ListTile(
                   leading: const Icon(Icons.camera_alt),
-                  title: const Text('Appareil photo'),
+                  title: const Text('Camera'),
                   onTap: () => Navigator.of(context).pop(ImageSource.camera),
                 ),
                 ListTile(
                   leading: const Icon(Icons.photo_library),
-                  title: const Text('Galerie'),
+                  title: const Text('Gallery'),
                   onTap: () => Navigator.of(context).pop(ImageSource.gallery),
                 ),
               ],
@@ -154,7 +154,7 @@ class _CreateDonationScreenState extends State<CreateDonationScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Erreur lors de la sélection de l\'image: $e'),
+            content: Text('Error selecting image: $e'),
             backgroundColor: Colors.red,
           ),
         );
@@ -186,7 +186,7 @@ class _CreateDonationScreenState extends State<CreateDonationScreen> {
     if (_currentPosition == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Localisation requise pour créer un don'),
+          content: Text('Location required to create a donation'),
           backgroundColor: Colors.red,
         ),
       );
@@ -199,7 +199,7 @@ class _CreateDonationScreenState extends State<CreateDonationScreen> {
     if (authProvider.currentUser == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Vous devez être connecté pour créer un don'),
+          content: Text('You must be logged in to create a donation'),
           backgroundColor: Colors.red,
         ),
       );
@@ -216,7 +216,7 @@ class _CreateDonationScreenState extends State<CreateDonationScreen> {
       latitude: _currentPosition!.latitude,
       longitude: _currentPosition!.longitude,
       donorId: authProvider.currentUser!.id,
-      donorName: authProvider.currentUser!.displayName ?? 'Donateur',
+      donorName: authProvider.currentUser!.displayName ?? 'Donor',
       images: _selectedImage != null ? [_selectedImage!] : null,
     );
     
@@ -224,7 +224,7 @@ class _CreateDonationScreenState extends State<CreateDonationScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Don créé avec succès!'),
+            content: Text('Donation created successfully!'),
             backgroundColor: Colors.green,
           ),
         );
@@ -234,7 +234,7 @@ class _CreateDonationScreenState extends State<CreateDonationScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(donationProvider.error ?? 'Erreur lors de la création du don'),
+            content: Text(donationProvider.error ?? 'Error creating donation'),
             backgroundColor: Colors.red,
           ),
         );
@@ -246,7 +246,7 @@ class _CreateDonationScreenState extends State<CreateDonationScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Nouveau don'),
+        title: const Text('New Donation'),
         elevation: 0,
       ),
       body: Consumer<DonationProvider>(
@@ -291,14 +291,14 @@ class _CreateDonationScreenState extends State<CreateDonationScreen> {
                                   ),
                                   SizedBox(height: 8),
                                   Text(
-                                    'Ajouter une photo',
+                                    'Add a photo',
                                     style: TextStyle(
                                       color: Colors.grey,
                                       fontSize: 16,
                                     ),
                                   ),
                                   Text(
-                                    'Appuyez pour choisir une image',
+                                    'Tap to choose an image',
                                     style: TextStyle(
                                       color: Colors.grey,
                                       fontSize: 12,
@@ -311,17 +311,17 @@ class _CreateDonationScreenState extends State<CreateDonationScreen> {
                     
                     const SizedBox(height: 24),
                     
-                    // Titre
+                    // Title
                     CustomTextField(
                       controller: _titleController,
-                      labelText: 'Nom du produit',
-                      hintText: 'Ex: Paniers de fruits et légumes',
+                      labelText: 'Product name',
+                      hintText: 'Ex: Fruit and vegetable baskets',
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
-                          return 'Le nom du produit est requis';
+                          return 'Product name is required';
                         }
                         if (value.trim().length < 3) {
-                          return 'Le nom doit contenir au moins 3 caractères';
+                          return 'Name must contain at least 3 characters';
                         }
                         return null;
                       },
@@ -329,11 +329,11 @@ class _CreateDonationScreenState extends State<CreateDonationScreen> {
                     
                     const SizedBox(height: 16),
                     
-                    // Catégorie
+                    // Category
                     DropdownButtonFormField<String>(
                       value: _selectedCategory,
                       decoration: const InputDecoration(
-                        labelText: 'Catégorie',
+                        labelText: 'Category',
                         border: OutlineInputBorder(),
                       ),
                       items: _categories.map((category) {
@@ -353,23 +353,23 @@ class _CreateDonationScreenState extends State<CreateDonationScreen> {
                     
                     const SizedBox(height: 16),
                     
-                    // Quantité et unité
+                    // Quantity and unit
                     Row(
                       children: [
                         Expanded(
                           flex: 2,
                           child: CustomTextField(
                             controller: _quantityController,
-                            labelText: 'Quantité',
+                            labelText: 'Quantity',
                             hintText: '10',
                             keyboardType: TextInputType.number,
                             validator: (value) {
                               if (value == null || value.trim().isEmpty) {
-                                return 'La quantité est requise';
+                                return 'Quantity is required';
                               }
                               final quantity = int.tryParse(value);
                               if (quantity == null || quantity <= 0) {
-                                return 'Quantité invalide';
+                                return 'Invalid quantity';
                               }
                               return null;
                             },
@@ -381,7 +381,7 @@ class _CreateDonationScreenState extends State<CreateDonationScreen> {
                           child: DropdownButtonFormField<String>(
                             value: _selectedUnit,
                             decoration: const InputDecoration(
-                              labelText: 'Unité',
+                              labelText: 'Unit',
                               border: OutlineInputBorder(),
                             ),
                             items: _units.map((unit) {
@@ -404,7 +404,7 @@ class _CreateDonationScreenState extends State<CreateDonationScreen> {
                     
                     const SizedBox(height: 16),
                     
-                    // Date limite de consommation
+                    // Expiration date
                     GestureDetector(
                       onTap: _selectDate,
                       child: Container(
@@ -425,7 +425,7 @@ class _CreateDonationScreenState extends State<CreateDonationScreen> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    'Date limite de consommation',
+                                    'Expiration date',
                                     style: TextStyle(
                                       color: Colors.grey[600],
                                       fontSize: 12,
@@ -453,14 +453,14 @@ class _CreateDonationScreenState extends State<CreateDonationScreen> {
                     CustomTextField(
                       controller: _descriptionController,
                       labelText: 'Description',
-                      hintText: 'Décrivez votre don (état, conditions de récupération...)',
+                      hintText: 'Describe your donation (condition, pickup requirements...)',
                       maxLines: 4,
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
-                          return 'La description est requise';
+                          return 'Description is required';
                         }
                         if (value.trim().length < 10) {
-                          return 'La description doit contenir au moins 10 caractères';
+                          return 'Description must contain at least 10 characters';
                         }
                         return null;
                       },
@@ -468,17 +468,17 @@ class _CreateDonationScreenState extends State<CreateDonationScreen> {
                     
                     const SizedBox(height: 16),
                     
-                    // Adresse
+                    // Address
                     CustomTextField(
                       controller: _addressController,
-                      labelText: 'Adresse de récupération',
-                      hintText: 'Adresse complète où récupérer le don',
+                      labelText: 'Pickup address',
+                      hintText: 'Complete address where to pick up the donation',
                       prefixIcon: _isLoadingLocation 
                           ? Icons.hourglass_empty
                           : Icons.location_on,
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
-                          return 'L\'adresse est requise';
+                          return 'Address is required';
                         }
                         return null;
                       },
@@ -486,9 +486,9 @@ class _CreateDonationScreenState extends State<CreateDonationScreen> {
                     
                     const SizedBox(height: 32),
                     
-                    // Bouton de soumission
+                    // Submit button
                     CustomButton(
-                      text: 'Publier le don',
+                      text: 'Publish Donation',
                       onPressed: _submitDonation,
                       isLoading: donationProvider.isLoading,
                     ),

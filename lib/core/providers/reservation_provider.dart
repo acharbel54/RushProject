@@ -21,7 +21,7 @@ class ReservationProvider with ChangeNotifier {
   bool get isLoading => _isLoading;
   String? get error => _error;
 
-  /// Vérifie si un don est déjà réservé par un utilisateur spécifique
+  /// Checks if a donation is already reserved by a specific user
   bool isDonationReservedByUser(String donationId, String userId) {
     return _userReservations.any((reservation) => 
       reservation.donationId == donationId && 
@@ -32,7 +32,7 @@ class ReservationProvider with ChangeNotifier {
   
   void _setLoading(bool loading) {
     _isLoading = loading;
-    notifyListeners();
+    // Don't notify here to avoid setState during build
   }
 
   void _setError(String? error) {
@@ -40,7 +40,7 @@ class ReservationProvider with ChangeNotifier {
     notifyListeners();
   }
   
-  /// Récupère toutes les réservations
+  /// Fetches all reservations
   Future<void> fetchReservations() async {
     try {
       _setLoading(true);
@@ -49,13 +49,15 @@ class ReservationProvider with ChangeNotifier {
       _reservations = await _reservationService.getAllReservations();
 
       _setLoading(false);
+      notifyListeners();
     } catch (e) {
-      _setError('Erreur lors du chargement des réservations: $e');
+      _setError('Error loading reservations: $e');
       _setLoading(false);
+      notifyListeners();
     }
   }
 
-  /// Récupère les réservations d'un utilisateur spécifique
+  /// Fetches reservations for a specific user
   Future<void> fetchUserReservations(String userId) async {
     try {
       _setLoading(true);
@@ -68,7 +70,7 @@ class ReservationProvider with ChangeNotifier {
         _reservations = await _reservationService.getAllReservations();
       }
       
-      // S'assurer que les réservations de l'utilisateur sont aussi dans la liste globale
+      // Ensure user reservations are also in the global list
       for (final userReservation in _userReservations) {
         if (!_reservations.any((r) => r.id == userReservation.id)) {
           _reservations.add(userReservation);
@@ -78,21 +80,22 @@ class ReservationProvider with ChangeNotifier {
       _setLoading(false);
       notifyListeners();
     } catch (e) {
-      _setError('Erreur lors du chargement de vos réservations: $e');
+      _setError('Error loading your reservations: $e');
       _setLoading(false);
+      notifyListeners();
     }
   }
 
-  /// Récupère les réservations pour les dons d'un donateur
+  /// Fetches reservations for a donor's donations
   Future<void> fetchDonorReservations(String donorId) async {
     try {
       _setLoading(true);
       _setError(null);
 
-      // Récupérer toutes les réservations
+      // Get all reservations
       final allReservations = await _reservationService.getAllReservations();
       
-      // Filtrer les réservations pour ce donateur
+      // Filter reservations for this donor
       _reservations = allReservations.where((reservation) => 
         reservation.donorId == donorId
       ).toList();
@@ -100,12 +103,13 @@ class ReservationProvider with ChangeNotifier {
       _setLoading(false);
       notifyListeners();
     } catch (e) {
-      _setError('Erreur lors du chargement des réservations: $e');
+      _setError('Error loading reservations: $e');
       _setLoading(false);
+      notifyListeners();
     }
   }
   
-  /// Crée une nouvelle réservation
+  /// Creates a new reservation
   Future<bool> createReservation({
     required String donationId,
     required String beneficiaryId,
@@ -137,7 +141,7 @@ class ReservationProvider with ChangeNotifier {
       final beneficiary = await authProvider.getUserById(beneficiaryId);
       final beneficiaryName = beneficiary?.displayName ?? 'Utilisateur';
 
-      // Créer une nouvelle réservation
+      // Create a new reservation
       final reservation = ReservationModel(
         id: DateTime.now().millisecondsSinceEpoch.toString(),
         donationId: donationId,
@@ -151,16 +155,16 @@ class ReservationProvider with ChangeNotifier {
         notes: notes,
         donorName: donation.donorName,
         pickupAddress: donation.address,
-        contactPhone: null, // Pas de téléphone de contact disponible
+        contactPhone: null, // No contact phone available
       );
 
-      // Réserver le don via le service JSON
+      // Reserve the donation via JSON service
       await _donationService.reserveDonation(donationId, beneficiaryId);
       
-      // Sauvegarder la réservation via le service JSON
+      // Save the reservation via JSON service
       await _reservationService.addReservation(reservation);
       
-      // Envoyer une notification au donateur
+      // Send notification to donor
       await _notificationProvider.sendNewReservationNotification(
         donorId: donation.donorId,
         donationTitle: donation.title,
@@ -168,21 +172,22 @@ class ReservationProvider with ChangeNotifier {
         reservationId: reservation.id,
       );
       
-      // Ajouter la réservation aux listes locales
+      // Add reservation to local lists
       _reservations.add(reservation);
       _userReservations.add(reservation);
       
-      notifyListeners();
       _setLoading(false);
+      notifyListeners();
       return true;
     } catch (e) {
-      _setError('Erreur lors de la création de la réservation: $e');
+      _setError('Error creating reservation: $e');
       _setLoading(false);
+      notifyListeners();
       return false;
     }
   }
   
-  /// Met à jour le statut d'une réservation
+  /// Updates the status of a reservation
   Future<bool> updateReservationStatus(
     String reservationId,
     String newStatus,
@@ -191,7 +196,7 @@ class ReservationProvider with ChangeNotifier {
       _setLoading(true);
       _setError(null);
 
-      print('Mise à jour du statut de la réservation $reservationId vers $newStatus');
+      print('Updating reservation status $reservationId to $newStatus');
       
       // Charger les réservations actuelles
       await _reservationService.loadReservations();
@@ -200,11 +205,11 @@ class ReservationProvider with ChangeNotifier {
       // Trouver la réservation à mettre à jour
       final reservationIndex = reservations.indexWhere((r) => r.id == reservationId);
       if (reservationIndex == -1) {
-        throw Exception('Réservation non trouvée');
+        throw Exception('Reservation not found');
       }
       
       final reservation = reservations[reservationIndex];
-      print('Réservation trouvée: ${reservation.donationId}');
+      print('Reservation found: ${reservation.donationId}');
       
       // Si on annule la réservation, rendre le don disponible
       if (newStatus == 'cancelled') {
@@ -242,14 +247,15 @@ class ReservationProvider with ChangeNotifier {
         }
       }
       
-      notifyListeners();
       _setLoading(false);
-      print('Mise à jour du statut terminée avec succès');
+      notifyListeners();
+      print('Status update completed successfully');
       return true;
     } catch (e) {
-      print('Erreur lors de la mise à jour du statut: $e');
-      _setError('Erreur lors de la mise à jour: $e');
+      print('Error updating status: $e');
+      _setError('Error during update: $e');
       _setLoading(false);
+      notifyListeners();
       return false;
     }
   }
@@ -272,7 +278,7 @@ class ReservationProvider with ChangeNotifier {
       
       return result;
     } catch (e) {
-      _setError('Erreur lors de la confirmation: $e');
+      _setError('Error during confirmation: $e');
       return false;
     }
   }
@@ -300,7 +306,7 @@ class ReservationProvider with ChangeNotifier {
       
       return result;
     } catch (e) {
-      _setError('Erreur lors du refus: $e');
+      _setError('Error during rejection: $e');
       return false;
     }
   }
@@ -314,10 +320,12 @@ class ReservationProvider with ChangeNotifier {
       // TODO: Implémenter avec le service JSON des réservations
       
       _setLoading(false);
+      notifyListeners();
       return true;
     } catch (e) {
-      _setError('Erreur lors de la finalisation: $e');
+      _setError('Error during completion: $e');
       _setLoading(false);
+      notifyListeners();
       return false;
     }
   }
@@ -331,10 +339,12 @@ class ReservationProvider with ChangeNotifier {
       // TODO: Implémenter avec le service JSON des réservations
       
       _setLoading(false);
+      notifyListeners();
       return true;
     } catch (e) {
-      _setError('Erreur lors de la suppression: $e');
+      _setError('Error during deletion: $e');
       _setLoading(false);
+      notifyListeners();
       return false;
     }
   }
@@ -348,10 +358,12 @@ class ReservationProvider with ChangeNotifier {
       // TODO: Implémenter avec le service JSON des réservations
       
       _setLoading(false);
+      notifyListeners();
       return null;
     } catch (e) {
-      _setError('Erreur lors de la récupération: $e');
+      _setError('Error during retrieval: $e');
       _setLoading(false);
+      notifyListeners();
       return null;
     }
   }
@@ -391,7 +403,7 @@ class ReservationProvider with ChangeNotifier {
             });
           }
         } catch (e) {
-          print('Erreur lors de la récupération du don ${reservation.donationId}: $e');
+          print('Error retrieving donation ${reservation.donationId}: $e');
           // Continuer avec les autres réservations même si une échoue
         }
       }
@@ -400,9 +412,10 @@ class ReservationProvider with ChangeNotifier {
       _setLoading(false);
       return result;
     } catch (e) {
-      print('DEBUG: Erreur dans getReservationsWithDonations: $e');
-      _setError('Erreur lors du chargement: $e');
+      print('DEBUG: Error in getReservationsWithDonations: $e');
+      _setError('Error loading: $e');
       _setLoading(false);
+      notifyListeners();
       return [];
     }
   }
@@ -417,9 +430,11 @@ class ReservationProvider with ChangeNotifier {
       _reservations = [];
 
       _setLoading(false);
+      notifyListeners();
     } catch (e) {
-      _setError('Erreur lors de la recherche: $e');
+      _setError('Error during search: $e');
       _setLoading(false);
+      notifyListeners();
     }
   }
   

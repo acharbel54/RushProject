@@ -133,7 +133,7 @@ class JsonAuthService {
   Future<void> saveUsers() async {
     try {
       final file = await _localFile;
-      // Créer le répertoire s'il n'existe pas
+      // Create directory if it doesn't exist
       await file.parent.create(recursive: true);
       final jsonData = _users.map((user) => user.toJson()).toList();
       await file.writeAsString(json.encode(jsonData));
@@ -147,20 +147,20 @@ class JsonAuthService {
     return password; // Stockage direct pour le prototype
   }
 
-  // Inscription
+  // Registration
   Future<Map<String, dynamic>> register(String email, String password, String firstName, String lastName, String role) async {
     try {
       await loadUsers();
       
-      // Vérifier si l'email existe déjà
+      // Check if email already exists
       if (_users.any((user) => user.email.toLowerCase() == email.toLowerCase())) {
         return {
           'success': false,
-          'message': 'Cet email est déjà utilisé'
+          'message': 'This email is already in use'
         };
       }
 
-      // Créer un nouvel utilisateur
+      // Create a new user
       final newUser = User(
         id: DateTime.now().millisecondsSinceEpoch.toString(),
         email: email.toLowerCase(),
@@ -179,33 +179,33 @@ class JsonAuthService {
       
       return {
         'success': true,
-        'message': 'Inscription réussie',
+        'message': 'Registration successful',
         'user': newUser
       };
     } catch (e) {
       return {
         'success': false,
-        'message': 'Erreur lors de l\'inscription: $e'
+        'message': 'Registration error: $e'
       };
     }
   }
 
-  // Connexion
+  // Login
   Future<Map<String, dynamic>> login(String email, String password) async {
     try {
       await loadUsers();
       
-      // Chercher l'utilisateur
+      // Find the user
       final user = _users.firstWhere(
         (user) => user.email.toLowerCase() == email.toLowerCase(),
-        orElse: () => throw Exception('Utilisateur non trouvé'),
+        orElse: () => throw Exception('User not found'),
       );
 
-      // Vérifier le mot de passe
+      // Verify password
       if (user.password != _hashPassword(password)) {
         return {
           'success': false,
-          'message': 'Mot de passe incorrect'
+          'message': 'Incorrect password'
         };
       }
 
@@ -214,18 +214,18 @@ class JsonAuthService {
       
       return {
         'success': true,
-        'message': 'Connexion réussie',
+        'message': 'Login successful',
         'user': user
       };
     } catch (e) {
       return {
         'success': false,
-        'message': 'Email ou mot de passe incorrect'
+        'message': 'Incorrect email or password'
       };
     }
   }
 
-  // Déconnexion
+  // Logout
   Future<void> logout() async {
     _currentUser = null;
     await _saveCurrentUser();

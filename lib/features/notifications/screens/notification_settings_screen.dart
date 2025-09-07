@@ -112,14 +112,14 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
             title: 'Types de notifications',
             children: [
               _buildSwitchTile(
-                title: 'Nouvelles réservations',
+                title: 'New Reservations',
                 subtitle: 'Quand quelqu\'un réserve vos dons',
                 value: _newReservationNotifications,
                 onChanged: (value) => setState(() => _newReservationNotifications = value),
                 icon: Icons.bookmark_add,
               ),
               _buildSwitchTile(
-                title: 'Mises à jour des réservations',
+                title: 'Reservation Updates',
                 subtitle: 'Confirmations, annulations, etc.',
                 value: _reservationUpdatesNotifications,
                 onChanged: (value) => setState(() => _reservationUpdatesNotifications = value),
@@ -196,7 +196,7 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
                 value: _notificationFrequency,
                 items: const [
                   DropdownMenuItem(value: 'immediate', child: Text('Immédiate')),
-                  DropdownMenuItem(value: 'hourly', child: Text('Toutes les heures')),
+                  DropdownMenuItem(value: 'hourly', child: Text('Every hour')),
                   DropdownMenuItem(value: 'daily', child: Text('Quotidienne')),
                 ],
                 onChanged: (value) => setState(() => _notificationFrequency = value!),
@@ -225,8 +225,8 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
                 onTap: _sendTestNotification,
               ),
               _buildActionTile(
-                title: 'Effacer toutes les notifications',
-                subtitle: 'Supprimer toutes les notifications existantes',
+                title: 'Clear all notifications',
+        subtitle: 'Delete all existing notifications',
                 icon: Icons.clear_all,
                 onTap: _clearAllNotifications,
                 isDestructive: true,
@@ -438,9 +438,9 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Effacer toutes les notifications'),
+        title: const Text('Clear All Notifications'),
         content: const Text(
-          'Êtes-vous sûr de vouloir supprimer toutes vos notifications ? '
+          'Are you sure you want to delete all your notifications? '
           'Cette action est irréversible.',
         ),
         actions: [
@@ -454,7 +454,7 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
               context.read<NotificationProvider>().clearAllNotifications();
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
-                  content: const Text('Toutes les notifications ont été supprimées'),
+                  content: const Text('All notifications have been deleted'),
                   backgroundColor: AppColors.success,
                   behavior: SnackBarBehavior.floating,
                 ),

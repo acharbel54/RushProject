@@ -40,7 +40,7 @@ class _UserVerificationScreenState extends State<UserVerificationScreen> {
       });
     } catch (e) {
       setState(() {
-        _error = 'Erreur: $e';
+        _error = 'Error: $e';
         _isLoading = false;
       });
     }
@@ -67,7 +67,7 @@ class _UserVerificationScreenState extends State<UserVerificationScreen> {
                 : _users.isEmpty
                     ? Center(
                         child: Text(
-                          'Aucun utilisateur trouvé.\nVeuillez effectuer une inscription d\'abord.',
+                          'No users found.\nPlease register first.',
                           textAlign: TextAlign.center,
                           style: TextStyle(fontSize: 16),
                         ),
@@ -97,7 +97,7 @@ class _UserVerificationScreenState extends State<UserVerificationScreen> {
                                   Text('Nom: ${user.fullName}'),
                                   Text('Rôle: ${user.role}'),
                                   Text('Mot de passe: ${user.password}'),
-                                  Text('Créé le: ${user.createdAt}'),
+                                  Text('Created on: ${user.createdAt}'),
                                 ],
                               ),
                             ),

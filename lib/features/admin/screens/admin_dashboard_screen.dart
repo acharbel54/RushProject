@@ -52,7 +52,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> with Single
               ),
               SizedBox(height: 16),
               Text(
-                'Accès administrateur requis',
+                'Administrator access required',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w600,
@@ -83,10 +83,10 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> with Single
           unselectedLabelColor: Colors.white70,
           indicatorColor: Colors.white,
           tabs: const [
-            Tab(icon: Icon(Icons.dashboard), text: 'Vue d\'ensemble'),
-            Tab(icon: Icon(Icons.people), text: 'Utilisateurs'),
-            Tab(icon: Icon(Icons.food_bank), text: 'Dons'),
-            Tab(icon: Icon(Icons.bookmark), text: 'Réservations'),
+            Tab(icon: Icon(Icons.dashboard), text: 'Overview'),
+            Tab(icon: Icon(Icons.people), text: 'Users'),
+            Tab(icon: Icon(Icons.food_bank), text: 'Donations'),
+            Tab(icon: Icon(Icons.bookmark), text: 'Reservations'),
           ],
         ),
       ),
@@ -120,7 +120,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> with Single
             children: [
               Expanded(
                 child: _buildStatCard(
-                  title: 'Utilisateurs',
+                  title: 'Users',
                   icon: Icons.people,
                   color: Colors.blue,
                   stream: _firestore.collection('users').snapshots(),
@@ -129,7 +129,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> with Single
               const SizedBox(width: 16),
               Expanded(
                 child: _buildStatCard(
-                  title: 'Dons actifs',
+                  title: 'Active Donations',
                   icon: Icons.food_bank,
                   color: Colors.green,
                   stream: _firestore
@@ -145,7 +145,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> with Single
             children: [
               Expanded(
                 child: _buildStatCard(
-                  title: 'Réservations',
+                  title: 'Reservations',
                   icon: Icons.bookmark,
                   color: Colors.orange,
                   stream: _firestore.collection('reservations').snapshots(),
@@ -231,24 +231,24 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> with Single
       children: [
         ListTile(
           leading: const Icon(Icons.cleaning_services, color: Colors.blue),
-          title: const Text('Nettoyer les dons expirés'),
-          subtitle: const Text('Supprimer les dons expirés depuis plus de 7 jours'),
+          title: const Text('Clean Expired Donations'),
+          subtitle: const Text('Delete donations expired for more than 7 days'),
           trailing: const Icon(Icons.arrow_forward_ios),
           onTap: _cleanExpiredDonations,
         ),
         const Divider(),
         ListTile(
           leading: const Icon(Icons.notifications, color: Colors.orange),
-          title: const Text('Envoyer notification globale'),
-          subtitle: const Text('Envoyer une notification à tous les utilisateurs'),
+          title: const Text('Send global notification'),
+          subtitle: const Text('Send a notification to all users'),
           trailing: const Icon(Icons.arrow_forward_ios),
           onTap: _showGlobalNotificationDialog,
         ),
         const Divider(),
         ListTile(
           leading: const Icon(Icons.analytics, color: Colors.green),
-          title: const Text('Générer rapport'),
-          subtitle: const Text('Exporter les statistiques d\'utilisation'),
+          title: const Text('Generate report'),
+          subtitle: const Text('Export usage statistics'),
           trailing: const Icon(Icons.arrow_forward_ios),
           onTap: _generateReport,
         ),
@@ -262,7 +262,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> with Single
       builder: (context, snapshot) {
         if (snapshot.hasError) {
           return const Center(
-            child: Text('Erreur lors du chargement des utilisateurs'),
+            child: Text('Error loading users'),
           );
         }
         
@@ -306,7 +306,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> with Single
                 itemBuilder: (context) => [
                   const PopupMenuItem(
                     value: 'view',
-                    child: Text('Voir détails'),
+                    child: Text('View details'),
                   ),
                   const PopupMenuItem(
                     value: 'suspend',
@@ -334,7 +334,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> with Single
       builder: (context, snapshot) {
         if (snapshot.hasError) {
           return const Center(
-            child: Text('Erreur lors du chargement des dons'),
+            child: Text('Error loading donations'),
           );
         }
         
@@ -366,9 +366,9 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> with Single
                 subtitle: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Quantité: ${donation.quantity}'),
+                    Text('Quantity: ${donation.quantity}'),
                     Text(
-                      'Statut: ${_getDonationStatusText(donation.status)}',
+                      'Status: ${_getDonationStatusText(donation.status)}',
                       style: TextStyle(
                         color: _getDonationStatusColor(donation.status),
                         fontWeight: FontWeight.w500,
@@ -380,11 +380,11 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> with Single
                   itemBuilder: (context) => [
                     const PopupMenuItem(
                       value: 'view',
-                      child: Text('Voir détails'),
+                      child: Text('View Details'),
                     ),
                     const PopupMenuItem(
                       value: 'delete',
-                      child: Text('Supprimer'),
+                      child: Text('Delete'),
                     ),
                   ],
                   onSelected: (value) {
@@ -409,7 +409,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> with Single
       builder: (context, snapshot) {
         if (snapshot.hasError) {
           return const Center(
-            child: Text('Erreur lors du chargement des réservations'),
+            child: Text('Error loading reservations'),
           );
         }
         
@@ -437,13 +437,13 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> with Single
                     color: Colors.white,
                   ),
                 ),
-                title: Text('Réservation ${reservation.id.substring(0, 8)}'),
+                title: Text('Reservation ${reservation.id.substring(0, 8)}'),
                 subtitle: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text('Don: ${reservation.donationId.substring(0, 8)}'),
                     Text(
-                      'Statut: ${_getReservationStatusText(reservation.status)}',
+                      'Status: ${_getReservationStatusText(reservation.status)}',
                       style: TextStyle(
                         color: _getReservationStatusColor(reservation.status),
                         fontWeight: FontWeight.w500,
@@ -455,11 +455,11 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> with Single
                   itemBuilder: (context) => [
                     const PopupMenuItem(
                       value: 'view',
-                      child: Text('Voir détails'),
+                      child: Text('View details'),
                     ),
                     const PopupMenuItem(
                       value: 'cancel',
-                      child: Text('Annuler'),
+                      child: Text('Cancel'),
                     ),
                   ],
                   onSelected: (value) {
@@ -493,11 +493,11 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> with Single
   String _getUserTypeText(UserRole userType) {
     switch (userType) {
       case UserRole.donateur:
-        return 'Donateur';
+        return 'Donor';
       case UserRole.beneficiaire:
-        return 'Bénéficiaire';
+        return 'Beneficiary';
       case UserRole.admin:
-        return 'Administrateur';
+        return 'Administrator';
     }
   }
   
@@ -517,13 +517,13 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> with Single
   String _getDonationStatusText(DonationStatus status) {
     switch (status) {
       case DonationStatus.disponible:
-        return 'Disponible';
+        return 'Available';
       case DonationStatus.reserve:
-        return 'Réservé';
+        return 'Reserved';
       case DonationStatus.recupere:
-        return 'Terminé';
+        return 'Completed';
       case DonationStatus.expire:
-        return 'Expiré';
+        return 'Expired';
     }
   }
   
@@ -543,13 +543,13 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> with Single
   String _getReservationStatusText(ReservationStatus status) {
     switch (status) {
       case ReservationStatus.pending:
-        return 'En attente';
+        return 'Pending';
       case ReservationStatus.confirmed:
-        return 'Confirmée';
+        return 'Confirmed';
       case ReservationStatus.completed:
-        return 'Terminée';
+        return 'Completed';
       case ReservationStatus.cancelled:
-        return 'Annulée';
+        return 'Cancelled';
     }
   }
   
@@ -558,19 +558,19 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> with Single
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Nettoyer les dons expirés'),
-        content: const Text('Êtes-vous sûr de vouloir supprimer tous les dons expirés depuis plus de 7 jours ?'),
+        title: const Text('Clean Expired Donations'),
+        content: const Text('Are you sure you want to delete all donations expired for more than 7 days?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Annuler'),
+            child: const Text('Cancel'),
           ),
           ElevatedButton(
             onPressed: () {
               Navigator.pop(context);
               _performCleanup();
             },
-            child: const Text('Confirmer'),
+            child: const Text('Confirm'),
           ),
         ],
       ),
@@ -605,7 +605,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> with Single
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Erreur lors du nettoyage'),
+            content: Text('Error during cleanup'),
             backgroundColor: Colors.red,
           ),
         );
@@ -620,14 +620,14 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> with Single
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Notification globale'),
+        title: const Text('Global notification'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             TextField(
               controller: titleController,
               decoration: const InputDecoration(
-                labelText: 'Titre',
+                labelText: 'Title',
                 border: OutlineInputBorder(),
               ),
             ),
@@ -645,14 +645,14 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> with Single
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Annuler'),
+            child: const Text('Cancel'),
           ),
           ElevatedButton(
             onPressed: () {
               Navigator.pop(context);
               _sendGlobalNotification(titleController.text, messageController.text);
             },
-            child: const Text('Envoyer'),
+            child: const Text('Send'),
           ),
         ],
       ),
@@ -695,7 +695,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> with Single
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Erreur lors de l\'envoi'),
+            content: Text('Error during sending'),
             backgroundColor: Colors.red,
           ),
         );
@@ -716,21 +716,21 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> with Single
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Détails de ${user.displayName ?? user.email}'),
+        title: Text('Details of ${user.displayName ?? user.email}'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text('Email: ${user.email}'),
             Text('Type: ${_getUserTypeText(user.role)}'),
-            Text('Téléphone: ${user.phoneNumber}'),
-            Text('Adresse: ${user.address}'),
+            Text('Phone: ${user.phoneNumber}'),
+             Text('Address: ${user.address}'),
           ],
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Fermer'),
+            child: const Text('Close'),
           ),
         ],
       ),
@@ -757,15 +757,15 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> with Single
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text('Description: ${donation.description}'),
-            Text('Quantité: ${donation.quantity}'),
-            Text('Statut: ${_getDonationStatusText(donation.status)}'),
-            Text('Créé le: ${donation.createdAt.day}/${donation.createdAt.month}/${donation.createdAt.year}'),
+            Text('Quantity: ${donation.quantity}'),
+            Text('Status: ${_getDonationStatusText(donation.status)}'),
+            Text('Created on: ${donation.createdAt.day}/${donation.createdAt.month}/${donation.createdAt.year}'),
           ],
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Fermer'),
+            child: const Text('Close'),
           ),
         ],
       ),
@@ -776,12 +776,12 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> with Single
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Supprimer le don'),
-        content: const Text('Êtes-vous sûr de vouloir supprimer ce don ?'),
+        title: const Text('Delete Donation'),
+      content: const Text('Are you sure you want to delete this donation?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Annuler'),
+            child: const Text('Cancel'),
           ),
           ElevatedButton(
             onPressed: () async {
@@ -800,14 +800,14 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> with Single
                 if (mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
-                      content: Text('Erreur lors de la suppression'),
+                      content: Text('Error during deletion'),
                       backgroundColor: Colors.red,
                     ),
                   );
                 }
               }
             },
-            child: const Text('Supprimer'),
+            child: const Text('Delete'),
           ),
         ],
       ),
@@ -823,16 +823,16 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> with Single
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Don ID: ${reservation.donationId}'),
-            Text('Bénéficiaire ID: ${reservation.beneficiaryId}'),
-            Text('Statut: ${_getReservationStatusText(reservation.status)}'),
-            Text('Créée le: ${reservation.createdAt.day}/${reservation.createdAt.month}/${reservation.createdAt.year}'),
+            Text('Donation ID: ${reservation.donationId}'),
+            Text('Beneficiary ID: ${reservation.beneficiaryId}'),
+            Text('Status: ${_getReservationStatusText(reservation.status)}'),
+           Text('Created on: ${reservation.createdAt.day}/${reservation.createdAt.month}/${reservation.createdAt.year}'),
           ],
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Fermer'),
+            child: const Text('Close'),
           ),
         ],
       ),
@@ -843,8 +843,8 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> with Single
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Annuler la réservation'),
-        content: const Text('Êtes-vous sûr de vouloir annuler cette réservation ?'),
+        title: const Text('Cancel Reservation'),
+      content: const Text('Are you sure you want to cancel this reservation?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -861,7 +861,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> with Single
                 if (mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
-                      content: Text('Réservation annulée'),
+                      content: Text('Reservation cancelled'),
                       backgroundColor: Colors.green,
                     ),
                   );
@@ -870,14 +870,14 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> with Single
                 if (mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
-                      content: Text('Erreur lors de l\'annulation'),
+                      content: Text('Error during cancellation'),
                       backgroundColor: Colors.red,
                     ),
                   );
                 }
               }
             },
-            child: const Text('Oui, annuler'),
+            child: const Text('Yes, cancel'),
           ),
         ],
       ),

@@ -60,7 +60,7 @@ void main() async {
   try {
     await NotificationService().initialize();
   } catch (e) {
-    print('Erreur lors de l\'initialisation des notifications: $e');
+    print('Error during notifications initialization: $e');
   }
   
   runApp(const FoodLinkApp());
@@ -291,7 +291,7 @@ class FoodLinkApp extends StatelessWidget {
             builder: (context) => const Scaffold(
               body: Center(
                 child: Text(
-                  'Page non trouvée',
+                  'Page not found',
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w600,

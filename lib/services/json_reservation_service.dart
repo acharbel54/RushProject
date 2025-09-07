@@ -44,7 +44,7 @@ class JsonReservationService {
     
     // Si aucun fichier projet, initialiser avec une liste vide
     _reservations = [];
-    print('DEBUG: Aucune donnée initiale trouvée, liste vide créée');
+    print('DEBUG: No initial data found, empty list created');
   }
 
   // Charger les réservations depuis le fichier JSON
@@ -75,7 +75,7 @@ class JsonReservationService {
   Future<void> saveReservations() async {
     try {
       final file = await _localFile;
-      // Créer le répertoire s'il n'existe pas
+      // Create directory if it doesn't exist
       await file.parent.create(recursive: true);
       final jsonData = _reservations.map((reservation) => reservation.toJson()).toList();
       await file.writeAsString(json.encode(jsonData));
@@ -111,20 +111,20 @@ class JsonReservationService {
   Future<void> addReservation(ReservationModel reservation) async {
     await loadReservations();
     
-    // Ajouter un message d'historique automatiquement
+    // Add history message automatically
     final reservationWithMessage = reservation.copyWith(
-      historyMessage: 'Réservation créée le ${_formatDate(reservation.createdAt)} pour "${reservation.donationTitle}"'
+      historyMessage: 'Reservation created on ${_formatDate(reservation.createdAt)} for "${reservation.donationTitle}"'
     );
     
     _reservations.add(reservationWithMessage);
     await saveReservations();
   }
   
-  // Méthode utilitaire pour formater la date
+  // Utility method to format date
   String _formatDate(DateTime date) {
     const months = [
-      'janvier', 'février', 'mars', 'avril', 'mai', 'juin',
-      'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'
+      'January', 'February', 'March', 'April', 'May', 'June',
+      'July', 'August', 'September', 'October', 'November', 'December'
     ];
     return '${date.day} ${months[date.month - 1]} ${date.year}';
   }
@@ -136,9 +136,9 @@ class JsonReservationService {
     if (index != -1) {
       _reservations[index] = updatedReservation;
       await saveReservations();
-      print('DEBUG JsonReservationService: Réservation ${updatedReservation.id} mise à jour');
+      print('DEBUG JsonReservationService: Reservation ${updatedReservation.id} updated');
     } else {
-      print('DEBUG JsonReservationService: Réservation ${updatedReservation.id} non trouvée pour mise à jour');
+      print('DEBUG JsonReservationService: Reservation ${updatedReservation.id} not found for update');
     }
   }
 

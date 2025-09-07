@@ -63,7 +63,7 @@ class _MapScreenState extends State<MapScreen> {
       });
     } catch (e) {
       setState(() {
-        _error = 'Erreur lors de l\'initialisation: $e';
+        _error = 'Initialization error: $e';
         _isLoading = false;
       });
     }
@@ -268,7 +268,7 @@ class _MapScreenState extends State<MapScreen> {
                     children: [
                       Expanded(
                         child: _buildInfoCard(
-                          'Quantité',
+                          'Quantity',
                           donation.quantity,
                           Icons.inventory,
                         ),
@@ -276,7 +276,7 @@ class _MapScreenState extends State<MapScreen> {
                       const SizedBox(width: 12),
                       Expanded(
                         child: _buildInfoCard(
-                          'Expire le',
+                          'Expires on',
                           '${donation.expirationDate.day}/${donation.expirationDate.month}',
                           Icons.schedule,
                         ),
@@ -630,7 +630,7 @@ class _MapScreenState extends State<MapScreen> {
               child: TextField(
                 controller: _searchController,
                 decoration: InputDecoration(
-                  hintText: 'Rechercher des dons...',
+                  hintText: 'Search for donations...',
                   prefixIcon: const Icon(Icons.search),
                   suffixIcon: _searchController.text.isNotEmpty
                       ? IconButton(

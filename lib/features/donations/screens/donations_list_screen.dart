@@ -117,24 +117,24 @@ class _DonationsListScreenState extends State<DonationsListScreen>
     
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Dons disponibles'),
+        title: const Text('Available Donations'),
         elevation: 0,
         bottom: TabBar(
           controller: _tabController,
           tabs: [
             const Tab(
               icon: Icon(Icons.list),
-              text: 'Tous les dons',
+              text: 'All Donations',
             ),
             if (isDonor)
               const Tab(
                 icon: Icon(Icons.person),
-                text: 'Mes dons',
+                text: 'My Donations',
               )
             else
               const Tab(
                 icon: Icon(Icons.bookmark),
-                text: 'Mes réservations',
+                text: 'My Reservations',
               ),
           ],
         ),
@@ -160,11 +160,11 @@ class _DonationsListScreenState extends State<DonationsListScreen>
                   color: Colors.grey[50],
                   child: Column(
                     children: [
-                      // Barre de recherche
+                      // Search bar
                       TextField(
                         controller: _searchController,
                         decoration: InputDecoration(
-                          hintText: 'Rechercher des dons...',
+                          hintText: 'Search donations...',
                           prefixIcon: const Icon(Icons.search),
                           suffixIcon: _searchController.text.isNotEmpty
                               ? IconButton(
@@ -188,7 +188,7 @@ class _DonationsListScreenState extends State<DonationsListScreen>
                       if (!_showMyDonations) ...[
                         const SizedBox(height: 12),
                         
-                        // Filtres par catégorie
+                        // Category filters
                         SizedBox(
                           height: 40,
                           child: ListView.builder(
@@ -258,7 +258,7 @@ class _DonationsListScreenState extends State<DonationsListScreen>
             ),
             const SizedBox(height: 16),
             Text(
-              'Erreur de chargement',
+              'Loading error',
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
@@ -276,7 +276,7 @@ class _DonationsListScreenState extends State<DonationsListScreen>
             const SizedBox(height: 16),
             ElevatedButton(
               onPressed: _refreshDonations,
-              child: const Text('Réessayer'),
+              child: const Text('Retry'),
             ),
           ],
         ),
@@ -296,10 +296,10 @@ class _DonationsListScreenState extends State<DonationsListScreen>
             const SizedBox(height: 16),
             Text(
               _showMyDonations 
-                  ? 'Aucun don créé'
+                  ? 'No donations created'
                   : _searchController.text.isNotEmpty
-                      ? 'Aucun résultat trouvé'
-                      : 'Aucun don disponible',
+                      ? 'No results found'
+                      : 'No donations available',
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
@@ -309,10 +309,10 @@ class _DonationsListScreenState extends State<DonationsListScreen>
             const SizedBox(height: 8),
             Text(
               _showMyDonations
-                  ? 'Créez votre premier don pour aider la communauté'
+                  ? 'Create your first donation to help the community'
                   : _searchController.text.isNotEmpty
-                      ? 'Essayez avec d\'autres mots-clés'
-                      : 'Revenez plus tard ou créez un don',
+                      ? 'Try with other keywords'
+                      : 'Come back later or create a donation',
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: Colors.grey[500],
@@ -324,7 +324,7 @@ class _DonationsListScreenState extends State<DonationsListScreen>
                 onPressed: () {
                   Navigator.of(context).pushNamed(CreateDonationScreen.routeName);
                 },
-                child: const Text('Créer un don'),
+                child: const Text('Create Donation'),
               ),
             ],
           ],
@@ -366,7 +366,7 @@ class _DonationsListScreenState extends State<DonationsListScreen>
     if (authProvider.currentUser == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Vous devez être connecté pour réserver un don'),
+          content: Text('You must be logged in to reserve a donation'),
           backgroundColor: Colors.red,
         ),
       );
@@ -377,19 +377,19 @@ class _DonationsListScreenState extends State<DonationsListScreen>
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Confirmer la réservation'),
+          title: const Text('Confirm Reservation'),
           content: Text(
-            'Voulez-vous réserver "${donation.title}" ?\n\n'
-            'Vous devrez récupérer ce don à l\'adresse indiquée.',
+            'Do you want to reserve "${donation.title}"?\n\n'
+            'You will need to pick up this donation at the indicated address.',
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(false),
-              child: const Text('Annuler'),
+              child: const Text('Cancel'),
             ),
             ElevatedButton(
               onPressed: () => Navigator.of(context).pop(true),
-              child: const Text('Réserver'),
+              child: const Text('Reserve'),
             ),
           ],
         );
@@ -397,18 +397,18 @@ class _DonationsListScreenState extends State<DonationsListScreen>
     );
     
     if (confirmed == true) {
-      // Créer la réservation via le ReservationProvider
+      // Create reservation via ReservationProvider
       final success = await reservationProvider.createReservation(
         donationId: donation.id,
         beneficiaryId: authProvider.currentUser!.id,
-        notes: 'Réservation effectuée depuis l\'application',
+        notes: 'Reservation made from the application',
       );
       
       if (success) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text('Don réservé avec succès! Vous pouvez voir votre réservation dans l\'onglet Réservations.'),
+              content: Text('Donation reserved successfully! You can see your reservation in the Reservations tab.'),
               backgroundColor: Colors.green,
               duration: Duration(seconds: 3),
             ),
@@ -420,7 +420,7 @@ class _DonationsListScreenState extends State<DonationsListScreen>
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(reservationProvider.error ?? 'Erreur lors de la réservation'),
+              content: Text(reservationProvider.error ?? 'Error during reservation'),
               backgroundColor: Colors.red,
             ),
           );
@@ -433,7 +433,7 @@ class _DonationsListScreenState extends State<DonationsListScreen>
     // TODO: Naviguer vers l'écran d'édition
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
-        content: Text('Fonctionnalité d\'édition à venir'),
+        content: Text('Edit functionality coming soon'),
       ),
     );
   }
@@ -443,22 +443,22 @@ class _DonationsListScreenState extends State<DonationsListScreen>
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Confirmer la suppression'),
+          title: const Text('Confirm Deletion'),
           content: Text(
-            'Voulez-vous vraiment supprimer "${donation.title}" ?\n\n'
-            'Cette action est irréversible.',
+            'Do you really want to delete "${donation.title}"?\n\n'
+            'This action is irreversible.',
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(false),
-              child: const Text('Annuler'),
+              child: const Text('Cancel'),
             ),
             ElevatedButton(
               onPressed: () => Navigator.of(context).pop(true),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.red,
               ),
-              child: const Text('Supprimer'),
+              child: const Text('Delete'),
             ),
           ],
         );
@@ -473,7 +473,7 @@ class _DonationsListScreenState extends State<DonationsListScreen>
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text('Don supprimé avec succès'),
+              content: Text('Donation deleted successfully'),
               backgroundColor: Colors.green,
             ),
           );
@@ -482,7 +482,7 @@ class _DonationsListScreenState extends State<DonationsListScreen>
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(donationProvider.error ?? 'Erreur lors de la suppression'),
+              content: Text(donationProvider.error ?? 'Error during deletion'),
               backgroundColor: Colors.red,
             ),
           );

@@ -33,7 +33,7 @@ class NotificationProvider with ChangeNotifier {
       
       _isInitialized = true;
     } catch (e) {
-      _setError('Erreur lors de l\'initialisation des notifications: $e');
+      _setError('Error during notifications initialization: $e');
     } finally {
       _setLoading(false);
     }
