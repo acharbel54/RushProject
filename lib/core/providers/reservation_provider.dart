@@ -4,6 +4,7 @@ import '../models/donation_model.dart';
 import '../../services/json_donation_service.dart';
 import '../../services/json_reservation_service.dart';
 import 'notification_provider.dart';
+import 'simple_auth_provider.dart';
 
 class ReservationProvider with ChangeNotifier {
   final JsonDonationService _donationService = JsonDonationService();
@@ -131,13 +132,18 @@ class ReservationProvider with ChangeNotifier {
         return false;
       }
 
+      // Récupérer le nom réel du bénéficiaire
+      final authProvider = SimpleAuthProvider();
+      final beneficiary = await authProvider.getUserById(beneficiaryId);
+      final beneficiaryName = beneficiary?.displayName ?? 'Utilisateur';
+
       // Créer une nouvelle réservation
       final reservation = ReservationModel(
         id: DateTime.now().millisecondsSinceEpoch.toString(),
         donationId: donationId,
         donorId: donation.donorId,
         beneficiaryId: beneficiaryId,
-        beneficiaryName: 'Bénéficiaire', // TODO: Récupérer le vrai nom
+        beneficiaryName: beneficiaryName,
         donationTitle: donation.title,
         donationQuantity: donation.quantity,
         status: ReservationStatus.pending,

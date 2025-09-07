@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../core/providers/notification_provider.dart';
+import '../../../core/providers/simple_auth_provider.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
 import '../widgets/notification_toggle_filter.dart';
@@ -417,15 +418,20 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
   }
 
   void _sendTestNotification() {
-    context.read<NotificationProvider>().sendTestNotification();
+    final authProvider = context.read<SimpleAuthProvider>();
+    final currentUser = authProvider.currentUser;
     
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: const Text('Notification de test envoyée'),
-        backgroundColor: AppColors.success,
-        behavior: SnackBarBehavior.floating,
-      ),
-    );
+    if (currentUser != null) {
+      context.read<NotificationProvider>().sendTestNotification(currentUser.id);
+      
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text('Notification de test envoyée'),
+          backgroundColor: AppColors.success,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
   }
 
   void _clearAllNotifications() {

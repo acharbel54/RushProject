@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 import '../core/models/donation_model.dart';
+import 'json_reservation_service.dart';
 
 class JsonDonationService {
   static final JsonDonationService _instance = JsonDonationService._internal();
@@ -122,6 +123,16 @@ class JsonDonationService {
     try {
       await loadDonations();
       
+      // Supprimer d'abord les réservations associées à ce don
+      final JsonReservationService reservationService = JsonReservationService();
+      final allReservations = await reservationService.getAllReservations();
+      final donationReservations = allReservations.where((r) => r.donationId == id).toList();
+      
+      for (final reservation in donationReservations) {
+        await reservationService.deleteReservation(reservation.id);
+      }
+      
+      // Ensuite supprimer la donation
       _donations.removeWhere((donation) => donation.id == id);
       await saveDonations();
     } catch (e) {

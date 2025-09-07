@@ -110,8 +110,23 @@ class JsonReservationService {
   // Ajouter une nouvelle réservation
   Future<void> addReservation(ReservationModel reservation) async {
     await loadReservations();
-    _reservations.add(reservation);
+    
+    // Ajouter un message d'historique automatiquement
+    final reservationWithMessage = reservation.copyWith(
+      historyMessage: 'Réservation créée le ${_formatDate(reservation.createdAt)} pour "${reservation.donationTitle}"'
+    );
+    
+    _reservations.add(reservationWithMessage);
     await saveReservations();
+  }
+  
+  // Méthode utilitaire pour formater la date
+  String _formatDate(DateTime date) {
+    const months = [
+      'janvier', 'février', 'mars', 'avril', 'mai', 'juin',
+      'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'
+    ];
+    return '${date.day} ${months[date.month - 1]} ${date.year}';
   }
 
   // Mettre à jour une réservation

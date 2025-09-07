@@ -239,19 +239,6 @@ class DashboardScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Debug: Afficher l'ID utilisateur
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  margin: const EdgeInsets.only(bottom: 16),
-                  decoration: BoxDecoration(
-                    color: Colors.blue.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Text(
-                    'DEBUG: Utilisateur connecté - ID: ${user.id}, Role: ${user.role}',
-                    style: const TextStyle(fontSize: 12, color: Colors.blue),
-                  ),
-                ),
                 // Carte de bienvenue
                 Container(
                   width: double.infinity,
@@ -407,7 +394,7 @@ class DashboardScreen extends StatelessWidget {
                     Icons.bookmark_outlined,
                     const Color(0xFFFF9800),
                     () {
-                      // TODO: Naviguer vers les réservations
+                      onTabChanged?.call(2); // Naviguer vers l'onglet Réservations
                     },
                   ),
                 ],
@@ -437,7 +424,7 @@ class DashboardScreen extends StatelessWidget {
                         ),
                       ],
                     ),
-                    child: _buildReservationHistory(),
+                    child: _buildReservationHistory(authProvider),
                   ),
                 ],
                 
@@ -565,9 +552,9 @@ class DashboardScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildReservationHistory() {
+  Widget _buildReservationHistory(SimpleAuthProvider authProvider) {
     return FutureBuilder<List<ReservationModel>>(
-      future: _getReservationHistory(),
+      future: _getReservationHistory(authProvider),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(
@@ -673,6 +660,28 @@ class DashboardScreen extends StatelessWidget {
                                 fontSize: 12,
                               ),
                             ),
+                            if (reservation.historyMessage != null) ...[
+                              const SizedBox(height: 4),
+                              Container(
+                                padding: const EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  color: Colors.blue.withOpacity(0.1),
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(
+                                    color: Colors.blue.withOpacity(0.3),
+                                    width: 1,
+                                  ),
+                                ),
+                                child: Text(
+                                  reservation.historyMessage!,
+                                  style: TextStyle(
+                                    color: Colors.blue[700],
+                                    fontSize: 12,
+                                    fontStyle: FontStyle.italic,
+                                  ),
+                                ),
+                              ),
+                            ],
                           ],
                         ),
                       ),
@@ -720,14 +729,14 @@ class DashboardScreen extends StatelessWidget {
     );
   }
 
-  Future<List<ReservationModel>> _getReservationHistory() async {
-    final authService = JsonAuthService();
+  Future<List<ReservationModel>> _getReservationHistory(SimpleAuthProvider authProvider) async {
     final reservationService = JsonReservationService();
     
     try {
       print('DEBUG _getReservationHistory: Début du chargement');
-      await authService.initialize();
-      final currentUser = authService.currentUser;
+      
+      // Utiliser SimpleAuthProvider passé en paramètre
+      final currentUser = authProvider.currentUser;
       print('DEBUG _getReservationHistory: Utilisateur actuel: ${currentUser?.id}');
       
       if (currentUser != null) {

@@ -180,85 +180,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 
                 const SizedBox(height: 48),
                 
-                // Sélection du type d'utilisateur
-                Row(
-                  children: [
-                    Expanded(
-                      child: GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            _selectedUserType = UserRole.donateur;
-                          });
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-                          decoration: BoxDecoration(
-                            color: _selectedUserType == UserRole.donateur
-                                ? const Color(0xFF4CAF50)
-                                : Colors.grey[100],
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(
-                              color: _selectedUserType == UserRole.donateur
-                                  ? const Color(0xFF4CAF50)
-                                  : Colors.grey[300]!,
-                            ),
-                          ),
-                          child: Center(
-                            child: Text(
-                              'Donateur',
-                              style: TextStyle(
-                                color: _selectedUserType == UserRole.donateur
-                                    ? Colors.white
-                                    : Colors.grey[600],
-                                fontWeight: FontWeight.w600,
-                                fontSize: 16,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            _selectedUserType = UserRole.beneficiaire;
-                          });
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-                          decoration: BoxDecoration(
-                            color: _selectedUserType == UserRole.beneficiaire
-                                ? const Color(0xFF4CAF50)
-                                : Colors.grey[100],
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(
-                              color: _selectedUserType == UserRole.beneficiaire
-                                  ? const Color(0xFF4CAF50)
-                                  : Colors.grey[300]!,
-                            ),
-                          ),
-                          child: Center(
-                            child: Text(
-                              'Bénéficiaire',
-                              style: TextStyle(
-                                color: _selectedUserType == UserRole.beneficiaire
-                                    ? Colors.white
-                                    : Colors.grey[600],
-                                fontWeight: FontWeight.w600,
-                                fontSize: 16,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                
-                const SizedBox(height: 24),
-                
                 // Champ nom
                 AuthTextField(
                   controller: _nameController,
@@ -298,7 +219,134 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 
                 const SizedBox(height: 16),
                 
-
+                // Sélection du type d'utilisateur
+                const Text(
+                  'Je suis :',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.black87,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                
+                Row(
+                  children: [
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            _selectedUserType = UserRole.beneficiaire;
+                          });
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: _selectedUserType == UserRole.beneficiaire
+                                ? const Color(0xFF4CAF50).withOpacity(0.1)
+                                : Colors.grey.withOpacity(0.1),
+                            border: Border.all(
+                              color: _selectedUserType == UserRole.beneficiaire
+                                  ? const Color(0xFF4CAF50)
+                                  : Colors.grey.withOpacity(0.3),
+                              width: 2,
+                            ),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Column(
+                            children: [
+                              Icon(
+                                Icons.volunteer_activism,
+                                size: 32,
+                                color: _selectedUserType == UserRole.beneficiaire
+                                    ? const Color(0xFF4CAF50)
+                                    : Colors.grey,
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                'Bénéficiaire',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                  color: _selectedUserType == UserRole.beneficiaire
+                                      ? const Color(0xFF4CAF50)
+                                      : Colors.grey,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                'Je reçois de l\'aide',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.grey[600],
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            _selectedUserType = UserRole.donateur;
+                          });
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: _selectedUserType == UserRole.donateur
+                                ? const Color(0xFF4CAF50).withOpacity(0.1)
+                                : Colors.grey.withOpacity(0.1),
+                            border: Border.all(
+                              color: _selectedUserType == UserRole.donateur
+                                  ? const Color(0xFF4CAF50)
+                                  : Colors.grey.withOpacity(0.3),
+                              width: 2,
+                            ),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Column(
+                            children: [
+                              Icon(
+                                Icons.favorite,
+                                size: 32,
+                                color: _selectedUserType == UserRole.donateur
+                                    ? const Color(0xFF4CAF50)
+                                    : Colors.grey,
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                'Donateur',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                  color: _selectedUserType == UserRole.donateur
+                                      ? const Color(0xFF4CAF50)
+                                      : Colors.grey,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                'Je donne de l\'aide',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.grey[600],
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                
+                const SizedBox(height: 24),
                 
                 // Champ mot de passe
                 AuthTextField(
@@ -465,7 +513,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ),
                     TextButton(
                       onPressed: () {
-                        Navigator.of(context).pushReplacementNamed('/');
+                        Navigator.of(context).pushReplacementNamed(LoginScreen.routeName);
                       },
                       child: const Text(
                         'Se connecter',

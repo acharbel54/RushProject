@@ -122,20 +122,12 @@ class SimpleAuthService {
       }
       
       await _loadUsers();
+      await _loadCurrentUser(); // Charger l'utilisateur actuel depuis current_user.json
       _isInitialized = true;
       
-      // Connexion automatique du bénéficiaire de test
-      if (_users.isNotEmpty) {
-        final beneficiaire = _users.firstWhere(
-          (user) => user.role == UserRole.beneficiaire,
-          orElse: () => _users.first,
-        );
-        _currentUser = beneficiaire;
-        
-        if (kDebugMode) {
-          print('SimpleAuthService initialisé avec ${_users.length} utilisateurs');
-          print('Utilisateur connecté automatiquement: ${beneficiaire.displayName} (${beneficiaire.role})');
-        }
+      if (kDebugMode) {
+        print('SimpleAuthService initialisé avec ${_users.length} utilisateurs');
+        print('Utilisateur actuel: ${_currentUser?.email ?? "Aucun"}');
       }
     } catch (e) {
       if (kDebugMode) {
@@ -223,6 +215,90 @@ class SimpleAuthService {
     }
   }
 
+  // Charger l'utilisateur actuel depuis current_user.json
+  Future<void> _loadCurrentUser() async {
+    try {
+      final directory = await getApplicationDocumentsDirectory();
+      final currentUserFile = File('${directory.path}/current_user.json');
+      
+      if (await currentUserFile.exists()) {
+        final content = await currentUserFile.readAsString();
+        final userData = json.decode(content);
+        
+        // Convertir les données JSON en SimpleUser
+        final user = SimpleUser(
+          id: userData['id'],
+          email: userData['email'],
+          password: userData['password'],
+          displayName: '${userData['firstName']} ${userData['lastName']}',
+          role: _parseUserRole(userData['role']),
+          createdAt: DateTime.parse(userData['createdAt']),
+        );
+        
+        _currentUser = user;
+        
+        if (kDebugMode) {
+          print('Utilisateur actuel chargé: ${user.email}');
+        }
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('Erreur lors du chargement de l\'utilisateur actuel: $e');
+      }
+      _currentUser = null;
+    }
+  }
+
+  // Sauvegarder l'utilisateur actuel dans current_user.json
+  Future<void> _saveCurrentUser() async {
+    try {
+      final directory = await getApplicationDocumentsDirectory();
+      final currentUserFile = File('${directory.path}/current_user.json');
+      
+      if (_currentUser != null) {
+        // Convertir SimpleUser en format compatible avec current_user.json
+        final userData = {
+          'id': _currentUser!.id,
+          'email': _currentUser!.email,
+          'password': _currentUser!.password,
+          'firstName': _currentUser!.displayName.split(' ').first,
+          'lastName': _currentUser!.displayName.split(' ').skip(1).join(' '),
+          'role': _currentUser!.role.toString().split('.').last,
+          'createdAt': _currentUser!.createdAt.toIso8601String(),
+        };
+        
+        await currentUserFile.writeAsString(json.encode(userData));
+        
+        if (kDebugMode) {
+          print('Utilisateur actuel sauvegardé: ${_currentUser!.email}');
+        }
+      } else {
+        // Supprimer le fichier si aucun utilisateur connecté
+        if (await currentUserFile.exists()) {
+          await currentUserFile.delete();
+        }
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('Erreur lors de la sauvegarde de l\'utilisateur actuel: $e');
+      }
+    }
+  }
+
+  // Parser le rôle utilisateur depuis une chaîne
+  UserRole _parseUserRole(String roleString) {
+    switch (roleString.toLowerCase()) {
+      case 'donateur':
+        return UserRole.donateur;
+      case 'beneficiaire':
+        return UserRole.beneficiaire;
+      case 'admin':
+        return UserRole.admin;
+      default:
+        return UserRole.beneficiaire;
+    }
+  }
+
   // Inscription
   Future<SimpleUser?> signUp({
     required String email,
@@ -288,6 +364,7 @@ class SimpleAuthService {
       );
 
       _currentUser = user;
+      await _saveCurrentUser(); // Sauvegarder la session
       
       if (kDebugMode) {
         print('Connexion réussie: ${user.email}');
@@ -305,8 +382,10 @@ class SimpleAuthService {
   // Déconnexion
   Future<void> signOut() async {
     _currentUser = null;
+    await _saveCurrentUser(); // Supprimer la session sauvegardée
+    
     if (kDebugMode) {
-      print('Utilisateur déconnecté');
+      print('Déconnexion réussie');
     }
   }
 

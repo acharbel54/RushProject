@@ -1,8 +1,10 @@
 import 'package:flutter/foundation.dart';
 import '../models/notification_model.dart';
 import '../config/app_config.dart';
+import '../services/simple_auth_service.dart';
 
 class NotificationProvider with ChangeNotifier {
+  final SimpleAuthService _authService = SimpleAuthService();
   // Stockage local des notifications
   static final List<NotificationModel> _localNotifications = [];
   
@@ -43,8 +45,18 @@ class NotificationProvider with ChangeNotifier {
       _setLoading(true);
       _setError(null);
 
-      // Utiliser les notifications locales
-      _notifications = List.from(_localNotifications);
+      // Obtenir l'utilisateur connecté
+      final currentUser = _authService.currentUser;
+      if (currentUser == null) {
+        _notifications = [];
+        _updateUnreadCount();
+        return;
+      }
+
+      // Filtrer les notifications par utilisateur connecté
+      _notifications = _localNotifications
+          .where((notification) => notification.userId == currentUser.id)
+          .toList();
       _notifications.sort((a, b) => b.createdAt.compareTo(a.createdAt));
 
       _updateUnreadCount();
@@ -136,12 +148,13 @@ class NotificationProvider with ChangeNotifier {
     required String title,
     required String body,
     required NotificationType type,
+    required String userId,
     Map<String, dynamic>? data,
   }) async {
     try {
       final notification = NotificationModel(
         id: DateTime.now().millisecondsSinceEpoch.toString(),
-        userId: 'local_user',
+        userId: userId,
         title: title,
         body: body,
         type: type,
@@ -172,6 +185,7 @@ class NotificationProvider with ChangeNotifier {
       title: 'Nouvelle réservation',
       body: '$beneficiaryName a réservé votre don "$donationTitle"',
       type: NotificationType.newReservation,
+      userId: donorId,
       data: {
         'reservationId': reservationId,
         'donationTitle': donationTitle,
@@ -189,6 +203,7 @@ class NotificationProvider with ChangeNotifier {
       title: 'Réservation confirmée',
       body: 'Votre réservation a été confirmée par le donateur',
       type: NotificationType.reservationConfirmed,
+      userId: beneficiaryId,
       data: {
         'reservationId': reservationId,
       },
@@ -204,6 +219,7 @@ class NotificationProvider with ChangeNotifier {
       title: 'Réservation annulée',
       body: 'Votre réservation a été annulée par le donateur',
       type: NotificationType.reservationCancelled,
+      userId: beneficiaryId,
       data: {
         'reservationId': reservationId,
       },
@@ -211,11 +227,12 @@ class NotificationProvider with ChangeNotifier {
   }
 
   // Envoyer une notification de test (version locale)
-  Future<void> sendTestNotification() async {
+  Future<void> sendTestNotification(String userId) async {
     await addLocalNotification(
       title: 'Notification de test',
       body: 'Ceci est une notification de test pour vérifier que le système fonctionne correctement.',
       type: NotificationType.systemMessage,
+      userId: userId,
     );
   }
 

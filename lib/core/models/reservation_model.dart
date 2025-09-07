@@ -21,6 +21,7 @@ class ReservationModel {
   final String pickupAddress;
   final DateTime? scheduledPickupTime;
   final String? contactPhone;
+  final String? historyMessage;
 
   ReservationModel({
     required this.id,
@@ -41,6 +42,7 @@ class ReservationModel {
     required this.pickupAddress,
     this.scheduledPickupTime,
     this.contactPhone,
+    this.historyMessage,
   });
 
   // Conversion vers Map pour Firestore
@@ -66,6 +68,7 @@ class ReservationModel {
           ? Timestamp.fromDate(scheduledPickupTime!) 
           : null,
       'contactPhone': contactPhone,
+      'historyMessage': historyMessage,
     };
   }
 
@@ -101,6 +104,7 @@ class ReservationModel {
           ? (map['scheduledPickupTime'] as Timestamp).toDate()
           : null,
       contactPhone: map['contactPhone'],
+      historyMessage: map['historyMessage'],
     );
   }
 
@@ -131,6 +135,7 @@ class ReservationModel {
       'pickupAddress': pickupAddress,
       'scheduledPickupTime': scheduledPickupTime?.toIso8601String(),
       'contactPhone': contactPhone,
+      'historyMessage': historyMessage,
     };
   }
 
@@ -166,6 +171,7 @@ class ReservationModel {
           ? DateTime.parse(json['scheduledPickupTime'])
           : null,
       contactPhone: json['contactPhone'],
+      historyMessage: json['historyMessage'],
     );
   }
 
@@ -189,6 +195,7 @@ class ReservationModel {
     String? pickupAddress,
     DateTime? scheduledPickupTime,
     String? contactPhone,
+    String? historyMessage,
   }) {
     return ReservationModel(
       id: id ?? this.id,
@@ -209,6 +216,7 @@ class ReservationModel {
       pickupAddress: pickupAddress ?? this.pickupAddress,
       scheduledPickupTime: scheduledPickupTime ?? this.scheduledPickupTime,
       contactPhone: contactPhone ?? this.contactPhone,
+      historyMessage: historyMessage ?? this.historyMessage,
     );
   }
 
